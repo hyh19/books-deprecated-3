@@ -1,0 +1,2441 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+    <title>第5章　循环结构</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+
+  
+
+
+<link href="../calibreHtmlOutBasicCss.css" type="text/css" rel="stylesheet" />
+
+</head>
+<body>
+
+<div class="calibreMeta">
+  <div class="calibreMetaTitle">
+  
+  
+    
+    <h1>
+      <a href="../../pARZf2.html">Shell从入门到精通
+</a>
+    </h1>
+    
+    
+  
+  </div>
+  <div class="calibreMetaAuthor">
+    张春晓
+
+  </div>
+</div>
+
+<div class="calibreMain">
+
+  <div class="calibreEbookContent">
+    
+      <div class="calibreEbNavTop">
+        
+          <a href="part0010.html" class="calibreAPrev">previous page</a>
+        
+
+        
+          <a href="part0012.html" class="calibreANext"> next page</a>
+        
+      </div>
+    
+
+    
+  <div class="chapter">
+    <div class="calibre2"></div><h1 class="kindle-cn-heading" id="chapter77"><a href="part0004.html#toc77" class="calibre3">第5章<br class="chapter"/>循环结构</a></h1>
+
+<p class="kindle-cn-para-left">循环结构是Shell程序设计语言中的另外一种常用的流程控制结构。当用户需要重复执行相同的操作时，使用循环结构就可以很好地解决问题。在Shell中，循环结构可以使用for、while，以及until等语句来实现。还可以使用continue和break等语句来在适当的时机跳过或者退出循环体中的某些语句。</p>
+
+    <p class="kindle-cn-para-left">本章主要涉及的知识点如下所述。</p>
+
+    <ul class="kindle-cn-ul-square">
+      <li class="calibre5">步进循环语句for：主要介绍带列表的for语句、不带列表的for语句、类C风格的for语句，以及使用for循环语句来处理数组。</li>
+
+      <li class="calibre5">until循环语句：主要介绍until语句的基本语法，以及如何使用until语句来批量添加用户。</li>
+
+<li class="calibre5">while循环语句：主要介绍while循环语句的基本语法，分别使用计数器、结束标记、标志及命令行等方法来控制while循环结构，以及while语句与until语句的区别。</li>
+
+      <li class="calibre5">嵌套循环：介绍各种嵌套循环结构的使用方法。</li>
+
+      <li class="calibre5">利用break和continue语句控制循环：分别介绍如何使用break和continue语句来退出循环和跳过循环体中的某些语句，以及这两种语句的区别。</li>
+    </ul>
+
+    <h2 class="kindle-cn-heading1" id="sub78"><a href="part0004.html#toc78" class="calibre8">5.1　步进循环语句for</a></h2>
+
+    <p class="kindle-cn-para-left">for循环是最简单，也是最常用的循环语句。与其他的程序设计语言一样，for循环都是初学者在学习循环结构时的入门课程。for循环通常用于遍历整个对象或者数字列表。按照循环条件的不同，for循环语句可以分为带列表的for循环、不带列表的for循环，以及类C风格的for循环。本节将介绍这3种不同的for循环结构。</p>
+
+    <h3 class="kindle-cn-heading2" id="sub79_1"><a href="part0004.html#toc79_1" class="calibre8">5.1.1　带列表的for循环语句</a></h3>
+
+    <p class="kindle-cn-para-left">带列表的for循环通常用于将一组语句执行已知的次数，其基本语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">for variable in {list}
+do
+   statement1
+   statement2
+   ...
+done
+</pre>
+</div>
+
+<p class="kindle-cn-para-left">在上面的语法中，variable称为循环变量，list是一个列表，可以是一系列的数字或者字符串，元素之间使用空格隔开。do和done之间的所有的语句称为循环体，即循环结构中重复执行的语句。for循环体的执行次数与list中元素的个数有关。在带列表的for语句的执行时，Shell会将in关键字后面的list列表的第1个元素的值赋给变量variable，然后执行循环体；当循环体中的语句执行完毕之后，Shell会将列表中的第1个元素的值赋给变量variable，然后再次执行循环体。当list列表中的所有的元素都被访问后，for循环结构终止，程序将继续执行done语句后面的其他语句。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例5-1</span>】演示将数字列表作为循环条件列表的for语句的使用方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter5/ex5-1.sh------------------
+02   #! /bin/bash
+03
+04   #for 循环开始
+05   for var in 1 2 3 4 5 6 7 8
+06   do
+07      # 依次输出列表中的数字
+08      echo "the number is $var"
+09   done
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第5行使用从1～8的8个整数作为循环列表，第8行通过echo语句依次输出各个数字。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter5]# ./ex5-1.sh</span>
+the number is 1
+the number is 2
+the number is 3
+the number is 4
+the number is 5
+the number is 6
+the number is 7
+the number is 8
+</pre>
+</div>
+
+<p class="kindle-cn-para-left">从上面的执行结果可以得知，通过带列表的for语句，可以非常方便地对列表中的各个值进行处理。</p>
+
+    <p class="kindle-cn-para-left">除了将各个数字全部列出之外，用户还可以使用另外一种比较简单的书写方法，即用一个范围来代替列出所有的元素。例如，上面的1～8所有的数字可以使用{1...8}来代替。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例5-2</span>】本例将【例5-1】进行改造，使用了简单的书写方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter5/ex5-2.sh------------------
+02   #! /bin/bash
+03
+04   # 使用省略的写法表示某个范围
+05   for var in {1..8}
+06   do
+07      echo "the number is $var"
+08   done
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">该程序的执行结果与【例5-1】完全相同，如下所示。</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter5]# ./ex5-2.sh</span>
+the number is 1
+the number is 2
+the number is 3
+the number is 4
+the number is 5
+the number is 6
+the number is 7
+the number is 8
+</pre>
+</div>
+
+<p class="kindle-cn-para-left">在上面的【例5-1】和【例5-2】中，for语句的步长，即循环变量每次增加的值都是1。实际上，Shell允许用户指定for语句的步长。当用户需要另外指定步长时，其基本语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">for varibale in {start..end..step}
+do
+   statement1
+   statement2
+   ...
+done
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的语句中，循环列表被大括号包括起来，其中start表示起始的数值，end表示终止的数值，step表示步长。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例5-3</span>】演示通过for循环，并配合步长来计算100以内奇数的和，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter5/ex5-3.sh------------------
+02   #! /bin/bash
+03
+04   # 定义变量，并赋初值为 0
+05   sum=0;
+06   #for 循环开始，设置起始数值为 1 ，结束数值为 100 ，步长为 2
+07   for i in {1..100..2}
+08   do
+09      # 将数累加
+10      let "sum+=i"
+11   done
+12   echo "the sum is $sum"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第5行定义了一个变量sum，并且为其赋初值为0。在后面的代码中，利用这个变量实现数的累加。第7行是for循环的开始，其中i为循环变量，大括号里面是循环条件，指定该循环从1开始，到100结束，并且按照2的步长来递增。由于从1开始，所以递增2之后，第2个数为3，第3个数为5，……以此类推。第10行是使用let语句计算表达式sum+=i的值。也就是说，每循环一次，都将当前的数与sum相加。第12行输出变量sum的值。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter5]# ./ex5-3.sh</span>
+the sum is 2500
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在for循环的列表条件中，除了使用数字作为元素之外，还可以使用字符串。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例5-4</span>】本例将1周中7天的名字作为列表条件，依次输出每天的名称。代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter5/ex5-4.sh------------------
+02   #! /bin/bash
+03
+04   #for 循环开始
+05   for day in {Mon Tue Wed Thu Fri Sat Sun}
+06   do
+07      # 输出循环变量的值
+08      echo "$day"
+09   done
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面代码的第5行是for循环的开始，将周一～周日的英文名称作为列表元素，放在大括号内，它们之间用空格隔开。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter5]# ./ex5-4.sh</span>
+Mon
+Tue
+Wed
+Thu
+Fri
+Sat
+Sun
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">如果使用字符串作为列表元素，实际上可以省略外面的大括号。因此，【例5-4】可以修改为以下形式：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #! /bin/bash
+02
+03   #for 循环开始
+<span class="kindle-cn-bold">04   for day in Mon Tue Wed Thu Fri Sat Sun</span>
+05   do
+06      # 输出循环变量的值
+07      echo "$day"
+08   done
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在前面的例子中的for循环里面，都是直接指定循环的条件列表。实际上，Shell中的for循环非常灵活，除了直接指定条件之外，还可以通过其他的方式来获得条件列表。例如，某些Shell命令会输出一个列表。其中，最常见的命令就是ls命令，该命令可以列出某个目录下面的文件清单。</p>
+
+<p class="kindle-cn-para-left">在下面的【例5-5】中，就是通过ls命令的输出结果作为for循环的执行条件，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter5/ex5-5.sh------------------
+02   #! /bin/bash
+03
+04   # 使用 ls 命令的执行结果作为列表
+05   for file in $(ls)
+06   do
+07      # 输出每个文件名
+08      echo "$file"
+09   done
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，值得关注的是第5行，其中$(ls)作为循环条件。前面已经介绍过，$()的作用就是将其中的字符串作为Shell命令来执行。因此，第5行的循环条件就是当前目录的文件列表。第8行通过echo语句依次输出文件名称。</p>
+
+          <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">【例5-5】中的$(ls)可以使用'ls'来代替。</span></p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter5]# ./ex5-5.sh</span>
+ex5-1.sh
+ex5-2.sh
+ex5-3.sh
+ex5-4.sh
+ex5-5.sh
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的例子中，我们只是简单地输出文件名，实际上在实践中，用户可以针对这些文件进行其他一些处理操作，例如删除某些文件等。</p>
+
+<p class="kindle-cn-para-left">另外，通配符也经常出现在for循环的条件列表中。下面的例子就介绍了使用通配符作为循环列表的方法。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例5-6</span>】使用通配符“*”作为条件列表，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter5/ex5-6.sh------------------
+02   #! /bin/bash
+03
+04   # 使用通配符作为列表条件
+05   for file in *
+06   do
+07      echo "$file"
+08   done
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，for循环的条件列表非常简单，只是一个星号“*”，这个星号的作用是列出当前目录中所有的文件，与ls*命令等价。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter5]# ./ex5-6.sh</span>
+ex5-1.sh
+ex5-2.sh
+ex5-3.sh
+ex5-4.sh
+ex5-5.sh
+ex5-6.sh
+</pre>
+</div>
+
+<p class="kindle-cn-para-left">可以发现，【例5-6】的执行结果与【例5-5】完全相同。这是因为不带任何参数的ls命令也是列出当前目录下的所有的文件。</p>
+
+          <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">由于通配符只是一个符号，而非Shell命令，因此，不能单独放在$()或者反引号内部。</span></p>
+
+<p class="kindle-cn-para-left">列表for循环还有一个比较重要的用途就是处理脚本的参数。前面讲过，用户可以通过系统变量“$*”一次获取所有的参数，并且，这些参数值之间是通过空格隔开的，所以，用户同样可以将该系统变量获取的参数值作为for循环的条件列表，从而可以依次处理各个参数。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例5-7</span>】使用for循环逐个处理脚本的参数值，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter5/ex5-7.sh------------------
+02   #! /bin/bash
+03
+04   # 输出所有的参数
+05   echo "$*"
+06   # 将参数列表作为条件
+07   for arg in $*
+08   do
+09      # 依次输出各个参数值
+10      echo "${arg}"
+11   done
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第7行将系统变量$*作为条件列表。该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter5]# ./ex5-7.sh a b c d e f g</span>
+a b c d e f g
+a
+b
+c
+d
+e
+f
+g
+</pre>
+</div>
+
+    <h3 class="kindle-cn-heading2" id="sub79"><a href="part0004.html#toc79" class="calibre8">5.1.2　不带列表的for循环语句</a></h3>
+
+    <p class="kindle-cn-para-left">在某些特殊情况下，for循环的条件列表可以完全省略，称为不带列表的for循环语句。如果没有为for循环提供条件列表，Shell将从命令行获取条件列表。不带列表的for循环语句的一般语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">for variable
+do
+   statement1
+   statement2
+   ...
+done
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">由于系统变量$@同样可以获取所有的参数，所以以上的语法等价于以下语法：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">for variable in $@
+do
+   statement1
+   statement2
+   ...
+done
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">也同样等价于以下语法：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">for variable in $*
+do
+   statement1
+   statement2
+   ...
+done
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例5-8</span>】演示不带列表的for循环语句的使用方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter5/ex5-8.sh------------------
+02   #! /bin/bash
+03
+04   # 不带条件列表
+05   for arg
+06   do
+07      # 输出每个参数
+08      echo "$arg"
+09   done
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">以上代码的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter5]# ./ex5-8.sh a b c d</span>
+a
+b
+c
+d
+</pre>
+</div>
+
+<p class="kindle-cn-para-left">由于不带列表的for语句只能从命令行获取条件列表，所以在使用上受到了比较大的限制。</p>
+
+    <h3 class="kindle-cn-heading2" id="sub80"><a href="part0004.html#toc80" class="calibre8">5.1.3　类C风格的for循环语句</a></h3>
+
+    <p class="kindle-cn-para-left">在Linux或者UNIX上面，C或者C++是最主流的开发语言。因此，从事Linux系统管理的系统管理员也或多或少地接触过C或者C++语言。通常来说，这些人对于C语言的语法比较熟悉。为了适应这部分用户的习惯，bash也提供了类C风格的for循环语句。类C风格的for循环语句的基本语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">for ((expression1;expression2;expression3))
+do
+   statement1;
+   statement2;
+   ...
+done
+</pre>
+</div>
+
+<p class="kindle-cn-para-left">在上面的语法中，for循环语句的执行条件被两个圆括号包括起来。执行条件分为3个部分，由两个分号隔开，第1部分expression1通常是条件变量初始化的语句；第2部分expression2是决定是否执行for循环的条件。当expression2的值为0时，执行整个循环体；当expression2的值为非0时，退出for循环体。第3部分，即表达式expression3通常用来改变条件变量的值，例如递增或者递减等。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例5-9</span>】演示类C风格的for循环语句的使用方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter5/ex5-9.sh------------------
+02   #! /bin/bash
+03
+04   #for 循环开始
+05   for (( i=1;i&lt;5;i++))
+06   do
+07      # 输出循环变量 i 的值
+08      echo "$i"
+09   done
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">该程序的功能比较简单，仅仅是输出1～4这4个整数的值。在程序执行的时候，Shell会首先执行for循环条件中的第1部分，即表达式i=1，该表达式的作用是为条件变量i赋初值为1。</p>
+
+    <p class="kindle-cn-para-left">接着会判断条件的第2部分，即计算表达式i&lt;5的值，如果该表达式的值等于0，则继续执行for循环。由于当前的i的值为1，所以i&lt;5的值为0，for循环将继续执行。然后执行循环条件的第3部分，即表达式i++，该表达式的作用是将变量i的值加1。最后，Shell将执行for循环体中的语句。</p>
+
+    <p class="kindle-cn-para-left">在【例5-9】中，实际上有用的代码只有一行，即第8行，通过echo语句输出变量i的值。当本次循环体执行完毕之后，for循环将从头开始，即跳转到第5行。</p>
+
+    <p class="kindle-cn-para-left">从第2次循环开始，循环条件中的第1部分将不再执行，而是直接判断第2部分中表达式的值是否为0，如果为0，则继续执行条件的第3部分中的表达式，然后再次执行循环体。如果第2部分中的表达式的值为非0值，则退出for循环，继续执行done语句后面的语句。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例5-9</span>】的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter5]# ./ex5-9.sh</span>
+1
+2
+3
+4
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">与C语言中一样，在Shell中，用户也可以将for循环条件中的3个部分中的任何一部分省略掉，也可以全部省略掉。例如，下面的代码是一个完全合法的for循环结构：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">#! /bin/bash
+for((;;))
+do
+   echo "Hello world."
+done
+</pre>
+</div>
+
+<p class="kindle-cn-para-left">尽管合法，但是上面的for循环并没有指定终止循环的条件，所以会导致该程序无限地执行下去，成为死循环。</p>
+
+    <p class="kindle-cn-para-left">在for循环中，条件的第2部分可以是表达式或者命令。当表达式的值为0或者命令的退出状态码为0时，for循环体将被执行；否则，将退出for循环。</p>
+
+          <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">在使用类C风格的for循环语句时，一定要注意退出循环时的条件，稍不注意，会导致死循环的发生。</span></p>
+
+    <h3 class="kindle-cn-heading2" id="sub81"><a href="part0004.html#toc81" class="calibre8">5.1.4　使用for循环语句处理数组</a></h3>
+
+<p class="kindle-cn-para-left">在学习完for循环语句之后，最后再介绍一个具体的应用，即通过for循环语句来处理数组。希望通过这个例子的学习，可以加深对for语句的理解，并熟练掌握该语句的使用方法。</p>
+
+    <p class="kindle-cn-para-left">使用for循环遍历数组非常方便。针对数组，Shell专门提供了一种特殊语法的for循环语句，其基本语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">for variable in ${array[*]}
+do
+   statement1
+   statement2
+   ...
+done
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">其中，变量variable是循环变量，in关键字后面的部分表示要遍历的数组，其中array表示数组的名称。在遍历数组的过程中，for循环语句会将每个数组元素的值赋给循环变量variable。因此，用户可以在循环体中对每个数组元素进行相应的操作。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例5-10</span>】演示通过for循环来遍历数组，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter5/ex5-10.sh------------------
+02   #! /bin/bash
+03
+04   # 定义数组
+05   array=(Monday Tuesday Wednesday Thursday Friday Saturday Sunday)
+06   # 通过 for 循环遍历数组元素
+07   for day in ${array[*]}
+08   do
+09      # 输出每个数组元素的值
+10      echo $day
+11   done
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第5行定义了一个数组，该数组一共有7个元素。第7行通过for循环来遍历该数组。第10行输出每个数组元素的值。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter5]# ./ex5-10.sh</span>
+Monday
+Tuesday
+Wednesday
+Thursday
+Friday
+Saturday
+Sunday
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">从上面的执行结果可以得知，已经成功地遍历了数组array中的每个元素。</p>
+
+          <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">数组的定义与普通变量基本相同，只是在赋值时不同。关于数组将在第7章中详细介绍。</span></p>
+
+    <h2 class="kindle-cn-heading1" id="sub82"><a href="part0004.html#toc82" class="calibre8">5.2　until循环语句</a></h2>
+
+    <p class="kindle-cn-para-left">until循环语句同样存在于多种程序设计语言中。顾名思义，until语句的作用是将循环体重复执行，直到某个条件成立为止。恰当地使用until语句，可以收到事半功倍地效果。本节将详细介绍until语句的使用方法。</p>
+
+    <h3 class="kindle-cn-heading2" id="sub83"><a href="part0004.html#toc83" class="calibre8">5.2.1　until语句的基本语法</a></h3>
+
+    <p class="kindle-cn-para-left">until循环语句的功能是不断地重复执行循环体中的语句，直至某个条件成立。until语句的基本语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">until expression
+do
+   statement1
+   statement2
+   ...
+done
+</pre>
+</div>
+
+<p class="kindle-cn-para-left">在上面的语法中，expression是一个条件表达式。当该表达式的值不为0时，将执行do和done之间的语句；当expression的值为0时，将退出until循环结构，继续执行done语句后面的其他语句。</p>
+
+<p class="kindle-cn-para-left">在每次执行循环体之间，until语句都会先判断expression的值，如果第一次执行时expression的值为0，则后面的循环体将一次也不会执行；如果expression的值为非0，则until语句将执行do和done之间的所有的语句。当执行完毕之后，until语句会再次判断expression的值，如果为0，则退出循环；否则，继续重复执行循环体。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例5-11</span>】演示until语句的使用方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter5/ex5-11.sh------------------
+02   #! /bin/bash
+03
+04   # 定义循环变量 i
+05   i=1
+06   # 当 i 的值小于 9 时执行循环
+07   until [[ "$i" -gt 9 ]]
+08   do
+09      # 计算 i 的平方
+10      let "square=i*i"
+11      # 输出 i 的平方
+12      echo "$i*$i=$square"
+13      # 循环变量加 1
+14      let "i=i+1"
+15   done
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">该程序的作用是计算10以内的整数的平方。其中，第5行定义了循环变量i，并且赋初值为1，表示将从1开始递增。第7行中until的条件测试为变量i的值是否大于9，当i的值大于9时，条件测试的值为0；否则，条件测试的值为非0。第10行使用let语句计算表达式的值。第12行输出所求得的平方。第14行比较重要，它的作用是使得循环变量的值加1，从而使得until循环不至于成为死循环。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter5]# ./ex5-11.sh</span>
+1*1=1
+2*2=4
+3*3=9
+4*4=16
+5*5=25
+6*6=36
+7*7=49
+8*8=64
+9*9=81
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的执行结果中，脚本依次输出了数字1～9中每个整数的平方。</p>
+
+<p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">在使用until循环语句时，一定要注意不要漏掉循环变量的改变，否则会导致死循环。另外，until语句的循环体在条件表达式的值为非0时重复执行；在条件表达式的值为0时，终止循环体的执行。</span></p>
+
+    <h3 class="kindle-cn-heading2" id="sub84"><a href="part0004.html#toc84" class="calibre8">5.2.2　利用until语句批量增加用户</a></h3>
+
+<p class="kindle-cn-para-left">灵活运用until循环语句，可以提高系统管理员的工作效率。例如，在某个特殊的情况下，需要在当前系统中增加20个临时用户，这些用户的用户名分别为user1、user2、user3……user20。另外，这些用户名默认的密码都是password。如果手动一个一个地增加，则会浪费大量的时间。使用循环语句，则可以批量地将这些用户添加到系统中。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例5-12</span>】演示如何通过循环语句来批量地增加用户，并设置用户的初始密码，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter5/ex5-12.sh------------------
+02   #! /bin/bash
+03
+04   # 定义变量 i
+05   i=1
+06   # 一直循环到变量 i 的值为 21
+07   until [ "$i" -eq 21 ]
+08   do
+09      # 执行 useradd 命令添加用户
+10      useradd user$i
+11      # 修改用户密码
+12      echo "password" | passwd --stdin user$i &gt; /dev/null
+13      # 循环变量自增
+14      let "i++"
+15   done
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第7行是until语句的开始位置，当循环变量i的值为21时退出循环。第10行执行useradd命令添加用户。第12行使用命名管道连接了echo和passwd命令，用于将新用户的初始密码设置为password。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter5]# ./ex5-12.sh</span>
+<span class="kindle-cn-bold">[root@linux chapter5]# more /etc/passwd</span>
+…
+user1:x:503:503::/home/user1:/bin/bash
+user2:x:504:504::/home/user2:/bin/bash
+user3:x:505:505::/home/user3:/bin/bash
+…
+user20:x:522:522::/home/user20:/bin/bash
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">从上面的more命令的执行结果可以得知，user1～user20已经成功地添加到了系统中。</p>
+
+          <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">useradd是一个Shell命令，用来向系统中添加新的用户。passwd也是一个Shell命令，用来设置用户的密码。新的用户只有设置密码之后，才可以登录系统。</span></p>
+
+    <p class="kindle-cn-para-left">当这些用户不再需要时，如果要逐个地删除也是一件非常麻烦的事情。同样，用户也可以使用循环语句来批量删除用户。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例5-13</span>】介绍如何通过循环删除系统用户，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter5/ex5-13.sh------------------
+02   #! /bin/bash
+03
+04   i=1
+05   until [ "$i" -eq 21 ]
+06   do
+07      # 依次删除用户
+08      userdel -r user$i
+09      let "i++"
+10   done
+</pre>
+</div>
+
+<p class="kindle-cn-para-left">在上面的代码中，第8行的userdel是Shell中用来删除用户的命令，-r选项表示删除用户的同时也删除用户主目录。当上述程序执行完成之后，user1～user20这20个用户便会批量被删除。</p>
+
+          <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">userdel命令的详细使用方法请参见Linux命令手册。</span></p>
+
+    <h2 class="kindle-cn-heading1" id="sub85"><a href="part0004.html#toc85" class="calibre8">5.3　while循环语句</a></h2>
+
+<p class="kindle-cn-para-left">while循环是另外一种常见的循环结构。使用while循环结构，可以使得用户重复执行一系列的操作，直到某个条件的发生。这听起来好像跟until循环非常相似，但是与until语句相比，while语句有着较大的区别。本节将详细介绍while语句的使用方法。</p>
+
+    <h3 class="kindle-cn-heading2" id="sub86"><a href="part0004.html#toc86" class="calibre8">5.3.1　while语句的基本语法</a></h3>
+
+    <p class="kindle-cn-para-left">首先介绍一下while循环语句的语法，使读者对该语句有个初步的了解。while循环语句的基本语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">while expression
+do
+    statement1
+    statement2
+    ...
+done
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的语法中，expression表示while循环体执行时需要满足的条件。虽然可以使用任意合法的Shell命令，但是，通常情况下，expression代表一个测试表达式。与其他的循环结构一样，do和done这两个关键字之间的语句构成了循环体。</p>
+
+<p class="kindle-cn-para-left">当while循环结构在执行时，会首先计算expression表达式的值，如果表达式的值为0，则执行循环体中的语句；否则，退出while循环，执行done关键字后面的语句。当循环体中的语句执行完成之后，会重新计算expression的值，如果仍然是0，则继续执行下一次的循环，直至expression的值为非0。</p>
+
+    <h3 class="kindle-cn-heading2" id="sub87"><a href="part0004.html#toc87" class="calibre8">5.3.2　通过计数器控制while循环结构</a></h3>
+
+    <p class="kindle-cn-para-left">所谓计数器，实际上就是指一个循环变量，当该变量的值在某个范围内时，执行循环体；当超过该范围时，终止循环。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例5-14</span>】使用while循环来输出数字1～9的平方，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter5/ex5-14.sh------------------
+02   #! /bin/bash
+03
+04   # 定义循环变量
+05   i=1
+06   #while 循环开始
+07   while [[ "$i" -lt 10 ]]
+08   do
+09      # 计算平方
+10      let "square=i*i"
+11      # 输出平方
+12      echo "$i*$i=$square"
+13      # 循环   变量自增
+14      let "i=i+1"
+15   done
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">本例实际上是对【例5-11】的改编，只是用while语句取代了until语句。在上面的代码中，第7行是while循环语句的开始，可以看出，其中的循环条件恰好与until语句的循环条件相反，前者使用了小于运算符，而后者则使用大于运算符。但是，这两个例子的执行结果是完全相同的。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter5]# ./ex5-14.sh</span>
+1*1=1
+2*2=4
+3*3=9
+4*4=16
+5*5=25
+6*6=36
+7*7=49
+8*8=64
+9*9=81
+</pre>
+</div>
+
+    <h3 class="kindle-cn-heading2" id="sub88"><a href="part0004.html#toc88" class="calibre8">5.3.3　通过结束标记控制while循环结构</a></h3>
+
+<p class="kindle-cn-para-left">在某些情况下，用户可能不知道while循环会执行多少次。此时，用户就无法使用计数器来控制while循环。为了处理这种情况，用户可以在程序中设置一个特殊的标记值，当该标记值出现时，终止while循环。这种特殊的标识值称为结束标记。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例5-15</span>】演示如何通过结束标记来控制while循环，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter5/ex5-15.sh------------------
+02   #! /bin/bash
+03
+04   # 提示用户输入数字
+05   echo "Please enter a number between 1 and 10.Enter 0 to exit."
+06   # 读取用户输入的数字
+07   read var
+08   #while 循环开始
+09   while [[ "$var" != 0 ]]
+10   do
+11      # 提示用户输入数字太小
+12      if [ "$var" -lt 5 ]
+13      then
+14         echo "Too small. Try again."
+15         read var
+16      # 提示用户输入数字太大
+17      elif [ "$var" -gt 5 ]
+18      then
+19         echo "Too big. Try again."
+20         read var;
+21       else
+22          echo "Congratulation! You are right."
+23          exit 0;
+24       fi
+25   done
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">本例是一个猜数字的游戏。这个游戏几乎是用户在学习许多程序设计语言时必做的题目。在上面的代码中，第5行提示用户输入一个1和10之间的数字，如果直接输入0，则退出程序。第7行使用read语句读取用户输入的数字，并且保存到变量var中。第9行的while语句使用变量var的值是否等于0作为循环条件。第12行～第15行是用户输入数字小于5的情况。第17行～第20行是用户输入数字大于5的情况。第21行～第23行是用户恰好输入5的情况，此时程序会提示用户猜到了正确的数字，并且退出循环。</p>
+
+<p class="kindle-cn-para-left">在上面的代码中，变量var是结束标记，当该变量的值为0或者5时，退出while循环。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter5]# ./ex5-15.sh</span>
+Please enter a number between 1 and 10.Enter 0 to exit
+3
+Too small. Try again.
+8
+Too big. Try again.
+5
+Congratulation! You are right.
+<span class="kindle-cn-bold">[root@linux chapter5]# ./ex5-13.sh</span>
+Please enter a number between 1 and 10.Enter 0 to exit
+0
+</pre>
+</div>
+
+<p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">与for循环相比，while循环条件的变化通常在循环体内部，例如某个循环变量的自增或者结束标记的赋值等。而for循环的条件变化通常放在for语句中括号里面的第3个部分。另外，until语句的条件的变化也通常放在循环体内部。</span></p>
+
+    <h3 class="kindle-cn-heading2" id="sub89"><a href="part0004.html#toc89" class="calibre8">5.3.4　理解while语句与until语句的区别</a></h3>
+
+    <p class="kindle-cn-para-left">为了能使读者加深对while语句和until语句的理解。在此对这两个循环语句的区别进行详细地探讨。</p>
+
+    <p class="kindle-cn-para-left">首先，这两个语句的语法结构非常相似，都是将循环条件放在语句的后面，例如while语句的基本语法结构如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">while expression
+do
+...
+done
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">until语句的语法结构如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">unitl expression
+do
+...
+done
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">但是，在while语句中，当expression的值为0时才执行循环体中的语句，当expression的值为非0值时，将退出循环体；在until语句中，当expression的值为非0时，执行循环体中的语句，当expression的值为0时，将退出循环结构。因此，用户在使用这两种语句时，一定要注意区分这个关键的地方。</p>
+
+<p class="kindle-cn-para-left">在执行机制方面，这两个语句是相同的，即首先会判断expression的值，当该表达式的值符合要求时，才执行循环体中的语句；否则，都不会执行循环体。</p>
+
+    <p class="kindle-cn-para-left">另外，在其他程序设计语言，例如C++中也有until语句，但是，该语句的条件表达式是放在循环体后面的。因此在until语句执行时，会首先执行循环体，再判断执行条件。这样的话，until语句的循环体至少会执行一次。而在Shell中，这种情况并不存在。</p>
+
+    <h2 class="kindle-cn-heading1" id="sub90"><a href="part0004.html#toc90" class="calibre8">5.4　嵌套循环</a></h2>
+
+    <p class="kindle-cn-para-left">在程序设计语言中，嵌套的循环也是一种非常常见的结构，Shell同样也支持嵌套循环。通过嵌套循环，可以完成更复杂的功能。本节将介绍Shell中嵌套循环的使用方法。</p>
+
+    <p class="kindle-cn-para-left">在【例5-11】中，我们使用了until循环计算从1～9这9个整数的平方。下面以九九乘法表为例来介绍嵌套循环的使用方法。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例5-16</span>】使用两层循环打印出乘法表，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter5/ex5-16.sh------------------
+02   #! /bin/bash
+03
+04   # 外层循环
+05   for ((i=1;i&lt;=9;i++))
+06   do
+07      # 内层循环
+08      for ((j=1;j&lt;=i;j++))
+09      do
+10         # 计算 2 个数的乘积
+11         let "product=i*j"
+12         # 输出乘积
+13         printf "$i*$j=$product"
+14         # 输出空格分隔符
+15         if [[ "$product" -gt 9 ]]
+16         then
+17            printf "   "
+18         else
+19            printf "    "
+20         fi
+21      done
+22      echo
+23   done
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，内外两层循环都是通过计数器来控制，外层循环的计数器是从1～9，而内层循环的计数器是从1～i，即外层循环的计数器。</p>
+
+    <p class="kindle-cn-para-left">当外层循环的变量i等于1时，内层循环的变量j会从1开始，依次与外层循环变量i即1相乘，然后通过第13行的printf语句输出，直至j增加到1为止，退出内层循环。也就是说，当外层循环变量i的值为1时，这两层循环都只执行一次。</p>
+
+    <p class="kindle-cn-para-left">接下来外层循环的变量i自增，变成2，内层循环重新从1开始执行，依次与2相乘，直至值为2为止。依此类推，外层循环的变量从1增加到9就可以得到整个乘法表。</p>
+
+    <p class="kindle-cn-para-left">为了使输出结果美观，第17行和第19行的作用是输出分隔符。如果得到的乘积是两位数，则输出3个空格；如果得到的乘积是一位数，则输出4个空格。这样的话，可以使得算式对齐。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter5]# ./ex5-16.sh</span>
+1*1=1
+2*1=2 2*2=4
+3*1=3 3*2=6 3*3=9
+4*1=4 4*2=8 4*3=12 4*4=16
+5*1=5 5*2=10 5*3=15 5*4=20 5*5=25
+6*1=6 6*2=12 6*3=18 6*4=24 6*5=30 6*6=36
+7*1=7 7*2=14 7*3=21 7*4=28 7*5=35 7*6=42 7*7=49
+8*1=8 8*2=16 8*3=24 8*4=32 8*5=40 8*6=48 8*7=56 8*8=64
+9*1=9 9*2=18 9*3=27 9*4=36 9*5=45 9*6=54 9*7=63 9*8=72 9*9=81
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">嵌套循环不仅仅可以使用相同的循环语句，还可以将不同的循环语句相互嵌套使用。</p>
+
+          <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">【例5-16】中使用printf语句而非echo语句输出结果，是因为默认情况下，printf语句不会自动换行。当然，用户也可也使用echo-n语句来输出。</span></p>
+
+    <h2 class="kindle-cn-heading1" id="sub91"><a href="part0004.html#toc91" class="calibre8">5.5　利用break和continue语句控制循环</a></h2>
+
+    <p class="kindle-cn-para-left">在Shell中的循环结构中，还有两个语句非常有用，即break和continue语句。前者用于立即从循环中退出；而后者则用来跳过循环体中的某些语句，继续执行下一次循环。本节将详细介绍这两个语句的使用方法。</p>
+
+    <h3 class="kindle-cn-heading2" id="sub92"><a href="part0004.html#toc92" class="calibre8">5.5.1　利用break语句控制循环</a></h3>
+
+    <p class="kindle-cn-para-left">break语句的作用是立即跳出某个循环结构。break语句可以用在for、while或者until等循环语句的循环体中。</p>
+
+    <p class="kindle-cn-para-left">在【例5-16】中，嵌套循环中的外层循环的计数器是从1～9，如果用户只想输出5以内的乘法表，则可以对【例5-16】进行改造，使用break语句在i等于5的时候退出外层循环。下面的例子就演示了break语句的使用方法。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例5-17</span>】输出5以内的乘法表，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter5/ex5-17.sh------------------
+02   #! /bin/bash
+03
+04   for ((i=1;i&lt;=9;i++))
+05   do
+06      for ((j=1;j&lt;=i;j++))
+07      do
+08         let "product=i*j"
+09         printf "$i*$j=$product"
+10         if [[ "$product" -gt 9 ]]
+11         then
+12            printf "   "
+13         else
+14            printf "    "
+15         fi
+16      done
+17      echo
+18      # 当变量 i 的值为 5 时，退出循环
+19      if [[ "$i" -eq 5 ]]
+20      then
+21         break;
+22      fi
+23   done
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第19行～第22行是退出循环的语句。当变量i的值由1变为5时，第19行的条件测试的值为0，所以第21行break语句被执行，立即退出当前循环。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter5]# ./ex5-17.sh</span>
+1*1=1
+2*1=2 2*2=4
+3*1=3 3*2=6 3*3=9
+4*1=4 4*2=8 4*3=12 4*4=16
+5*1=5 5*2=10 5*3=15 5*4=20 5*5=25
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">从上面的执行结果可以得知，程序输出了从1～5的乘法表。但是，如果我们将break语句放到内层循环中，情况可能会有所不同，请参见下面的例子。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例5-18</span>】本例将【例5-17】中的break语句移到内层循环中，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter5/ex5-18.sh------------------
+02   #! /bin/bash
+03
+04   for ((i=1;i&lt;=9;i++))
+05   do
+06      for ((j=1;j&lt;=i;j++))
+07      do
+08         let "product=i*j"
+09         printf "$i*$j=$product"
+10         if [[ "$product" -gt 9 ]]
+11         then
+12            printf "   "
+13         else
+14            printf "    "
+15         fi
+16         # 退出循环
+17         if [[ "$j" -eq 5 ]]
+18         then
+19            break
+20         fi
+21      done
+22      echo
+23   done
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter5]# ./ex5-18.sh</span>
+1*1=1
+2*1=2 2*2=4
+3*1=3 3*2=6 3*3=9
+4*1=4 4*2=8 4*3=12 4*4=16
+5*1=5 5*2=10 5*3=15 5*4=20 5*5=25
+6*1=6 6*2=12 6*3=18 6*4=24 6*5=30
+7*1=7 7*2=14 7*3=21 7*4=28 7*5=35
+8*1=8 8*2=16 8*3=24 8*4=32 8*5=40
+9*1=9 9*2=18 9*3=27 9*4=36 9*5=45
+</pre>
+</div>
+
+<p class="kindle-cn-para-left">可以看出，【例5-18】并没有得到与【例5-17】相同的执行结果。尽管内层循环的计时器执行到5就停止了，但是外层循环却没有受到break语句的影响，仍然从1增加到9。</p>
+
+    <p class="kindle-cn-para-left">为什么会得到这种结果呢？这是因为，在默认情况下，break语句仅仅退出一层循环。在【例5-18】中，当内层循环的计数器增加到5时，便执行了第19行的break语句，退出了内层循环，但是外层循环不受影响，仍然继续向下执行。所以在上面输出的乘法表中，前面的一个数从1一直增加到9，而后面的数却一直小于或者等于5。</p>
+
+<p class="kindle-cn-para-left">幸运的是，用户可以在break语句的后面增加一个数字作为参数，用来指定要退出的循环的层数。例如，“break 2”这条语句将会退出两层循环。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例5-19</span>】通过break语句跳出指定的层数，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter5/ex5-19.sh------------------
+02   #! /bin/bash
+03
+04   for ((i=1;i&lt;=9;i++))
+05   do
+06      for ((j=1;j&lt;=i;j++))
+07      do
+08         let "product=i*j"
+09         printf "$i*$j=$product"
+10         if [[ "$product" -gt 9 ]]
+11         then
+12            printf "   "
+13         else
+14            printf "    "
+15         fi
+16         if [[ "$j" -eq 5 ]]
+17         then
+18            # 增加参数 2
+19            break 2
+20         fi
+21      done
+22      echo
+23   done
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第19行使用了2作为break语句的参数，从而使得该语句能够退出两层循环结构。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter5]# ./ex5-19.sh</span>
+1*1=1
+2*1=2 2*2=4
+3*1=3 3*2=6 3*3=9
+4*1=4 4*2=8 4*3=12 4*4=16
+5*1=5 5*2=10 5*3=15 5*4=20 5*5=25 [root@linux chapter5]#
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">可以看到，这次的执行结果与【例5-17】完全相同。值得注意的是，乘法表的最后一行与命令提示符位于同一行中。这是因为代码的第19行执行break语句后就直接退出程序了，所以第22行的echo语句并没有得到执行。</p>
+
+    <h3 class="kindle-cn-heading2" id="sub93"><a href="part0004.html#toc93" class="calibre8">5.5.2　利用continue语句控制循环</a></h3>
+
+    <p class="kindle-cn-para-left">前面介绍的break语句是退出循环体。而continue语句则比较有趣，它的作用不是退出循环体，而是跳过当前循环体中该语句后面的语句，重新从循环语句开始的位置执行。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例5-20</span>】演示continue语句的使用方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter5/ex5-20.sh------------------
+02   #! /bin/bash
+03
+04   for var in {1..10}
+05   do
+06      # 如果当前数字为奇数
+07      if [[ "$var%2" -eq 1 ]]
+08      then
+09         # 跳过后面的语句
+10         continue
+11      fi
+12      echo "$var"
+13   done
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">上面的代码的作用是输出10以内的偶数。第7行判断当前数字能否被2整除，如果求模结果为0，则表示当前数为偶数；如果为1，则当前数为奇数。在当前数为奇数的情况下，执行continue语句，跳过后面的输出语句，从第4行开始重新执行循环。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter5]# ./ex5-20.sh</span>
+2
+4
+6
+8
+10
+</pre>
+</div>
+
+<p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">与break语句一样，continue语句也可以附加一个整数作为参数，表示要跳过的循环层数，但是很少使用。</span></p>
+
+    <h3 class="kindle-cn-heading2" id="sub94"><a href="part0004.html#toc94" class="calibre8">5.5.3　分析break语句和continue语句的区别</a></h3>
+
+    <p class="kindle-cn-para-left">关于break语句和continue语句的区别，实际上在前面介绍这两个语句的时候已经分别做了说明。但是并没有进行细致的对比，为了能够使读者更加深入理解这两个语句的用法，在此对这两个语句的区别进行进一步介绍。</p>
+
+<p class="kindle-cn-para-left">正如前面所讲，break语句和continue语句都可以位于各种循环体内，用于控制当前的循环流程。但是，break语句是直接退出当前的循环结构，转向执行循环体后面的语句；而continue语句则只是跳过当前循环体中continue语句后面的语句，转向当前循环体的起始位置，重新执行下一次循环，并没有退出当前的循环结构。这是这两者的最本质的区别。</p>
+
+    <p class="kindle-cn-para-left">另外，没有参数的break语句和continue语句都只是影响到本层的循环流程，如果想要影响多层循环，则可以附加数字参数。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例5-21</span>】演示在双层嵌套循环中，break语句对于流程的影响，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter5/ex5-21.sh------------------
+02   #!/bin/sh
+03
+04   # 外层循环
+05   for i in a b c d
+06   do
+07      echo -n "$i "
+08      # 内层循环
+09      for j in 'seq 10'
+10      do
+11         if [ $j -eq 5 ];then
+12            break
+13         fi
+14         echo -n "$j "
+15      done
+16      echo
+17   done
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第5行是外层循环的开始，该层循环使用a、b、c和d这4个字母作为条件列表。第9行是内层循环的开始，使用seq命令生成1～10的整数列表。第11行判断内层循环变量是否等于5，如果等于5则退出内层循环。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter5]# ./ex5-21.sh</span>
+a 1 2 3 4
+b 1 2 3 4
+c 1 2 3 4
+d 1 2 3 4
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的结果中，最左边的1列字母是由外层循环输出的。当外层循环第1次执行时，代码第7行输出了字母a，接着就进入了内层循环，从1开始递增，当执行到代码第14行时，输出了数字1。紧接着，内层循环便开始执行第2次，此时变量j的值变成了2，仍然小于5，于是代码第14行的echo语句便输出了2。依此类推，在内层循环的第3次和第4次循环过程中，分别输出了数字3和4。当第5次循环时，此时变量j的值已经等于5，第11行的if语句的条件测试的值为0，于是，代码第12行的break语句得到了执行，退出了内层循环。因此，内层循环输出到4就终止了。另外含有-n选项的echo语句不会自动换行，所以前面几次的输出都位于同一行中。</p>
+
+    <p class="kindle-cn-para-left">当内层循环通过break语句退出之后，执行代码第16行的echo语句，导致输出换行。然后继续执行外层循环，输出了结果第2行中的字母b。再接着又重新进入了内层循环，输出了结果第2行中的后面4个数字，这个过程与结果第1行中的4个数字的输出完全相同，不再重复介绍。</p>
+
+    <p class="kindle-cn-para-left">依此类推，当外层循环执行4次之后，整个程序就退出了。从上面的执行结果可以得知，break语句会直接退出内层循环，但是不影响外层循环的执行。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例5-22</span>】演示通过break语句跳出指定的层数，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter5/ex5-22.sh------------------
+02   #!/bin/sh
+03
+04   for i in a b c d
+05   do
+06      echo -n "$i "
+07      for j in 'seq 10'
+08      do
+09         if [ $j -eq 5 ];then
+10            # 指定跳出层数 2
+11            break 2
+12         fi
+13         echo -n "$j "
+14      done
+15      echo
+16   done
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter5]# ./ex5-22.sh</span>
+a 1 2 3 4 [root@linux chapter5]#
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">从上面的执行结果可以得知，外层循环只执行1次，整个程序便退出了。而内层循环却输出了4次，执行了5次。当内层循环第5次执行时，变量j的值便成了5，满足代码第9行的条件测试，于是代码第11行的break语句得到了执行，该语句的执行导致了程序直接退出了内外两层循环，即使是代码第15行的echo语句也没有机会执行，所以，在上面的执行结果中，程序的输出与Shell命令提示符位于同一行中。</p>
+
+    <p class="kindle-cn-para-left">分析完了break和带参数的break语句的区别。接下来继续对【例5-21】进行修改，将代码第12行的break语句替换为continue语句，从而对比continue语句break语句的区别。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例5-23</span>】通过continue语句跳过当前循环后面的语句，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter5/ex5-23.sh------------------
+02   #!/bin/sh
+03
+04   for i in a b c d
+05   do
+06      echo -n "$i "
+07      for j in 'seq 10'
+08      do
+09         if [ $j -eq 5 ];then
+10            # 跳过后面的语句
+11            continue
+12         fi
+13         echo -n "$j "
+14      done
+15      echo
+16   done
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例5-23</span>】与【例5-21】的唯一区别就是代码第12行。为了便于比较分析，下面首先看一下【例5-23】的执行结果，如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter5]# ./ex5-23.sh</span>
+a 1 2 3 4 6 7 8 9 10
+b 1 2 3 4 6 7 8 9 10
+c 1 2 3 4 6 7 8 9 10
+d 1 2 3 4 6 7 8 9 10
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">从上面的执行结果可以看到，换成continue语句之后，外层循环仍然执行了4次，但是内层循环却从1一直增加到10，只是少了5。</p>
+
+<p class="kindle-cn-para-left">为什么会出现这种结果呢？我们分析一下【例5-23】的执行过程可以弄清楚了。【例5-23】的外层循环的执行过程与【例5-21】的外层循环的执行过程完全相同，不再重复分析。在此重点分析一下内层循环的执行过程。当刚刚进入内层循环之后，循环变量j的值从1开始增加，1～4这4个数字都是小于5的，所以，代码第13行的echo语句便输出了这4个数字。当内层循环在执行第5次循环时，变量j的值变成了5，代码第9行的条件测试的值为0，代码第11行的continue语句得到了执行。该语句的执行导致了代码第13行的echo语句被跳过，所以数字5便没有被输出。</p>
+
+    <p class="kindle-cn-para-left">但是continue语句并没有跳出内层循环，而是从代码第7行开始继续执行内层循环，此时变量j的值变成了6，代码第9行的条件测试不再等于0，所以第13行的echo语句便得以执行，输出了数字6。同理，7～10这几个数字也得到了输出。</p>
+
+    <p class="kindle-cn-para-left">用户可以对比【例5-21】和【例5-23】的执行结果，思考一下这两者的区别到底在哪里。</p>
+    <p class="kindle-cn-para-left">与break语句一样，continue语句也可以接收一个整数作为参数，从而使得当前的程序</p>
+
+    <p class="kindle-cn-para-left">能够跳过指定的层数。但是，含有参数的continue语句和含有参数的break语句同样存在着很大的区别。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例5-24</span>】演示含有参数的continue语句的使用方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter5/ex5-24.sh------------------
+02   #!/bin/sh
+03
+04   for i in a b c d
+05   do
+06      echo -n "$i "
+07      for j in 'seq 10'
+08      do
+09         if [ $j -eq 5 ];then
+10            # 使用含有数字参数的 continue 语句
+11            continue 2
+12         fi
+13         echo -n "$j "
+14      done
+15      echo
+16   done
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">同样，我们先看一下该程序的执行结果，如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter5]# ./ex5-24.sh</span>
+a 1 2 3 4 b 1 2 3 4 c 1 2 3 4 d 1 2 3 4 [root@linux chapter5]#
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">可以看出，【例5-24】所有的输出信息都位于同一行中，包括Shell命令提示符。但是，除了没有换行之外，【例5-24】的结果与【例5-21】是完全相同的。下面我们分析一下【例5-24】的执行过程，以了解为什么会得到上面的输出结果。</p>
+
+    <p class="kindle-cn-para-left">同样，当外层循环第1次执行时，代码第6行的echo语句便输出了字母a。接着进入内层循环，内层循环执行了4次，依次输出了数字1、2、3和4。当内层循环在第5次执行时，变量j的值为5，这使得代码第11行的continue 2语句得到执行。该语句执行的后果是直接跳过了外层循环剩下的语句，即第15行的echo语句。所以，当外层循环执行完第1次之后，并没有换行。</p>
+
+    <p class="kindle-cn-para-left">依此类推，当外层循环执行了4次之后，整个程序便终止了。但是自始至终，代码第15行的echo语句始终没有机会得以执行，所以程序输出的所有信息都在同一行里面。</p>
+
+    <h2 class="kindle-cn-heading1" id="sub95"><a href="part0004.html#toc95" class="calibre8">5.6　小结</a></h2>
+
+    <p class="kindle-cn-para-left">本章详细介绍了Shell语言中的循环语句的使用方法。主要内容包括步进循环语句for、until循环语句、while循环语句、嵌套循环结构，以及break和continue这两种循环控制语句的使用方法。重点在于掌握3种循环语句的基本用法，理解break和continue的区别，对于简单的嵌套循环结构，也应该有所了解。在下一章中，将介绍函数的用法。</p>
+  </div>
+
+
+  </div>
+
+  
+  <div class="calibreToc">
+    <h2><a href="../../pARZf2.html"> Table of contents</a></h2>
+     <div>
+  <ul>
+    <li>
+      <a href="part0001.html#UGI0-55ac501d2b9f4bebb0296c8a16b339b4">内容简介</a>
+    </li>
+    <li>
+      <a href="part0003.html#2RHM0-55ac501d2b9f4bebb0296c8a16b339b4">前言</a>
+    </li>
+    <li>
+      <a href="part0004.html#3Q280-55ac501d2b9f4bebb0296c8a16b339b4">目录</a>
+    </li>
+    <li>
+      <a href="part0005.html#chapter2">第1篇　认识Shell编程</a>
+      <ul>
+        <li>
+          <a href="part0006.html#chapter3">第1章　Shell入门基础</a>
+          <ul>
+            <li>
+              <a href="part0006.html#sub4">1.1　为什么学习和使用Shell编程</a>
+            </li>
+            <li>
+              <a href="part0006.html#sub5">1.2　什么是Shell</a>
+              <ul>
+                <li>
+                  <a href="part0006.html#sub6">1.2.1　Shell的起源</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub7">1.2.2　Shell的功能</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub8">1.2.3　Shell的分类</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0006.html#sub9">1.3　作为程序设计语言的Shell</a>
+              <ul>
+                <li>
+                  <a href="part0006.html#sub10">1.3.1　交互式程序</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub11">1.3.2　创建脚本</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub12">1.3.3　把脚本设置为可执行</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0006.html#sub13">1.4　向脚本传递参数</a>
+              <ul>
+                <li>
+                  <a href="part0006.html#sub14">1.4.1　Shell脚本的参数</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub15">1.4.2　参数扩展</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0006.html#sub16">1.5　第一个Shell程序：Hello，Bash Shell！</a>
+              <ul>
+                <li>
+                  <a href="part0006.html#sub17">1.5.1　Shell脚本的基本元素</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub18">1.5.2　指定命令解读器</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub19">1.5.3　Shell脚本中的注释和风格</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub20">1.5.4　如何执行Shell程序</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub21">1.5.5　Shell程序的退出状态</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0006.html#sub22">1.6　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0007.html#chapter23">第2章　Shell编程环境的搭建</a>
+          <ul>
+            <li>
+              <a href="part0007.html#sub24">2.1　在不同的操作系统上搭建Shell编程环境</a>
+              <ul>
+                <li>
+                  <a href="part0007.html#sub25">2.1.1　在Windows上搭建Shell编程环境</a>
+                </li>
+                <li>
+                  <a href="part0007.html#sub26">2.1.2　在Linux上搭建Shell编程环境</a>
+                </li>
+                <li>
+                  <a href="part0007.html#sub27">2.1.3　在FreeBSD上搭建Shell编程环境</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0007.html#sub28">2.2　编辑器的选择</a>
+              <ul>
+                <li>
+                  <a href="part0007.html#sub29">2.2.1　图形化编辑器</a>
+                </li>
+                <li>
+                  <a href="part0007.html#sub30">2.2.2　vi（vim）编辑器</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0007.html#sub31">2.3　系统环境的搭建</a>
+              <ul>
+                <li>
+                  <a href="part0007.html#sub32">2.3.1　Shell配置文件</a>
+                </li>
+                <li>
+                  <a href="part0007.html#sub33">2.3.2　命令别名</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0007.html#sub34">2.4　小结</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0008.html#chapter35">第2篇　Shell编程基础</a>
+      <ul>
+        <li>
+          <a href="part0009.html#chapter36">第3章　变量和引用</a>
+          <ul>
+            <li>
+              <a href="part0009.html#sub37">3.1　深入认识变量</a>
+              <ul>
+                <li>
+                  <a href="part0009.html#sub38">3.1.1　什么是变量</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub39">3.1.2　变量的命名</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub40">3.1.3　变量的类型</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub41">3.1.4　变量的定义</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub42">3.1.5　变量和引号</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub43">3.1.6　变量的作用域</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub43a">3.1.7　系统变量</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub44">3.1.8　环境变量</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0009.html#sub45">3.2　变量赋值和清空</a>
+              <ul>
+                <li>
+                  <a href="part0009.html#sub46">3.2.1　变量赋值</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub47">3.2.2　引用变量的值</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub48">3.2.3　清除变量</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0009.html#sub49">3.3　引用和替换</a>
+              <ul>
+                <li>
+                  <a href="part0009.html#sub50">3.3.1　引用</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub51">3.3.2　全引用</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub52">3.3.3　部分引用</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub53">3.3.4　命令替换</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub53a">3.3.5　转义</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0009.html#sub54">3.4　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0010.html#chapter55">第4章　条件测试和判断语句</a>
+          <ul>
+            <li>
+              <a href="part0010.html#sub56">4.1　条 件 测 试</a>
+              <ul>
+                <li>
+                  <a href="part0010.html#sub57">4.1.1　条件测试的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub58">4.1.2　字符串测试</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub59">4.1.3　整数测试</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub60">4.1.4　文件测试</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub61">4.1.5　逻辑操作符</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0010.html#sub62">4.2　条件判断语句</a>
+              <ul>
+                <li>
+                  <a href="part0010.html#sub63">4.2.1　使用简单的if语句进行条件判断</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub64">4.2.2　使用if else语句进行流程控制</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub65">4.2.3　使用if elif语句进行多条件判断</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub66">4.2.4　使用exit语句退出程序</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0010.html#sub67">4.3　多条件判断语句case</a>
+              <ul>
+                <li>
+                  <a href="part0010.html#sub68">4.3.1　多条件判断语句case的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub69">4.3.2　利用case语句处理选项参数</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub70">4.3.3　利用case语句处理用户输入</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0010.html#sub71">4.4　运 算 符</a>
+              <ul>
+                <li>
+                  <a href="part0010.html#sub72">4.4.1　算术运算符</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub73">4.4.2　位运算符</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub74">4.4.3　自增/自减运算符</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub75">4.4.4　数字常量的进制</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0010.html#sub76">4.5　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0011.html#chapter77">第5章　循 环 结 构</a>
+          <ul>
+            <li>
+              <a href="part0011.html#sub78">5.1　步进循环语句for</a>
+              <ul>
+                <li>
+                  <a href="part0011.html#sub79_1">5.1.1　带列表的for循环语句</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub79">5.1.2　不带列表的for循环语句</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub80">5.1.3　类C风格的for循环语句</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub81">5.1.4　使用for循环语句处理数组</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0011.html#sub82">5.2　until循环语句</a>
+              <ul>
+                <li>
+                  <a href="part0011.html#sub83">5.2.1　until语句的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub84">5.2.2　利用until语句批量增加用户</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0011.html#sub85">5.3　while循环语句</a>
+              <ul>
+                <li>
+                  <a href="part0011.html#sub86">5.3.1　while语句的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub87">5.3.2　通过计数器控制while循环结构</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub88">5.3.3　通过结束标记控制while循环结构</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub89">5.3.4　理解while语句与until语句的区别</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0011.html#sub90">5.4　嵌 套 循 环</a>
+            </li>
+            <li>
+              <a href="part0011.html#sub91">5.5　利用break和continue语句控制循环</a>
+              <ul>
+                <li>
+                  <a href="part0011.html#sub92">5.5.1　利用break语句控制循环</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub93">5.5.2　利用continue语句控制循环</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub94">5.5.3　分析break语句和continue语句的区别</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0011.html#sub95">5.6　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0012.html#chapter96">第6章　函数</a>
+          <ul>
+            <li>
+              <a href="part0012.html#sub97">6.1　函数</a>
+              <ul>
+                <li>
+                  <a href="part0012.html#sub98">6.1.1　什么是函数</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub99">6.1.2　函数的定义</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub100">6.1.3　函数的调用</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub101">6.1.4　函数链接</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub102">6.1.5　函数的返回值</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub103">6.1.6　函数和别名</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub104">6.1.7　再议全局变量和局部变量</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0012.html#sub105">6.2　函 数 参 数</a>
+              <ul>
+                <li>
+                  <a href="part0012.html#sub106">6.2.1　含有参数的函数的调用方法</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub107">6.2.2　获取函数参数的个数</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub108">6.2.3　通过位置变量接收参数值</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub109">6.2.4　移动位置参数</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub110">6.2.5　通过getopts接收函数参数</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub111">6.2.6　间接参数传递</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub112">6.2.7　通过全局变量传递数据</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub113">6.2.8　传递数组参数</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0012.html#sub114">6.3　函数库文件</a>
+              <ul>
+                <li>
+                  <a href="part0012.html#sub115">6.3.1　函数库文件的定义</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub116">6.3.2　函数库文件的调用</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0012.html#sub117">6.4　递 归 函 数</a>
+            </li>
+            <li>
+              <a href="part0012.html#sub118">6.5　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0013.html#chapter119">第7章　数组</a>
+          <ul>
+            <li>
+              <a href="part0013.html#sub120">7.1　定 义 数 组</a>
+              <ul>
+                <li>
+                  <a href="part0013.html#sub121">7.1.1　通过指定元素值来定义数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub122">7.1.2　通过declare语句定义数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub123">7.1.3　通过元素值集合定义数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub124">7.1.4　通过键值对定义数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub125">7.1.5　数组和普通变量</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0013.html#sub126">7.2　数组的赋值</a>
+              <ul>
+                <li>
+                  <a href="part0013.html#sub127">7.2.1　按索引为元素赋值</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub128">7.2.2　通过集合为数组赋值</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub129">7.2.3　在数组末尾追加新元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub130">7.2.4　通过循环为数组元素赋值</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0013.html#sub131">7.3　访 问 数 组</a>
+              <ul>
+                <li>
+                  <a href="part0013.html#sub132">7.3.1　访问第1个数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub133">7.3.2　通过下标访问数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub134">7.3.3　计算数组的长度</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub135">7.3.4　通过循环遍历数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub136">7.3.5　引用所有的数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub137">7.3.6　以切片方式获取部分数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub138">7.3.7　数组元素的替换</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0013.html#sub139">7.4　删 除 数 组</a>
+              <ul>
+                <li>
+                  <a href="part0013.html#sub140">7.4.1　删除指定数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub141">7.4.2　删除整个数组</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0013.html#sub142">7.5　数组的其他操作</a>
+              <ul>
+                <li>
+                  <a href="part0013.html#sub143">7.5.1　复制数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub144">7.5.2　连接数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub145">7.5.3　加载文件内容到数组</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0013.html#sub146">7.6　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0014.html#chapter147">第8章　正则表达式</a>
+          <ul>
+            <li>
+              <a href="part0014.html#sub148">8.1　什么是正则表达式</a>
+              <ul>
+                <li>
+                  <a href="part0014.html#sub149">8.1.1　为什么使用正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub150">8.1.2　如何学习正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub150a">8.1.3　如何实践正则表达式</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0014.html#sub151">8.2　正则表达式基础</a>
+              <ul>
+                <li>
+                  <a href="part0014.html#sub152">8.2.1　正则表达式的原理</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub153">8.2.2　基本正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub154">8.2.3　扩展正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub155">8.2.4　Perl正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub156">8.2.5　正则表达式字符集</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0014.html#sub157">8.3　正则表达式应用</a>
+              <ul>
+                <li>
+                  <a href="part0014.html#sub158">8.3.1　匹配单个字符</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub159">8.3.2　匹配多个字符</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub160">8.3.3　匹配字符串的开头或者结尾</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub161">8.3.4　运算符优先级</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub162">8.3.5　子表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub163">8.3.6　通配符</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0014.html#sub164">8.4　grep命令</a>
+              <ul>
+                <li>
+                  <a href="part0014.html#sub165">8.4.1　grep命令的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub166">8.4.2　grep命令族简介</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0014.html#sub167">8.5　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0015.html#chapter168">第9章　基本文本处理</a>
+          <ul>
+            <li>
+              <a href="part0015.html#sub169">9.1　使用echo命令输出文本</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub170">9.1.1　显示普通字符串</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub171">9.1.2　显示转义字符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub172">9.1.3　显示变量</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub173">9.1.4　换行和不换行</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub174">9.1.5　显示命令执行结果</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub175">9.1.6　echo命令执行结果的重定向</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub176">9.2　文本的格式化输出</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub177">9.2.1　使用UNIX制表符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub178">9.2.2　使用fold命令格式化行</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub179">9.2.3　使用fmt命令格式化段落</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub180">9.2.4　使用rev命令反转字符顺序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub181">9.2.5　使用pr命令格式化文本页</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub182">9.3　使用sort命令对文本排序</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub183">9.3.1　sort命令的基本用法</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub184">9.3.2　使用单个关键字排序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub185">9.3.3　根据指定的列排序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub186">9.3.4　根据关键字降序排序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub187">9.3.5　数值列的排序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub188">9.3.6　自定义列分隔符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub189">9.3.7　删除重复的行</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub190">9.3.8　根据多个关键字排序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub191">9.3.9　使用sort命令合并文件</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub192">9.4　文本的统计</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub193">9.4.1　输出含有行号的文本行</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub194">9.4.2　统计行数</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub195">9.4.3　统计单词数和字符数</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub196">9.5　使用cut命令选取文本列</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub197">9.5.1　cut命令及其语法</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub198">9.5.2　选择指定的文本列</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub199">9.5.3　选择指定数量的字符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub200">9.5.4　排除不包含列分隔符的行</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub201">9.6　使用paste命令拼接文本列</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub202">9.6.1　paste命令及其语法</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub203">9.6.2　自定义列分隔符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub204">9.6.3　拼接指定的文本列</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub205">9.7　使用join命令联接文本列</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub206">9.7.1　join命令及其语法</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub207">9.7.2　指定联接关键字列</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub208">9.7.3　内联接文本文件</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub209">9.7.4　左联接文本文件</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub210">9.7.5　右联接文本文件</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub211">9.7.6　全联接文本文件</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub212">9.7.7　自定义输出列</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub213">9.8　使用tr命令替换文件内容</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub214">9.8.1　tr命令及其语法</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub215">9.8.2　去除重复出现的字符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub216">9.8.3　删除空行</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub216a">9.8.4　大小写转换</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub216b">9.8.5　删除指定字符</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub217">9.9　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0016.html#chapter218">第10章　流 编 辑</a>
+          <ul>
+            <li>
+              <a href="part0016.html#sub219">10.1　sed命令及其语法</a>
+              <ul>
+                <li>
+                  <a href="part0016.html#sub220">10.1.1　sed命令以及语法</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub221">10.1.2　sed命令的工作方式</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub222">10.1.3　使用行号定位文本行</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub223">10.1.4　使用正则表达式定位文本行</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0016.html#sub224">10.2　sed命令的常用操作</a>
+              <ul>
+                <li>
+                  <a href="part0016.html#sub225">10.2.1　sed编辑命令基本语法</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub226">10.2.2　选择文本</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub227">10.2.3　替换文本</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub228">10.2.4　删除文本</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub229">10.2.5　追加文本</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub230">10.2.6　插入文本</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0016.html#sub231">10.3　组 合 命 令</a>
+              <ul>
+                <li>
+                  <a href="part0016.html#sub232">10.3.1　使用-e选项执行多个子命令</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub233">10.3.2　使用分号执行多个子命令</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub234">10.3.3　对一个地址使用多个子命令</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub235">10.3.4　sed脚本文件</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0016.html#sub236">10.4　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0017.html#chapter237">第11章　文本处理利器awk命令</a>
+          <ul>
+            <li>
+              <a href="part0017.html#sub238">11.1　awk入门</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub239">11.1.1　awk的功能</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub240">11.1.2　awk命令的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub241">11.1.3　awk的工作流程</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub242">11.1.4　执行awk程序的几种方式</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub246">11.2　awk的模式匹配</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub247">11.2.1　关系表达式</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub248">11.2.2　正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub249">11.2.3　混合模式</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub250">11.2.4　区间模式</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub243">11.2.5　BEGIN模式</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub251">11.2.6　END模式</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub252">11.3　变量</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub253">11.3.1　变量的定义和引用</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub254">11.3.2　系统内置变量</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub255">11.3.3　记录分隔符和字段分隔符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub256">11.3.4　记录和字段的引用</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub257">11.4　运算符和表达式</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub258">11.4.1　算术运算符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub259">11.4.2　赋值运算符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub260">11.4.3　条件运算符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub261">11.4.4　逻辑运算符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub262">11.4.5　关系运算符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub263">11.4.6　其他运算符</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub264">11.5　函数</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub265">11.5.1　字符串函数</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub266">11.5.2　算术函数</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub267">11.6　数组</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub268">11.6.1　数组的定义和赋值</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub269">11.6.2　遍历数组</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub270">11.7　流 程 控 制</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub271">11.7.1　if语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub272">11.7.2　while语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub273">11.7.3　do…while语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub274">11.7.4　for语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub275">11.7.5　break语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub276">11.7.6　continue语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub277">11.7.7　next语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub278">11.7.8　exit语句</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub279">11.8　awk程序的格式化输出</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub280">11.8.1　基本print语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub281">11.8.2　格式化输出printf语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub282">11.8.3　使用sprintf()函数生成格式化字符串</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub283">11.9　awk的程序与Shell的交互</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub284">11.9.1　通过管道实现与Shell的交换</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub285">11.9.2　通过system函数实现与Shell的交互</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub286">11.10　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0018.html#chapter287">第12章　文件的操作</a>
+          <ul>
+            <li>
+              <a href="part0018.html#sub288">12.1　文件</a>
+              <ul>
+                <li>
+                  <a href="part0018.html#sub289">12.1.1　列出文件</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub290">12.1.2　文件类型</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub291">12.1.3　文件的权限</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0018.html#sub292">12.2　查 找 文 件</a>
+              <ul>
+                <li>
+                  <a href="part0018.html#sub293">12.2.1　find命令以及语法</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub294">12.2.2　find命令：路径</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub295">12.2.3　find命令：测试</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub296">12.2.4　find命令：使用!运算符对测试求反</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub297">12.2.5　find命令：处理文件权限错误信息</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub298">12.2.6　find命令：动作</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0018.html#sub299">12.3　比 较 文 件</a>
+              <ul>
+                <li>
+                  <a href="part0018.html#sub300">12.3.1　使用comm比较文件</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub301">12.3.2　使用diff比较文件</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0018.html#sub302">12.4　文件描述符</a>
+              <ul>
+                <li>
+                  <a href="part0018.html#sub303">12.4.1　什么是文件描述符</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub304">12.4.2　标准输入、标准输出和标准错误</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0018.html#sub305">12.5　重 定 向</a>
+              <ul>
+                <li>
+                  <a href="part0018.html#sub306">12.5.1　输出重定向（覆盖）</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub307">12.5.2　输出重定向（追加）</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub308">12.5.3　输入重定向</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub309">12.5.4　当前文档</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub310">12.5.5　重定向两个文件描述符</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub311">12.5.6　使用exec命令分配文件描述符</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0018.html#sub312">12.6　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0019.html#chapter313">第13章　子Shell与进程处理</a>
+          <ul>
+            <li>
+              <a href="part0019.html#sub314">13.1　子Shell</a>
+              <ul>
+                <li>
+                  <a href="part0019.html#sub315">13.1.1　什么是子Shell</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub316">13.1.2　内部命令、保留字和外部命令</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub317">13.1.3　在子Shell中执行命令</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub318">13.1.4　把子Shell中的变量值传回父Shell</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0019.html#sub319">13.2　进 程 处 理</a>
+              <ul>
+                <li>
+                  <a href="part0019.html#sub320">13.2.1　什么是进程</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub321">13.2.2　通过脚本监控进程</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub322">13.2.3　作业控制</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub322a">13.2.4　信号与trap命令</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0019.html#sub323">13.3　小结</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0020.html#chapter324">第3篇　Shell编程实战</a>
+      <ul>
+        <li>
+          <a href="part0021.html#chapter325">第14章　Shell脚本调试技术</a>
+          <ul>
+            <li>
+              <a href="part0021.html#sub326">14.1　Shell脚本中的常见错误</a>
+              <ul>
+                <li>
+                  <a href="part0021.html#sub327">14.1.1　常见语法错误</a>
+                </li>
+                <li>
+                  <a href="part0021.html#sub328">14.1.2　常见逻辑错误</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0021.html#sub329">14.2　Shell脚本调试技术</a>
+              <ul>
+                <li>
+                  <a href="part0021.html#sub330">14.2.1　使用echo命令调试脚本</a>
+                </li>
+                <li>
+                  <a href="part0021.html#sub331">14.2.2　使用trap命令调试Shell脚本</a>
+                </li>
+                <li>
+                  <a href="part0021.html#sub332">14.2.3　使用tee命令调试Shell脚本</a>
+                </li>
+                <li>
+                  <a href="part0021.html#sub333">14.2.4　使用调试钩子调试Shell脚本</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0021.html#sub334">14.3　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0022.html#chapter335">第15章　利用Shell脚本解决实际问题</a>
+          <ul>
+            <li>
+              <a href="part0022.html#sub336">15.1　编写系统服务脚本</a>
+              <ul>
+                <li>
+                  <a href="part0022.html#sub337">15.1.1　系统启动过程</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub338">15.1.2　运行级别</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub339">15.1.3　服务脚本的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub340">15.1.4　编写MySQL服务脚本</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0022.html#sub341">15.2　通过脚本管理Apache服务器日志</a>
+              <ul>
+                <li>
+                  <a href="part0022.html#sub342">15.2.1　Apache以及日志文件简介</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub343">15.2.2　备份归档文件名生成函数</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub344">15.2.3　过期日志备份归档函数</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub345">15.2.4　过期日志删除函数</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub346">15.2.5　日志归档主程序</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub347">15.2.6　定时运行日志归档脚本</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0022.html#sub348">15.3　小结</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0023.html#chapter336">附录CD</a>
+    </li>
+  </ul>
+</div>
+
+
+  </div>
+  
+
+  <div class="calibreEbNav">
+    
+      <a href="part0010.html" class="calibreAPrev">previous page</a>
+    
+
+    <a href="../../pARZf2.html" class="calibreAHome"> start</a>
+
+    
+      <a href="part0012.html" class="calibreANext"> next page</a>
+    
+  </div>
+
+</div>
+
+</body>
+</html>

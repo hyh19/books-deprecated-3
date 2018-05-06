@@ -1,0 +1,2223 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+    <title>第10章　流编辑</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+
+  
+
+
+<link href="../calibreHtmlOutBasicCss.css" type="text/css" rel="stylesheet" />
+
+</head>
+<body>
+
+<div class="calibreMeta">
+  <div class="calibreMetaTitle">
+  
+  
+    
+    <h1>
+      <a href="../../pARZf2.html">Shell从入门到精通
+</a>
+    </h1>
+    
+    
+  
+  </div>
+  <div class="calibreMetaAuthor">
+    张春晓
+
+  </div>
+</div>
+
+<div class="calibreMain">
+
+  <div class="calibreEbookContent">
+    
+      <div class="calibreEbNavTop">
+        
+          <a href="part0015.html" class="calibreAPrev">previous page</a>
+        
+
+        
+          <a href="part0017.html" class="calibreANext"> next page</a>
+        
+      </div>
+    
+
+    
+    <div class="chapter">
+      <div class="calibre2"></div><h1 class="kindle-cn-heading" id="chapter218"><a href="part0004.html#toc218" class="calibre3">第10章<br class="chapter"/>流编辑</a>
+      </h1>
+      <p class="kindle-cn-para-left">在第9章中，我们已经介绍了许多处理文本的命令，但是，Shell所提供的文本处理工具还有许多，可以说是应有尽有。在这众多的文本处理工具中，其中有一类称为流编辑器的工具却不得不提。流编辑器在处理文本中发挥着重要的作用，许多其他工具无法完成的工作，使用流编辑器可以非常方便地完成。本章将对Shell中的流编辑工具进行介绍。</p>
+      <p class="kindle-cn-para-left">本章主要涉及到知识点如下所述。</p>
+      <ul class="kindle-cn-ul-square">
+<li class="calibre5">什么是sed：主要介绍什么是sed工具、sed工具的主要操作、工作方式，以及地址表示方法、在sed命令中使用正则表达式等。</li>
+        <li class="calibre5">sed命令的常用操作：主要介绍sed命令的注释方法、打印文本、替换文本、删除文本、追加文本、插入文本、移到下一行、读写文件，以及多行模式等。</li>
+        <li class="calibre5">组合命令：主要介绍如何在sed中组合多条命令，以及如何将多条命令应用到一个地址范围等。</li>
+      </ul>
+      <p class="kindle-cn-para-left">
+      </p>
+      <p class="kindle-cn-para-left">
+      </p>
+      <p class="kindle-cn-para-left">
+      </p>
+      <h2 class="kindle-cn-heading1" id="sub219"><a href="part0004.html#toc219" class="calibre8">10.1　sed命令及其语法</a>
+      </h2>
+      <p class="kindle-cn-para-left">sed命令是将一系列的编辑命令应用于一批文本的理想工具。sed命令拥有非交互式和高效的特点，可以为用户节约大量的时间。本节将介绍sed命令的基础知识。</p>
+      <h3 class="kindle-cn-heading2" id="sub220"><a href="part0004.html#toc220" class="calibre8">10.1.1　sed命令以及语法</a>
+      </h3>
+      <p class="kindle-cn-para-left">sed命令是一个非交互式的文本编辑器，它可以对来自文本文件，以及标准输入的文本进行编辑。其中，标准输入可以是来自键盘、文件重定向、字符串、变量或者是管道的文本。</p>
+      <p class="kindle-cn-para-left">sed命令会从文件或者标准输入中一次读取一行数据，将其复制到缓冲区，然后读取命令行或者脚本的编辑子命令，对缓冲区中的文本行进行编辑。重复此过程，一直到所有的文本行都处理完毕。如图10-1所示，描述了sed命令工作流程。</p>
+      <p class="kindle-cn-para-left">通常情况下，sed命令会适用于以下几种场合：</p>
+      <ul class="kindle-cn-ul-square">
+      <li class="calibre5">编辑一个非常大的文本文件，以至于使用普通的交互式编辑器非常慢。</li>
+      <li class="calibre5">编辑命令比较复杂，在普通的文本编辑器中难以完成。</li>
+      <li class="calibre5">扫描一个比较大的文本文件，并且需要经过一系列的操作。</li>
+      </ul>
+      <p class="kindle-cn-para-left">sed命令编辑的文件是原始文件在缓冲区中的副本，因此编辑操作并不影响原来的文件，并且输出到屏幕。如果用户想要将处理结果保存下来，可以将输出重定向到一个磁盘文件中。</p>
+      <div class="chapter">
+        <div class="kindle-cn-image">
+          <p class="kindle-cn-para-center">
+            <img alt="alt729" src="../images/00061.jpeg" class="calibre14"/>
+          </p>
+          <p class="kindle-cn-caption">图10-1　sed命令工作流程</p>
+        </div>
+      </div>
+      <p class="kindle-cn-para-left">sed命令的基本语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">sed [options] [script] [inputfile...]
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的语法中，options代表sed命令的选项，常用的选项如下所列。</p>
+      <ul class="kindle-cn-ul-square">
+      <li class="calibre5">-n：取消默认输出。</li>
+      <li class="calibre5">-e：允许执行多个脚本。</li>
+      <li class="calibre5">-f：从脚本文件中读取命令。</li>
+      <li class="calibre5">-i：直接修改原始文件。</li>
+      <li class="calibre5">-l：指定行的长度。</li>
+      <li class="calibre5">-r：在脚本中使用扩展正则表达式。</li>
+      <li class="calibre5">-s：默认情况下，sed将把命令行指定的多个文件名作为一个长的连续的输入流。而GNU sed则允许把它们当做单独的文件，这样的话，正则表达式不进行跨文件匹配。</li>
+      <li class="calibre5">-u：最低限度的缓存输入与输出。</li>
+      </ul>
+      <p class="kindle-cn-para-left">script参数表示sed脚本文件，用户可以将一系列的sed命令写在一个脚本文件中，sed会从该文件中读取并依次执行各个命令。inputfile表示输入文本文件，如果没有指定输入文件，则从标准输入中读取。</p>
+      <p class="kindle-cn-para-left">在上面的选项中，-n选项需要特别说明一下。前面已经讲过sed的工作流程。在开始处理文本之前，sed命令的缓冲区是空的。sed读入一行内容，删除尾部的换行符，存入到缓冲区中，然后执行相应的编辑命令。如果用户没有使用-n选项，在缓冲区中的内容会被输出到标准输出；如果用户使用了-n选项，则sed命令不会输出任何内容，而是直接读取下一行数据，重复上面的步骤。</p>
+<p class="kindle-cn-para-left">在这里就会出现一个问题，如果用户想要在屏幕上输出sed命令的处理结果，应该怎么办？这就需要用到下面介绍的sed的编辑命令，sed的子命令p可以强制输出缓冲区的内容。</p>
+      <h3 class="kindle-cn-heading2" id="sub221"><a href="part0004.html#toc221" class="calibre8">10.1.2　sed命令的工作方式</a>
+      </h3>
+      <p class="kindle-cn-para-left">通常情况下，用户可以通过3种方式来使用sed命令，下面将分别进行介绍。</p>
+      <p class="kindle-cn-para-left">首先，用户可以在命令行直接执行sed命令，其基本语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">sed [options] commands inputfile
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的语法中，commands表示sed的相关操作命令，例如打印文本、删除文件，以及插入文本等。</p>
+      <p class="kindle-cn-para-left">其次，用户可以将sed操作命令写入脚本文件，然后通过sed命令读取该文件并且执行其中的命令，其基本语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">sed [options] -f script inputfile
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的语法中，参数scirpt代表一系列的sed操作命令。</p>
+      <p class="kindle-cn-para-left">最后，用户通过将sed的操作命令写入文件，然后将该脚本文件授予用户执行权限。这样的话用户就可以直接执行文件，其基本语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">./scrpt inputfile
+</pre>
+</div>
+      <p class="kindle-cn-para-left">其中，script代表保存sed命令的脚本文件。在前面已经讲过，在脚本文件中，用户应该在#!符号后面执行该脚本的解释器，因此在这种方式下，sed脚本文件的第一行应该如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">#! /bin/sed
+</pre>
+</div>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">在第2种方式中，用户不需要指定脚本的解释器，因为在调用的时候，已经指定使用sed命令载入并解释该文件。但是，在第3种方式中，用户必须指定解释器程序。</span></p>
+      <h3 class="kindle-cn-heading2" id="sub222"><a href="part0004.html#toc222" class="calibre8">10.1.3　使用行号定位文本行</a>
+      </h3>
+      <p class="kindle-cn-para-left">通常情况下，一个完整的sed命令由定位参数和编辑命令两部分组成。通过定位参数， sed命令可以对特定的文本行进行操作。sed命令提供了两种方式来实现文本行的定位，其一为行号定位，其二为正则表达式定位。下面首先介绍使用行号定位文本行。</p>
+      <p class="kindle-cn-para-left"><span class="kindle-cn-bold">1．定位某个特定的行</span></p>
+      <p class="kindle-cn-para-left">在sed命令中，指定某个特定的文本行的语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">x
+</pre>
+</div>
+      <p class="kindle-cn-para-left">其中，x是一个整数，代表特定的文本行的行号。例如，现在想要定位到第10行，则可以使用以下语句：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">10
+</pre>
+</div>
+      <p class="kindle-cn-para-left"><span class="kindle-cn-bold">2．定位某段连续的行</span></p>
+      <p class="kindle-cn-para-left">sed使用以下语法来指定某一段连续的文本行：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">x,y
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的语法中，x表示起始行的行号，y表示终止行的行号。以上语法表示指定从x开始一直到y行的所有的文本行。</p>
+      <p class="kindle-cn-para-left"><span class="kindle-cn-bold">3．指定起始行和步长</span></p>
+      <p class="kindle-cn-para-left">在某些情况下，用户需要的不是一段连续的文本行，而是一段有固定间隔的行，例如偶数行、奇数行或者每隔3行等。在这种情况下，用户可以使用以下语法来指定文本行的步长：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">first~step
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的语法中，first和step都是整数，其中first表示起始行，step表示行号增长的步长。</p>
+      <p class="kindle-cn-para-left">例如，如果要指定文本文件的偶数行，用户可以使用以下语句：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">0~2
+</pre>
+</div>
+      <p class="kindle-cn-para-left">如果用户想要指定文本文件的奇数行，则可以使用以下语句：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">1~2
+</pre>
+</div>
+      <p class="kindle-cn-para-left"><span class="kindle-cn-bold">4．指定文件的第一行和最后一行</span></p>
+      <p class="kindle-cn-para-left">指定文件的第一行比较简单，直接使用数字1即可，如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">1
+</pre>
+</div>
+      <p class="kindle-cn-para-left">对于文件的最后一行，sed命令专门提供了一个操作符$。因此，指定文件最后一行的语句如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">$
+</pre>
+</div>
+      <p class="kindle-cn-para-left"><span class="kindle-cn-bold">5．指定某行后面的几行</span></p>
+      <p class="kindle-cn-para-left">在sed命令中，用户可以采用相对定位的方法来指定行，如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">x,+n
+</pre>
+</div>
+      <p class="kindle-cn-para-left">以上语法表示指定从x行以及后面的n行文本。例如：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">2,+5
+</pre>
+</div>
+      <p class="kindle-cn-para-left">表示从第2行以及后面的5行，即第2～7行。</p>
+      <h3 class="kindle-cn-heading2" id="sub223"><a href="part0004.html#toc223" class="calibre8">10.1.4　使用正则表达式定位文本行</a>
+      </h3>
+      <p class="kindle-cn-para-left">除了使用行号定位文本行之外，sed命令还支持正则表达式定位。sed命令中，正则表达式的语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">/regexp/
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的语法中，两个斜线之间的regexp表示正则表达式，其中，常用的正则表达式元字符如下所列。</p>
+      <ul class="kindle-cn-ul-square">
+      <li class="calibre5">一般字符：字符本身就匹配字符本身，例如/abc/就是定位包含abc的行。</li>
+      <li class="calibre5">*：表示前置表达式重复了0次或者多次，例如，/a*/表示匹配字符a出现0次或者多次的情况。</li>
+      <li class="calibre5">\+：与星号类似，但是该元字符匹配其前置表达式出现1次以上，属于扩展正则表达式。</li>
+      <li class="calibre5">\?：匹配其前置表达式重复出现0次或者1次。</li>
+      <li class="calibre5">\{i\}：类似于星号，但匹配前置表达式出现i次，如a\{3\}匹配aaa。</li>
+<li class="calibre5">\{i,j\}：匹配前置表达式最少出现i次，最多出现j次。例如，a\{1,2\}可以匹配a或者aa这两种情况。</li>
+      <li class="calibre5">\{i,\}：匹配其前置表达式至少出现i次。</li>
+      <li class="calibre5">.：匹配任意字符。</li>
+      <li class="calibre5">^：匹配行首字符。</li>
+      <li class="calibre5">$：匹配行尾字符。</li>
+      <li class="calibre5">[]：匹配方括号中的任意单个字符。</li>
+      <li class="calibre5">[^]：匹配不出现在方括号中的任意单个字符。</li>
+      <li class="calibre5">\n：匹配换行符。</li>
+      </ul>
+      <p class="kindle-cn-para-left">从上面的介绍可以得知，sed命令中的元字符的含义与前面介绍的正则表达式中的元字符基本相同。</p>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">与正则表达式一样，如果要匹配元字符本身，需要使用转义字符。例如想要匹配字符*，则需要使用\*。</span></p>
+      <h2 class="kindle-cn-heading1" id="sub224"><a href="part0004.html#toc224" class="calibre8">10.2　sed命令的常用操作</a>
+      </h2>
+      <p class="kindle-cn-para-left">除了定位参数之外，sed命令的另外一个组成部分就是编辑命令。常用的编辑命令有打印、插入、删除，以及替换等，本节将介绍如何在sed命令使用这些编辑命令。</p>
+      <h3 class="kindle-cn-heading2" id="sub225"><a href="part0004.html#toc225" class="calibre8">10.2.1　sed编辑命令基本语法</a>
+      </h3>
+      <p class="kindle-cn-para-left">sed命令的基本语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">[address1[,address2]] command [argument]
+</pre>
+</div>
+<p class="kindle-cn-para-left">在上面的语法中，address1和address2都称为位置参数，在10.1节中已经讲过，sed命令的位置参数可以使用两种方式来表示，分别为行号和正则表达式。位置参数的作用是用来限制sed编辑命令所影响的文本行的范围。如果某个sed命令没有提供位置参数，则表示对指定文本文件中的所有的文本行执行编辑操作；如果只有一个位置参数时，表示只对符合指定位置的文本行进行操作；如果有两个位置参数，则表示对从address1所表示的文本行开始，一直到address2所表示的文本行结束所包含的所有的文本行进行操作。</p>
+      <p class="kindle-cn-para-left">command表示sed所提供的子命令，用来实现编辑操作。argument则表示子命令的参数，例如替换命令s需要两个参数，分别为要查找的模式和用来替换的字符串。</p>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">sed命令的两个位置参数可以同时使用行号或者正则表达式，也可以混合使用，即其中一个位置参数使用行号，另外一个位置参数使用正则表达式。</span></p>
+      <h3 class="kindle-cn-heading2" id="sub226"><a href="part0004.html#toc226" class="calibre8">10.2.2　选择文本</a>
+      </h3>
+      <p class="kindle-cn-para-left">在前面介绍正则表达式的时候，使用了grep及egrep等命令来对文本进行筛选。实际上sed命令也可以实现这个功能。在sed命令中，选择文本行主要通过位置参数来完成，基本语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">[address1[,address2]] p
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的语法中，address1和address2都是位置参数。如果省略位置参数，则表示选择整个文件。子命令p表示将缓冲区中的文本行执行输出操作，即打印（print）缓冲区中的文本。</p>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">sed命令的缓冲区又称为模式空间（pattern space）。</span></p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例10-1</span>】演示使用行定位方法来选择输出某些文本行，其中使用的文本文件仍然是第9章中的students.txt。代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #----------------------------/chapter10/ex10-1.sh------------------
+02   #! /bin/bash
+03
+04   # 输出 1~3 行，不使用 -n 选项
+05   sed '1,3p' students.txt
+06
+07   echo "===================================="
+08
+09   # 输出 1~3 行，使用 -n 选项
+10   sed -n '1,3p' students.txt
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第5行没有使用-n选项来输出students.txt文件的第1～3行，第10行使用了-选项来打印同样的文本行。</p>
+      <p class="kindle-cn-para-left">该程序的输出结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter10]# ./ex10-1.sh</span>
+200200110        Abdul
+200200110        Abdul
+200200164        Abram
+200200164        Abram
+200200167        Bartley
+200200167        Bartley
+200200168        Bennett
+200200172        Cecil
+200200173        John
+200200187        Cat
+====================================
+200200110        Abdul
+200200164        Abram
+200200167        Bartley
+</pre>
+</div>
+<p class="kindle-cn-para-left">在上面的执行结果中，横线上面的是不含有-n选项的sed命令的输出结果，横线下面是含有-n选项的sed命令的输出结果。分析输出结果中的文本行，可以发现在不使用-n选项的情况下，sed命令将文本文件的前3行输出了两次。之所以会出现这个结果，是因为sed命令首先会读取一行文本，然后自动将缓冲区中的该行文本输出到标准输出。接着执行sed的子命令，遇到p命令之后，该命令又会强制sed命令输出一次缓冲区中的文本。这样的话，导致了前面3行输出两次。而对于后面的其他的行，是sed命令的默认输出，没有受到位置参数的影响，所以只输出了1次。</p>
+      <p class="kindle-cn-para-left">当使用了-n选项之后，sed命令的默认输出被取消，所以只有受p子命令影响的前面3行被输出。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例10-2</span>】演示使用正则表达式来作为定位参数，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #----------------------------/chapter10/ex10-2.sh------------------
+02   #! /bin/bash
+03
+04   # 使用正则表达式定位
+05   result='sed -n '/^20020017/ p' students.txt'
+06
+07   echo "$result"
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第5行使用正则表达式/^20020017/来定位文本，表示以字符2开头，然后紧跟着字符串0020017的文本行，对于这些文本行执行定位参数后面的子命令p。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter10]# ./ex10-2.sh</span>
+200200172        Cecil
+200200173        John
+</pre>
+</div>
+      <p class="kindle-cn-para-left">另外，还有一些特殊的情况，例如用户需要输出第一行，则可以使用以下命令：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter10]# sed -n '1 p' students.txt</span>
+200200110        Abdul
+</pre>
+</div>
+      <p class="kindle-cn-para-left">其中，位置参数1表示第一行文本。</p>
+      <p class="kindle-cn-para-left">如果想要打印最后一行，则可以使用以下命令：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter10]# sed -n '$ p' students.txt</span>
+200200187        Cat
+</pre>
+</div>
+      <p class="kindle-cn-para-left">其中的位置参数$表示定位文本文件的最后一行。</p>
+      <p class="kindle-cn-para-left">如果想要输出奇数行，则可以使用以下命令：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter10]# sed -n '1~2 p' students.txt</span>
+200200110        Abdul
+200200167        Bartley
+200200172        Cecil
+200200187        Cat
+</pre>
+</div>
+      <p class="kindle-cn-para-left">其中的位置参数1～2表示从第一行开始，每隔两行。</p>
+      <p class="kindle-cn-para-left">同理，如果想要输出偶数行，则只要将上面的位置参数的1改为0即可，如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter10]# sed -n '0~2 p' students.txt</span>
+200200164        Abram
+200200168        Bennett
+200200173        John
+</pre>
+</div>
+      <p class="kindle-cn-para-left">下面的命令的位置参数使用正则表达式和行号来表达：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter10]# sed -n '/Abdul/,5 p' students.txt</span>
+200200110        Abdul
+200200164        Abram
+200200167        Bartley
+200200168        Bennett
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的命令中，第一个位置参数使用正则表达式/Abtul/表达，表示从含有字符串Abtul的文本行开始，第二个位置参数使用行号5表达，表示到第5行结束。</p>
+      <h3 class="kindle-cn-heading2" id="sub227"><a href="part0004.html#toc227" class="calibre8">10.2.3　替换文本</a>
+      </h3>
+      <p class="kindle-cn-para-left">使用sed命令，可以很方便地对文本文件中指定的文本进行替换操作。文本的替换需要使用s子命令，其语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">[address1[ ,address2]] s/pattern/replacemen/[flag]
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的语法中，address1与address2都是位置参数，关于它们的用法请参见前面的几个小节的介绍。在s命令中，位置参数通常会被省略，表示在所有的文本行中进行替换操作，其语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">s/pattern/replacemen/[flag]
+</pre>
+</div>
+      <p class="kindle-cn-para-left">s子命令表示执行替换（substitute）操作。pattern为使用正则表达式表示的匹配模式， replacement为用来替换的由一般字符组成的字符串。</p>
+      <p class="kindle-cn-para-left">flag为替换标志，它的值会影响到s命令的行为，常用的选项有以下值。</p>
+      <ul class="kindle-cn-ul-square">
+      <li class="calibre5">g：全局（global）匹配，会替换文本行中所有符合规则的字符串。</li>
+      <li class="calibre5">十进制数字：如果flag为一个十进制数字n，则表示替换文本行中第n个符合规则的字符串。</li>
+      <li class="calibre5">p：替换第1个符合规则的字符串，并且将缓冲区输出到标准输出。</li>
+      <li class="calibre5">w：替换第1个符合规则的字符串，并且将受影响的行输出到磁盘文件中。</li>
+      <li class="calibre5">空：如果没有指定flag，则表示替换文本行中的第1个符合规则的字符串。</li>
+      </ul>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例10-3</span>】演示使用s子命令替换文本的方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #----------------------------/chapter10/ex10-3.sh------------------
+02   #! /bin/bash
+03
+04   echo "substitute the first pattern."
+05   # 只将每行中第 1 次出现的小写字母 e 替换为大写字母 E
+06   result='sed 's/e/E/' students.txt'
+07
+08   echo "$result"
+09
+10   echo "substitute all the patterns."
+11   # 将每一处的小写字母 e 都替换为大写字母 E
+12   result='sed 's/e/E/g' students.txt'
+13
+14   echo "$result"
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第6行中的正则表达式为/e/表示匹配小写字母e，后面的E为用来替换的字符串。第12行使用了g选项来执行相同的替换。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter10]# ./ex10-3.sh</span>
+substitute the first pattern.
+200200110        Abdul
+200200164        Abram
+<span class="kindle-cn-bold">200200167        BartlEy</span>
+<span class="kindle-cn-bold">200200168        BEnnett</span>
+<span class="kindle-cn-bold">200200172        CEcil</span>
+200200173        John
+200200187        Cat
+substitute all the patterns.
+200200110        Abdul
+200200164        Abram
+<span class="kindle-cn-bold">200200167        BartlEy</span>
+<span class="kindle-cn-bold">200200168        BEnnEtt</span>
+<span class="kindle-cn-bold">200200172        CEcil</span>
+200200173        John
+200200187        Cat
+</pre>
+</div>
+      <p class="kindle-cn-para-left">通过分析上面的输出结果，可以发现，代码中第6行的sed语句只替换了每行中第一次出现的字母e，其他的字母e却没有被替换，例如Bennett中被替换成了BEnnett。但是代码中第12行的sed语句却替换了所有的小写字母e。</p>
+      <p class="kindle-cn-para-left">上面的两个例子都省略了位置参数，表示在所有的文本行中搜索匹配的模式。除此之外，用户可以指定sed命令搜索的文本行的范围，如下面的例子所示。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例10-4</span>】使用行号定位方法来定位文本行，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #----------------------------/chapter10/ex10-4.sh------------------
+02   #! /bin/bash
+03
+04   # 替换第 1~3 行中的所有的小写字母 e 为大写字母 E
+05   result='sed '1,3 s/e/E/g' students.txt'
+06
+07   echo "$result"
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第5行表示替换指定文本文件的1～3行中的所有的小写字母e为大写字母E，其余的文本行不受影响。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter10]# ./ex10-4.sh</span>
+200200110        Abdul
+200200164        Abram
+200200167        BartlEy
+200200168        Bennett
+200200172        Cecil
+200200173        John
+200200187        Cat
+</pre>
+</div>
+      <p class="kindle-cn-para-left">分析上面的输出结果，可以发现只有第1～3文本行中的小写字母e被替换，而其余的小写字母并没有被替换。这个例子说明了在上面的语句中，位置参数已经发挥作用。</p>
+      <p class="kindle-cn-para-left">前面已经介绍过，在sed命令中，位置参数的表示非常灵活，可以使用行号，也可以使用正则表达式，甚至还可以将这两种方式混合起来使用。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例10-5</span>】演示通过两种方式来定位文本行。第一个位置参数使用行号，而第二个位置参数则使用正则表达式来表示。代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #----------------------------/chapter10/ex10-5.sh------------------
+02   #! /bin/bash
+03
+04   # 使用混合位置参数
+05   result='sed '1,/^200200167/ s/e/E/g' students.txt'
+06
+07   echo "$result"
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第5行的位置参数为1,/^200200167/，其中，第1个位置参数为1，表示从第1行开始；第2个位置参数为正则表达式/^200200167/，表示到以字符2开头，并且后继为字符串00200167的文本行为止。</p>
+      <p class="kindle-cn-para-left">由于在students.txt文件中，符合上面的正则表达式的行恰好为第3行，所以【例10-5】的执行结果与【例10-4】完全相同。</p>
+      <p class="kindle-cn-para-left">对于用户来说，要使用好sed命令，必须学会灵活地运用正则表达式。下面再举一个更加实用的例子。作为开发人员，经常会遇到以下情况：对于一段HTML代码，如何将其中的HTML标记全部过滤掉。下面的例子就给出了一种解决方法。</p>
+      <p class="kindle-cn-para-left">假设有下面一段HTML代码需要用户处理：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   &lt;div class="xspace-itemdata"&gt;
+02   &lt;a href="#xspace-tracks"&gt;view(1881)&lt;/a&gt;
+03   &lt;a href="#xspace-itemreply"&gt;review(5)&lt;/a&gt;
+04   &lt;a href="#xspace-itemform"&gt;score&lt;/a&gt;
+05   &lt;/div&gt;
+</pre>
+</div>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例10-6</span>】使用sed命令结合正则表达式将上面HTML代码中的文本提取出来，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #----------------------------/chapter10/ex10-6.sh------------------
+02   #! /bin/bash
+03
+04   # 将文件中的 HTML 标记替换为空
+05   result='sed 's/&lt;[^&gt;]*&gt;//g' html.txt'
+06
+07   echo "$result"
+</pre>
+</div>
+      <p class="kindle-cn-para-left">用户需要特别注意代码第5行中正则表达式/&lt;[^&gt;]*&gt;/，这个正则表达式所描述的匹配规则为：首先是一个左尖括号，在随后的文本中不会出现右尖括号，接下来是匹配任意多个任意字符，最后是一个右尖括号。因此，这个正则表达式会匹配&lt;…&gt;这样的字符串，并且左右两个尖括号之间不会出现另外的右尖括号。</p>
+      <p class="kindle-cn-para-left">另外，代码第5行的sed语句也需要进行说明，在这个语句中，并没有为sed命令提供第2个参数值，这意味着用空串来替换匹配的模式。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter10]# ./ex10-6.sh</span>
+view(1881)
+review(5)
+score
+</pre>
+</div>
+      <p class="kindle-cn-para-left">从上面的执行结果可以得知，所有的HTML标记全部被过滤掉了。</p>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">在s命令中，各个参数之间并不一定要使用斜线/分隔，还可以使用除空格以及换行符之外的其他任意的字符，例如冒号或者分号等。总之，s命令会将紧跟在后面的那个字符作为参数分隔符。因此，下面的两条语句与【例10-6】中的第5行是等价的：</span></p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">result='sed 's:&lt;[^&gt;]*&gt;::g' html.txt'
+result='sed 's;&lt;[^&gt;]*&gt;;;g' html.txt'
+</pre>
+</div>
+      <p class="kindle-cn-para-left">其中，第1条使用了冒号作为参数分隔符，第2条使用分号作为参数分隔符。</p>
+      <p class="kindle-cn-para-left">前面讲过，在s子命令中，作为替换的字符串中通常只包含一般字符。但是，如果替换字符串中含有字符&amp;或者反斜线加上数字\n，其中n是一个1～9之间的数字，则表示引用子字符串。其中&amp;符号表示引用匹配的模式，即在某个文本行中与模式相匹配的那部分子串；而\n表示第n个由圆括号括起来的子串。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例10-7</span>】演示&amp;符号的使用方法，其中demo1.txt文件的内容如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter10]# cat demo1.txt</span>
+This is a string.
+</pre>
+</div>
+      <p class="kindle-cn-para-left">本例代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #----------------------------/chapter10/ex10-7.sh------------------
+02   #! /bin/bash
+03
+04   # 引用与模式相匹配的子串
+05   result='sed 's/string/long &amp;/' demo1.txt'
+06
+07   echo "$result"
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第5行中的&amp;表示引用模式string，因此每个文本行中第1个与模式string相匹配的子串都将被替换为long string这个字符串。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter10]# ./ex10-7.sh</span>
+This is a <span class="kindle-cn-bold">long string.</span>
+</pre>
+</div>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">由于【例10-7】中没有使用全局替换标志g，所以只会替换每个文本行中第1次匹配的子串。</span></p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例10-8</span>】演示使用\n的形式来引用模式中子串，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #----------------------------/chapter10/ex10-8.sh------------------
+02   #! /bin/bash
+03
+04   # 通过数字来引用模式中的子串
+05   result='sed 's/\(This\) \(is\) \(a\) \(string\)/\2 \1 \3 \4/' demo1.txt'
+06
+07   echo "$result"
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第5行的匹配模式被圆括号分隔成4个子串，在后面的替换字符串中，\2表示引用第2个子串，即is，\1表示引用第1个子串，即This，\3和\4分别引用第3个和第4个子串，分别为a和string。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter10]# ./ex10-8.sh</span>
+is This a string.
+</pre>
+</div>
+      <p class="kindle-cn-para-left">从上面的执行结果可以得知，【例10-8】重新排列了模式中的单词的次序。</p>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">在使用\n的形式引用模式的子串时，不能定义9个以上的子串，因此n的取值为1～9。</span></p>
+      <h3 class="kindle-cn-heading2" id="sub228"><a href="part0004.html#toc228" class="calibre8">10.2.4　删除文本</a>
+      </h3>
+      <p class="kindle-cn-para-left">接下来介绍如何使用sed命令删除某些文本行。sed提供了d子命令来实现文本行的删除（delete），其语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">[address1[ ,address2]] d
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的语法中，两个位置参数的涵义以及用法请参见前面的内容。命令d表示删除位置参数指定的行。如果省略位置参数，则表示删除文本文件中的所有的行。在执行删除操作时，sed命令会首先读取一行文本到缓冲区，然后将符合位置参数的文本行删除，接着读取并处理下一行。下面的例子演示了如何删除指定的文本行。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例10-9</span>】通过sed命令删除指定的文本行，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #----------------------------/chapter10/ex10-9.sh------------------
+02   #! /bin/bash
+03
+04   # 删除第 1 行
+05   result='sed -e '1 d' students.txt'
+06
+07   echo "$result"
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第5行的sed语句中多个一个选项-e，这个选项的功能是告诉sed，将后面的字符串作为子命令来处理。当然，如果只有一个子命令，这个选项可以省略，因此，前面的所有例子中，包括【例10-9】，都可以省略-e选项。子命令1 d表示将第1行删除，其中数字1为定位参数。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter10]# ./ex10-9.sh</span>
+200200164        Abram
+200200167        Bartley
+200200168        Bennett
+200200172        Cecil
+200200173        John
+200200187        Cat
+</pre>
+</div>
+      <p class="kindle-cn-para-left">对比前面列出的students.txt文件的内容，可以发现第一行，即学号为200200110的一行数据已经被删除。</p>
+      <p class="kindle-cn-para-left">如果想要删除文本文件的最后一行，可以使用符号$作为定位参数，如下面的例子所示。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例10-10</span>】演示删除文本文件最后一行的方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter10/ex10-10.sh------------------
+02   #! /bin/bash
+03
+04   # 删除最后一行
+05   result='sed -e '$ d' students.txt'
+06
+07   echo "$result"
+</pre>
+</div>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter10]# ./ex10-10.sh</span>
+200200110        Abdul
+200200164        Abram
+200200167        Bartley
+200200168        Bennett
+200200172        Cecil
+200200173        John
+</pre>
+</div>
+      <p class="kindle-cn-para-left">从上面的执行结果中可以得知，学号为200200187的最后一行已经被删除。</p>
+      <p class="kindle-cn-para-left">d子命令最多支持两个定位符，在上面的例子中，我们都使用了一个定位符。实际上， sed命令的定位符非常灵活，可以指定某一段文本行，间隔指定数量的文本行以及从某个行开始一直到文件结尾。下面的例子就实现了这些更为复杂的定位。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例10-11</span>】演示sed命令中文本行的不同定位方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter10/ex10-11.sh------------------
+02   #! /bin/bash
+03
+04   # 删除 1~4 行
+05   result='sed -e '1,4 d' students.txt'
+06
+07   echo "$result"
+08
+09   echo "==============================="
+10
+11   # 删除奇数行
+12   result='sed -e '1~2 d' students.txt'
+13
+14   echo "$result"
+15
+16   echo "=============================="
+17
+18   # 删除偶数行
+19   result='sed -e '0~2 d' students.txt'
+20
+21   echo "$result"
+22
+23   echo "============================="
+24
+25   # 删除从第 1 行开始，一直到以 200200172 开头的行
+26   result='sed -e '1,/^200200172/ d' students.txt'
+27
+28   echo "$result"
+29
+30   echo "============================"
+31
+32   # 删除从第 4 行开始，一直到最后一行的所有行
+33   result='sed '4,$ d' students.txt'
+34
+35   echo "$result"
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第5行代码的子命令为1,4 d，表示从第1个文本行开始，一直删除到第4个文本行为止。第12行代码的子命令为1～2 d，表示从第1个文本行开始，每隔2行删除1行文本，即删除行号为奇数的文本行。第19行代码的子命令为0～2 d，表示从第0个文本行开始，每隔2行删除1行文本，即删除行号为偶数的文本行。第26行代码的子命令为1,/^200200172/ d，表示从第1个文本行开始，到以字符串00200172开头的文本行为止，删除这一段文本行。第33行的子命令为4,$ d，表示删除从第4个文本行开始，到文件末尾的所有文本行。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter10]# ./ex10-11.sh</span>
+200200172        Cecil
+200200173        John
+200200187        Cat
+===============================
+200200164        Abram
+200200168        Bennett
+200200173        John
+==============================
+200200110        Abdul
+200200167        Bartley
+200200172        Cecil
+200200187        Cat
+=============================
+200200173        John
+200200187        Cat
+============================
+200200110        Abdul
+200200164        Abram
+200200167        Bartley
+</pre>
+</div>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">还记得在介绍正则表达式的时候讲过的空白行的表示方法吗？在正则表达式中，用户可以使用表达式^$来表示空白行。因此，用户可以使用以下命令来删除文件中的所有的空白行：</span></p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">sed '^$ d' students.txt
+</pre>
+</div>
+      <h3 class="kindle-cn-heading2" id="sub229"><a href="part0004.html#toc229" class="calibre8">10.2.5　追加文本</a>
+      </h3>
+<p class="kindle-cn-para-left">所谓追加文本，是指将某些文本插入到某个位置的后面。sed命令提供了a子命令来实现文本的追加（append），其基本语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">[address1] a string
+</pre>
+</div>
+      <p class="kindle-cn-para-left">从上面的语法可以得知，子命令a最多只能使用一个位置参数。参数string表示将要追加的文本。a子命令会将string代表的文本插入到address1所表示的位置的后面。这一点也是追加文本与后面将要介绍的插入文本的区别。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例10-12</span>】演示通过sed命令追加文本的方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter10/ex10-12.sh------------------
+02   #! /bin/bash
+03
+04   # 在第 2 行后面追加文本
+05   result='sed '2 a 200200109      Tom' students.txt'
+06
+07   echo "$result"
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，使用行号2作为位置参数，表示在第2行后面追加一行文本。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter10]# ./ex10-12.sh</span>
+200200110        Abdul
+200200164        Abram
+200200109        Tom
+200200167        Bartley
+200200168        Bennett
+…
+</pre>
+</div>
+      <p class="kindle-cn-para-left">从上面的执行结果可以得知，学号为200200109的文本行被插入到第2行后面。</p>
+      <p class="kindle-cn-para-left">除了使用行号来定位之外，同样，用户还可以使用正则表达式作为位置参数，如下面的例子所示。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例10-13</span>】通过正则表达式指定追加文本的位置，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter10/ex10-15.sh------------------
+02   #! /bin/bash
+03
+04   # 在以 200200110 开头的文本行后面追加文本
+05   result='sed '/^200200110/ a 200200109    Tom' students.txt'
+06
+07   echo "$result"
+</pre>
+</div>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter10]# ./ex10-13.sh</span>
+200200110        Abdul
+200200109        Tom
+200200164        Abram
+200200167        Bartley
+…
+</pre>
+</div>
+      <h3 class="kindle-cn-heading2" id="sub230"><a href="part0004.html#toc230" class="calibre8">10.2.6　插入文本</a>
+      </h3>
+      <p class="kindle-cn-para-left">插入文本的操作与追加文本非常相似，只是插入的位置不同。追加文本是在位置参数指定的位置的后面插入文本，而插入文本则是在位置参数指定的位置的前面插入文本。在sed命令中，子命令i用来实现文本的插入，其语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">[address1] i string
+</pre>
+</div>
+<p class="kindle-cn-para-left">与子命令a一样，子命令i也是最多只能使用一个位置参数。位置参数address1用来指定要插入文本的位置，子命令i表示当前的操作是插入文本，参数string表示将要被插入的文本。</p>
+      <p class="kindle-cn-para-left">从上面的语法可以看出，i子命令和a子命令的使用方法并没有太大的区别。下面以具体的例子来说明插入文本的方法。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例10-14</span>】演示通过sed命令插入文本的方法。为了便于比较i子命令和a子命令的区别，本例对【例10-12】进行修改，将其中的a子命令换成i子命令。代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter10/ex10-14.sh------------------
+02   #! /bin/bash
+03
+04   # 在以 200200110 开头的文本行前面插入文本
+05   result='sed '2 i 200200109      Tom' students.txt'
+06
+07   echo "$result"
+</pre>
+</div>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter10]# ./ex10-14.sh</span>
+200200110        Abdul
+200200109        Tom
+200200164        Abram
+…
+</pre>
+</div>
+      <p class="kindle-cn-para-left">对比【例10-14】和【例10-12】的执行结果，可以发现文本行的插入位置不同。</p>
+<p class="kindle-cn-para-left">同样，用户可以使用其他的位置参数来指定插入的位置，用户可以对【例10-13】进行修改，以观察两者的不同。</p>
+      <h2 class="kindle-cn-heading1" id="sub231"><a href="part0004.html#toc231" class="calibre8">10.3　组合命令</a>
+      </h2>
+      <p class="kindle-cn-para-left">sed命令支持将多个子命令组合在一起使用，这一点非常重要，因为在通常情况下，用户需要对文本进行多个不同的操作。如果不支持组合命令的话，则需要使用多个sed命令来完成；如果使用组合命令，则可以在一条sed命令中将这些操作完成。本节将介绍sed中的组合命令的使用方法。</p>
+      <h3 class="kindle-cn-heading2" id="sub232"><a href="part0004.html#toc232" class="calibre8">10.3.1　使用-e选项执行多个子命令</a>
+      </h3>
+      <p class="kindle-cn-para-left">sed命令的-e选项可以使sed将跟在其后面的字符串作为子命令执行。在前面的大部分例子中，由于都是一个子命令，所以将该选项省略。但是，如果想要为sed命令同时指定多个子命令，则必须使用多个-e选项。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例10-15</span>】演示sed命令-e选项的使用方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter10/ex10-15.sh------------------
+02   #! /bin/bash
+03
+04   # 将所有的小写字母 e 替换为大写字母，然后打印 2~3 行
+05   result='sed -n -e 's/e/E/g' -e '2,3 p' students.txt'
+06
+07   echo "$result"
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第5行的语句执行了两个sed子命令，首先是子命令s，将所有的小写字母e替换为大写字母E。然后是p子命令，将第2～3行文本输出到屏幕。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter10]# ./ex10-15.sh</span>
+200200164        Abram
+200200167        BartlEy
+</pre>
+</div>
+      <p class="kindle-cn-para-left">从上面的执行结果可以得知，第2个子命令输出的是第1个子命令处理后的结果。这是因为sed是一个行编辑工具，也就是说，sed命令会逐行读取文本到缓冲区中，然后依次应用各个子命令。所有的子命令都是对缓冲区中的数据进行处理的，而p子命令将缓冲区中的数据输出到标准输出。</p>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">如果sed命令中只有1个子命令，则-e选项可以省略。</span></p>
+      <h3 class="kindle-cn-heading2" id="sub233"><a href="part0004.html#toc233" class="calibre8">10.3.2　使用分号执行多个子命令</a>
+      </h3>
+      <p class="kindle-cn-para-left">用户还可以使用分号来将各个子命令隔开，其语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">sed -e 'command1;command2...' filename
+</pre>
+</div>
+      <p class="kindle-cn-para-left">其中，command1以及command2等都表示多个子命令，这些子命令之间用分号隔开。filename参数表示要处理的文本文件。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例10-16</span>】演示通过分号执行多个子命令的方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter10/ex10-16.sh------------------
+02   #! /bin/bash
+03
+04   # 使用分号隔开多个子命令
+05   result='sed -e 's/e/E/g;2 i 200100001    Ellen' students.txt'
+06
+07   echo "$result"
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第5行包含两个子命令，第1个是s子命令，第2个是i子命令。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter10]# ./ex10-16.sh</span>
+200200110        Abdul
+200100001        Ellen
+200200164        Abram
+200200167        BartlEy
+200200168        BEnnEtt
+200200172        CEcil
+200200173        John
+200200187        Cat
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的执行结果中，除了新插入的第2行文本之外，其他的所有文本行中的小写字母e都被替换成了大写字母E，这个正是s子命令的处理结果。第2行中的小写字母e并没有被替换，是因为sed命令的子命令是按照从左到右的顺序依次执行的，s子命令在前， i子命令在后，所以i子命令插入的行并没有被s子命令处理。</p>
+      <h3 class="kindle-cn-heading2" id="sub234"><a href="part0004.html#toc234" class="calibre8">10.3.3　对一个地址使用多个子命令</a>
+      </h3>
+<p class="kindle-cn-para-left">在某些情况下，用户需要对同一个地址使用多个子命令，例如，对某个文件的前20行进行多次替换操作等。sed命令提供了对同一个地址使用多个子命令的语法，如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">address {
+   command1
+   command2
+   command3
+…
+}
+</pre>
+</div>
+<p class="kindle-cn-para-left">在上面的语法中，address为位置参数，表示后面一组命令的应用对象。command1及command2等为一组sed子命令，这些子命令使用大括号括起来。在大括号中的每个子命令，都允许有自己的位置参数。</p>
+      <p class="kindle-cn-para-left">除了上面将多个子命令分行书写的语法之外，还可以将所有的子命令写在一行里面，如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">[address] {command1;command2;command3;…}
+</pre>
+</div>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">在不同的sed版本中，对于组合命令的语法要求可能会不同。例如，有的版本中要求右大括号必须单独一行，子命令后面不能有空格等，用户在使用组合命令时需要注意。</span></p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例10-17</span>】演示对同一个地址使用多个子命令的方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter10/ex10-17.sh------------------
+02   #! /bin/bash
+03
+04   # 组合命令
+05   result='sed -n '1,5 {
+06     s/e/E/g
+07     s/a/A/g
+08     2 i 201303009 Tom
+09     p
+10   }' students.txt'
+11
+12   echo "$result"
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第5行的sed命令中的位置参数为1,5，表示对第1～5行文本使用后面的一组子命令，接下来是左大括号。第6行是第1个子命令s，将小写字母e替换为大写字母E，第7行是第2个子命令s，将小写字母a替换为大写字母A，第8行是第3个子命令i，在第2行文本的前面插入一行，代码的第9行是子命令p，用来输出缓冲区中的数据。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter10]# ./ex10-17.sh</span>
+200200110        Abdul
+201303009        Tom
+200200164        AbrAm
+200200167        BArtlEy
+200200168        BEnnEtt
+200200172        CEcil
+</pre>
+</div>
+      <p class="kindle-cn-para-left">从上面的执行结果可以得知，sed会依次执行各个子命令。另外，在大括号里面，还可以指定位置参数，例如代码的第8行的i子命令。</p>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">大括号中的子命令可以写在一行里面，需要使用分号隔开。但是不鼓励这样做，因为会导致程序的可读性较差。</span></p>
+      <h3 class="kindle-cn-heading2" id="sub235"><a href="part0004.html#toc235" class="calibre8">10.3.4　sed脚本文件</a>
+      </h3>
+      <p class="kindle-cn-para-left">尽管直接将子命令写在sed命令中会非常方便，但是当用户的需求比较复杂，子命令较多的情况下，直接在sed命令中输入子命令会导致程序的可读性差，会让用户分不清哪些是子命令，以及这些子命令的功能是什么。</p>
+      <p class="kindle-cn-para-left">为了避免这个问题，sed提供了-f选项，通过这个选项，sed命令可以从指定的脚本文件中读取子命令，然后对每个文本行依次执行各个子命令，其语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">sed -f script
+</pre>
+</div>
+      <p class="kindle-cn-para-left">其中，script表示sed脚本文件。</p>
+      <p class="kindle-cn-para-left">sed脚本的语法比较简单，就是将各个子命令依次列出来，不必使用引号。如果将多条子命令写在同一行中，需要使用分号将其隔开。另外，sed脚本文件支持代码注释，如果某一行以#开头，则表示该行为注释。sed脚本的注释仅限于行注释，不能跨行。</p>
+      <p class="kindle-cn-para-left">下面以一个具体的例子来说明sed脚本文件的使用方法。在进行程序设计时，经常会遇到格式编排的问题，良好的格式会有利于用户阅读和理解程序。通过sed命令，可以对一些格式错乱的代码进行编排。例如，下面显示的是一段Java代码：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   import java.rmi.RemoteException;
+02
+03   public class HelloClient
+04   {
+05      /**
+06       * @param args
+07       */
+08
+09      public static void main(String[] args)
+10      {
+11          // TODO Auto-generated method stub
+12              HelloProxy ws = new HelloProxy();
+13          try
+14          {
+15                  System.out.println(ws.sayHello("dfasdfasdfsd"));
+16          }
+17          catch (RemoteException e)
+18          {
+19              // TODO Auto-generated catch block
+20                      e.printStackTrace();
+21          }
+22      }
+23
+24   }
+</pre>
+</div>
+      <p class="kindle-cn-para-left">可以发现，上面的代码中，存在着许多空行，另外代码缩进也不整齐。为了整理上面的代码的格式，用户需要执行一些操作，例如删除空行、调整代码缩进字符数，以及删除不必要的注释等。</p>
+      <p class="kindle-cn-para-left">为了处理以上问题，编写一个sed脚本文件，其名称为java.sed，具体代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter10/java.sed------------------
+02   s/^[[:blank:]][[:blank:]]*/\t/g
+03   /^$/d
+04   /^[[:blank:]]\/\//d
+05   /^[[:blank:]]\/\*/d
+06   /^[[:blank:]]\*/d
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第2行使用s子命令将超过1个空格或者制表符替换为1个制表符；第3行使用d子命令删除所有的空行；第3行删除以1个空格开头，后跟2个斜线/的行；第5行删除以2个空格开头，后跟字符串/*的行；第6行删除以2个空格开头，后跟1个星号的行。</p>
+      <p class="kindle-cn-para-left">然后用户可以使用以下命令来执行sed脚本文件中的子命令，如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter10]# sed -f java.sed code.java</span>
+import java.rmi.RemoteException;
+public class HelloClient
+{
+        public static void main(String[] args)
+        {
+        HelloProxy ws = new HelloProxy();
+        try
+        {
+        System.out.println(ws.sayHello("dfasdfasdfsd"));
+        }
+        catch (RemoteException e)
+        {
+        e.printStackTrace();
+        }
+        }
+}
+</pre>
+</div>
+      <p class="kindle-cn-para-left">通过上面的输出结果，可以发现代码中的空行和注释都已经被删除，另外，代码的缩进也已经非常整齐。</p>
+<p class="kindle-cn-para-left">在本章最开始的时候，我们已经讲过sed命令有3种工作方式，分别是命令行、sed脚本文件，以及可执行脚本。前面两种方式都已经介绍过了，下面再介绍一下第3种方式。</p>
+      <p class="kindle-cn-para-left">第3种方式就是将所有的命令都写在一个脚本文件中，然后赋予该脚本文件的可执行权限，这样的话，用户就不需要再在命令行中调用sed命令，而是直接执行脚本文件。</p>
+      <p class="kindle-cn-para-left">从大体上讲，sed可执行脚本文件的语法与其他的Shell脚本文件非常相似，首先在第1行指定解释器，然后是一系列的代码。但是，在sed可执行脚本中，解释器不再是/bin/bash，而是/bin/sed。然后，脚本文件中的语句不再是Shell命令，而是sed子命令。</p>
+      <p class="kindle-cn-para-left">下面将上面的java.sed文件进行修改，变成一个可执行的脚本文件，内容如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #! /bin/sed -f
+02
+03   s/^[[:blank:]][[:blank:]]*/\t/g
+04   /^$/d
+05   /^[[:blank:]]\//d
+06   /^[[:blank:]]\/\*/d
+07   /^[[:blank:]]\*/d
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第1行指定解释器程序，此处需要使用-f选项，因为下面的子命令都来自脚本文件。第3～7行是一系列子命令。</p>
+      <p class="kindle-cn-para-left">修改完成之后，使用chmod命令修改文件的权限，如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter10]# chmod +x java.sed</span>
+</pre>
+</div>
+      <p class="kindle-cn-para-left">接下来，用户就可以使用以下方式直接执行该脚本文件：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter10]# ./java.sed code.java</span>
+import java.rmi.RemoteException;
+public class HelloClient
+{
+        public static void main(String[] args)
+        {
+            HelloProxy ws = new HelloProxy();
+            try
+            {
+                System.out.println(ws.sayHello("dfasdfasdfsd"));
+            }
+            catch (RemoteException e)
+            {
+                e.printStackTrace();
+            }
+        }
+}
+</pre>
+</div>
+      <h2 class="kindle-cn-heading1" id="sub236"><a href="part0004.html#toc236" class="calibre8">10.4　小结</a>
+      </h2>
+      <p class="kindle-cn-para-left">本节详细介绍了流编辑器sed的使用方法，主要包括sed命令及其语法，sed常用的操作命令，例如查找、替换、删除、插入，以及追加文本等。另外，还介绍了sed的组合命令的使用方法。本章重点在于掌握sed命令的工作原理，以及基本的编辑操作命令。除了以上内容之外，sed还包括许多其他的内容，例如读写文本及缓冲区的管理等。关于这些内容，请读者参考相关技术手册。在下一章中，将介绍另外一个文本处理工具awk的使用方法。</p>
+    </div>
+  
+
+  </div>
+
+  
+  <div class="calibreToc">
+    <h2><a href="../../pARZf2.html"> Table of contents</a></h2>
+     <div>
+  <ul>
+    <li>
+      <a href="part0001.html#UGI0-55ac501d2b9f4bebb0296c8a16b339b4">内容简介</a>
+    </li>
+    <li>
+      <a href="part0003.html#2RHM0-55ac501d2b9f4bebb0296c8a16b339b4">前言</a>
+    </li>
+    <li>
+      <a href="part0004.html#3Q280-55ac501d2b9f4bebb0296c8a16b339b4">目录</a>
+    </li>
+    <li>
+      <a href="part0005.html#chapter2">第1篇　认识Shell编程</a>
+      <ul>
+        <li>
+          <a href="part0006.html#chapter3">第1章　Shell入门基础</a>
+          <ul>
+            <li>
+              <a href="part0006.html#sub4">1.1　为什么学习和使用Shell编程</a>
+            </li>
+            <li>
+              <a href="part0006.html#sub5">1.2　什么是Shell</a>
+              <ul>
+                <li>
+                  <a href="part0006.html#sub6">1.2.1　Shell的起源</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub7">1.2.2　Shell的功能</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub8">1.2.3　Shell的分类</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0006.html#sub9">1.3　作为程序设计语言的Shell</a>
+              <ul>
+                <li>
+                  <a href="part0006.html#sub10">1.3.1　交互式程序</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub11">1.3.2　创建脚本</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub12">1.3.3　把脚本设置为可执行</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0006.html#sub13">1.4　向脚本传递参数</a>
+              <ul>
+                <li>
+                  <a href="part0006.html#sub14">1.4.1　Shell脚本的参数</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub15">1.4.2　参数扩展</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0006.html#sub16">1.5　第一个Shell程序：Hello，Bash Shell！</a>
+              <ul>
+                <li>
+                  <a href="part0006.html#sub17">1.5.1　Shell脚本的基本元素</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub18">1.5.2　指定命令解读器</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub19">1.5.3　Shell脚本中的注释和风格</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub20">1.5.4　如何执行Shell程序</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub21">1.5.5　Shell程序的退出状态</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0006.html#sub22">1.6　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0007.html#chapter23">第2章　Shell编程环境的搭建</a>
+          <ul>
+            <li>
+              <a href="part0007.html#sub24">2.1　在不同的操作系统上搭建Shell编程环境</a>
+              <ul>
+                <li>
+                  <a href="part0007.html#sub25">2.1.1　在Windows上搭建Shell编程环境</a>
+                </li>
+                <li>
+                  <a href="part0007.html#sub26">2.1.2　在Linux上搭建Shell编程环境</a>
+                </li>
+                <li>
+                  <a href="part0007.html#sub27">2.1.3　在FreeBSD上搭建Shell编程环境</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0007.html#sub28">2.2　编辑器的选择</a>
+              <ul>
+                <li>
+                  <a href="part0007.html#sub29">2.2.1　图形化编辑器</a>
+                </li>
+                <li>
+                  <a href="part0007.html#sub30">2.2.2　vi（vim）编辑器</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0007.html#sub31">2.3　系统环境的搭建</a>
+              <ul>
+                <li>
+                  <a href="part0007.html#sub32">2.3.1　Shell配置文件</a>
+                </li>
+                <li>
+                  <a href="part0007.html#sub33">2.3.2　命令别名</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0007.html#sub34">2.4　小结</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0008.html#chapter35">第2篇　Shell编程基础</a>
+      <ul>
+        <li>
+          <a href="part0009.html#chapter36">第3章　变量和引用</a>
+          <ul>
+            <li>
+              <a href="part0009.html#sub37">3.1　深入认识变量</a>
+              <ul>
+                <li>
+                  <a href="part0009.html#sub38">3.1.1　什么是变量</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub39">3.1.2　变量的命名</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub40">3.1.3　变量的类型</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub41">3.1.4　变量的定义</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub42">3.1.5　变量和引号</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub43">3.1.6　变量的作用域</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub43a">3.1.7　系统变量</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub44">3.1.8　环境变量</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0009.html#sub45">3.2　变量赋值和清空</a>
+              <ul>
+                <li>
+                  <a href="part0009.html#sub46">3.2.1　变量赋值</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub47">3.2.2　引用变量的值</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub48">3.2.3　清除变量</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0009.html#sub49">3.3　引用和替换</a>
+              <ul>
+                <li>
+                  <a href="part0009.html#sub50">3.3.1　引用</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub51">3.3.2　全引用</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub52">3.3.3　部分引用</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub53">3.3.4　命令替换</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub53a">3.3.5　转义</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0009.html#sub54">3.4　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0010.html#chapter55">第4章　条件测试和判断语句</a>
+          <ul>
+            <li>
+              <a href="part0010.html#sub56">4.1　条 件 测 试</a>
+              <ul>
+                <li>
+                  <a href="part0010.html#sub57">4.1.1　条件测试的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub58">4.1.2　字符串测试</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub59">4.1.3　整数测试</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub60">4.1.4　文件测试</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub61">4.1.5　逻辑操作符</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0010.html#sub62">4.2　条件判断语句</a>
+              <ul>
+                <li>
+                  <a href="part0010.html#sub63">4.2.1　使用简单的if语句进行条件判断</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub64">4.2.2　使用if else语句进行流程控制</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub65">4.2.3　使用if elif语句进行多条件判断</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub66">4.2.4　使用exit语句退出程序</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0010.html#sub67">4.3　多条件判断语句case</a>
+              <ul>
+                <li>
+                  <a href="part0010.html#sub68">4.3.1　多条件判断语句case的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub69">4.3.2　利用case语句处理选项参数</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub70">4.3.3　利用case语句处理用户输入</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0010.html#sub71">4.4　运 算 符</a>
+              <ul>
+                <li>
+                  <a href="part0010.html#sub72">4.4.1　算术运算符</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub73">4.4.2　位运算符</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub74">4.4.3　自增/自减运算符</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub75">4.4.4　数字常量的进制</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0010.html#sub76">4.5　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0011.html#chapter77">第5章　循 环 结 构</a>
+          <ul>
+            <li>
+              <a href="part0011.html#sub78">5.1　步进循环语句for</a>
+              <ul>
+                <li>
+                  <a href="part0011.html#sub79_1">5.1.1　带列表的for循环语句</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub79">5.1.2　不带列表的for循环语句</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub80">5.1.3　类C风格的for循环语句</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub81">5.1.4　使用for循环语句处理数组</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0011.html#sub82">5.2　until循环语句</a>
+              <ul>
+                <li>
+                  <a href="part0011.html#sub83">5.2.1　until语句的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub84">5.2.2　利用until语句批量增加用户</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0011.html#sub85">5.3　while循环语句</a>
+              <ul>
+                <li>
+                  <a href="part0011.html#sub86">5.3.1　while语句的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub87">5.3.2　通过计数器控制while循环结构</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub88">5.3.3　通过结束标记控制while循环结构</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub89">5.3.4　理解while语句与until语句的区别</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0011.html#sub90">5.4　嵌 套 循 环</a>
+            </li>
+            <li>
+              <a href="part0011.html#sub91">5.5　利用break和continue语句控制循环</a>
+              <ul>
+                <li>
+                  <a href="part0011.html#sub92">5.5.1　利用break语句控制循环</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub93">5.5.2　利用continue语句控制循环</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub94">5.5.3　分析break语句和continue语句的区别</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0011.html#sub95">5.6　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0012.html#chapter96">第6章　函数</a>
+          <ul>
+            <li>
+              <a href="part0012.html#sub97">6.1　函数</a>
+              <ul>
+                <li>
+                  <a href="part0012.html#sub98">6.1.1　什么是函数</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub99">6.1.2　函数的定义</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub100">6.1.3　函数的调用</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub101">6.1.4　函数链接</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub102">6.1.5　函数的返回值</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub103">6.1.6　函数和别名</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub104">6.1.7　再议全局变量和局部变量</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0012.html#sub105">6.2　函 数 参 数</a>
+              <ul>
+                <li>
+                  <a href="part0012.html#sub106">6.2.1　含有参数的函数的调用方法</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub107">6.2.2　获取函数参数的个数</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub108">6.2.3　通过位置变量接收参数值</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub109">6.2.4　移动位置参数</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub110">6.2.5　通过getopts接收函数参数</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub111">6.2.6　间接参数传递</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub112">6.2.7　通过全局变量传递数据</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub113">6.2.8　传递数组参数</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0012.html#sub114">6.3　函数库文件</a>
+              <ul>
+                <li>
+                  <a href="part0012.html#sub115">6.3.1　函数库文件的定义</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub116">6.3.2　函数库文件的调用</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0012.html#sub117">6.4　递 归 函 数</a>
+            </li>
+            <li>
+              <a href="part0012.html#sub118">6.5　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0013.html#chapter119">第7章　数组</a>
+          <ul>
+            <li>
+              <a href="part0013.html#sub120">7.1　定 义 数 组</a>
+              <ul>
+                <li>
+                  <a href="part0013.html#sub121">7.1.1　通过指定元素值来定义数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub122">7.1.2　通过declare语句定义数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub123">7.1.3　通过元素值集合定义数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub124">7.1.4　通过键值对定义数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub125">7.1.5　数组和普通变量</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0013.html#sub126">7.2　数组的赋值</a>
+              <ul>
+                <li>
+                  <a href="part0013.html#sub127">7.2.1　按索引为元素赋值</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub128">7.2.2　通过集合为数组赋值</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub129">7.2.3　在数组末尾追加新元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub130">7.2.4　通过循环为数组元素赋值</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0013.html#sub131">7.3　访 问 数 组</a>
+              <ul>
+                <li>
+                  <a href="part0013.html#sub132">7.3.1　访问第1个数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub133">7.3.2　通过下标访问数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub134">7.3.3　计算数组的长度</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub135">7.3.4　通过循环遍历数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub136">7.3.5　引用所有的数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub137">7.3.6　以切片方式获取部分数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub138">7.3.7　数组元素的替换</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0013.html#sub139">7.4　删 除 数 组</a>
+              <ul>
+                <li>
+                  <a href="part0013.html#sub140">7.4.1　删除指定数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub141">7.4.2　删除整个数组</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0013.html#sub142">7.5　数组的其他操作</a>
+              <ul>
+                <li>
+                  <a href="part0013.html#sub143">7.5.1　复制数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub144">7.5.2　连接数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub145">7.5.3　加载文件内容到数组</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0013.html#sub146">7.6　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0014.html#chapter147">第8章　正则表达式</a>
+          <ul>
+            <li>
+              <a href="part0014.html#sub148">8.1　什么是正则表达式</a>
+              <ul>
+                <li>
+                  <a href="part0014.html#sub149">8.1.1　为什么使用正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub150">8.1.2　如何学习正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub150a">8.1.3　如何实践正则表达式</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0014.html#sub151">8.2　正则表达式基础</a>
+              <ul>
+                <li>
+                  <a href="part0014.html#sub152">8.2.1　正则表达式的原理</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub153">8.2.2　基本正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub154">8.2.3　扩展正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub155">8.2.4　Perl正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub156">8.2.5　正则表达式字符集</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0014.html#sub157">8.3　正则表达式应用</a>
+              <ul>
+                <li>
+                  <a href="part0014.html#sub158">8.3.1　匹配单个字符</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub159">8.3.2　匹配多个字符</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub160">8.3.3　匹配字符串的开头或者结尾</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub161">8.3.4　运算符优先级</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub162">8.3.5　子表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub163">8.3.6　通配符</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0014.html#sub164">8.4　grep命令</a>
+              <ul>
+                <li>
+                  <a href="part0014.html#sub165">8.4.1　grep命令的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub166">8.4.2　grep命令族简介</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0014.html#sub167">8.5　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0015.html#chapter168">第9章　基本文本处理</a>
+          <ul>
+            <li>
+              <a href="part0015.html#sub169">9.1　使用echo命令输出文本</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub170">9.1.1　显示普通字符串</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub171">9.1.2　显示转义字符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub172">9.1.3　显示变量</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub173">9.1.4　换行和不换行</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub174">9.1.5　显示命令执行结果</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub175">9.1.6　echo命令执行结果的重定向</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub176">9.2　文本的格式化输出</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub177">9.2.1　使用UNIX制表符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub178">9.2.2　使用fold命令格式化行</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub179">9.2.3　使用fmt命令格式化段落</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub180">9.2.4　使用rev命令反转字符顺序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub181">9.2.5　使用pr命令格式化文本页</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub182">9.3　使用sort命令对文本排序</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub183">9.3.1　sort命令的基本用法</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub184">9.3.2　使用单个关键字排序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub185">9.3.3　根据指定的列排序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub186">9.3.4　根据关键字降序排序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub187">9.3.5　数值列的排序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub188">9.3.6　自定义列分隔符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub189">9.3.7　删除重复的行</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub190">9.3.8　根据多个关键字排序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub191">9.3.9　使用sort命令合并文件</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub192">9.4　文本的统计</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub193">9.4.1　输出含有行号的文本行</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub194">9.4.2　统计行数</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub195">9.4.3　统计单词数和字符数</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub196">9.5　使用cut命令选取文本列</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub197">9.5.1　cut命令及其语法</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub198">9.5.2　选择指定的文本列</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub199">9.5.3　选择指定数量的字符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub200">9.5.4　排除不包含列分隔符的行</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub201">9.6　使用paste命令拼接文本列</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub202">9.6.1　paste命令及其语法</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub203">9.6.2　自定义列分隔符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub204">9.6.3　拼接指定的文本列</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub205">9.7　使用join命令联接文本列</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub206">9.7.1　join命令及其语法</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub207">9.7.2　指定联接关键字列</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub208">9.7.3　内联接文本文件</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub209">9.7.4　左联接文本文件</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub210">9.7.5　右联接文本文件</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub211">9.7.6　全联接文本文件</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub212">9.7.7　自定义输出列</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub213">9.8　使用tr命令替换文件内容</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub214">9.8.1　tr命令及其语法</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub215">9.8.2　去除重复出现的字符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub216">9.8.3　删除空行</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub216a">9.8.4　大小写转换</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub216b">9.8.5　删除指定字符</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub217">9.9　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0016.html#chapter218">第10章　流 编 辑</a>
+          <ul>
+            <li>
+              <a href="part0016.html#sub219">10.1　sed命令及其语法</a>
+              <ul>
+                <li>
+                  <a href="part0016.html#sub220">10.1.1　sed命令以及语法</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub221">10.1.2　sed命令的工作方式</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub222">10.1.3　使用行号定位文本行</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub223">10.1.4　使用正则表达式定位文本行</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0016.html#sub224">10.2　sed命令的常用操作</a>
+              <ul>
+                <li>
+                  <a href="part0016.html#sub225">10.2.1　sed编辑命令基本语法</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub226">10.2.2　选择文本</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub227">10.2.3　替换文本</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub228">10.2.4　删除文本</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub229">10.2.5　追加文本</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub230">10.2.6　插入文本</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0016.html#sub231">10.3　组 合 命 令</a>
+              <ul>
+                <li>
+                  <a href="part0016.html#sub232">10.3.1　使用-e选项执行多个子命令</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub233">10.3.2　使用分号执行多个子命令</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub234">10.3.3　对一个地址使用多个子命令</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub235">10.3.4　sed脚本文件</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0016.html#sub236">10.4　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0017.html#chapter237">第11章　文本处理利器awk命令</a>
+          <ul>
+            <li>
+              <a href="part0017.html#sub238">11.1　awk入门</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub239">11.1.1　awk的功能</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub240">11.1.2　awk命令的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub241">11.1.3　awk的工作流程</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub242">11.1.4　执行awk程序的几种方式</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub246">11.2　awk的模式匹配</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub247">11.2.1　关系表达式</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub248">11.2.2　正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub249">11.2.3　混合模式</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub250">11.2.4　区间模式</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub243">11.2.5　BEGIN模式</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub251">11.2.6　END模式</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub252">11.3　变量</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub253">11.3.1　变量的定义和引用</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub254">11.3.2　系统内置变量</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub255">11.3.3　记录分隔符和字段分隔符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub256">11.3.4　记录和字段的引用</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub257">11.4　运算符和表达式</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub258">11.4.1　算术运算符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub259">11.4.2　赋值运算符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub260">11.4.3　条件运算符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub261">11.4.4　逻辑运算符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub262">11.4.5　关系运算符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub263">11.4.6　其他运算符</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub264">11.5　函数</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub265">11.5.1　字符串函数</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub266">11.5.2　算术函数</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub267">11.6　数组</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub268">11.6.1　数组的定义和赋值</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub269">11.6.2　遍历数组</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub270">11.7　流 程 控 制</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub271">11.7.1　if语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub272">11.7.2　while语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub273">11.7.3　do…while语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub274">11.7.4　for语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub275">11.7.5　break语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub276">11.7.6　continue语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub277">11.7.7　next语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub278">11.7.8　exit语句</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub279">11.8　awk程序的格式化输出</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub280">11.8.1　基本print语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub281">11.8.2　格式化输出printf语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub282">11.8.3　使用sprintf()函数生成格式化字符串</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub283">11.9　awk的程序与Shell的交互</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub284">11.9.1　通过管道实现与Shell的交换</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub285">11.9.2　通过system函数实现与Shell的交互</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub286">11.10　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0018.html#chapter287">第12章　文件的操作</a>
+          <ul>
+            <li>
+              <a href="part0018.html#sub288">12.1　文件</a>
+              <ul>
+                <li>
+                  <a href="part0018.html#sub289">12.1.1　列出文件</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub290">12.1.2　文件类型</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub291">12.1.3　文件的权限</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0018.html#sub292">12.2　查 找 文 件</a>
+              <ul>
+                <li>
+                  <a href="part0018.html#sub293">12.2.1　find命令以及语法</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub294">12.2.2　find命令：路径</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub295">12.2.3　find命令：测试</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub296">12.2.4　find命令：使用!运算符对测试求反</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub297">12.2.5　find命令：处理文件权限错误信息</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub298">12.2.6　find命令：动作</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0018.html#sub299">12.3　比 较 文 件</a>
+              <ul>
+                <li>
+                  <a href="part0018.html#sub300">12.3.1　使用comm比较文件</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub301">12.3.2　使用diff比较文件</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0018.html#sub302">12.4　文件描述符</a>
+              <ul>
+                <li>
+                  <a href="part0018.html#sub303">12.4.1　什么是文件描述符</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub304">12.4.2　标准输入、标准输出和标准错误</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0018.html#sub305">12.5　重 定 向</a>
+              <ul>
+                <li>
+                  <a href="part0018.html#sub306">12.5.1　输出重定向（覆盖）</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub307">12.5.2　输出重定向（追加）</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub308">12.5.3　输入重定向</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub309">12.5.4　当前文档</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub310">12.5.5　重定向两个文件描述符</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub311">12.5.6　使用exec命令分配文件描述符</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0018.html#sub312">12.6　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0019.html#chapter313">第13章　子Shell与进程处理</a>
+          <ul>
+            <li>
+              <a href="part0019.html#sub314">13.1　子Shell</a>
+              <ul>
+                <li>
+                  <a href="part0019.html#sub315">13.1.1　什么是子Shell</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub316">13.1.2　内部命令、保留字和外部命令</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub317">13.1.3　在子Shell中执行命令</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub318">13.1.4　把子Shell中的变量值传回父Shell</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0019.html#sub319">13.2　进 程 处 理</a>
+              <ul>
+                <li>
+                  <a href="part0019.html#sub320">13.2.1　什么是进程</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub321">13.2.2　通过脚本监控进程</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub322">13.2.3　作业控制</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub322a">13.2.4　信号与trap命令</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0019.html#sub323">13.3　小结</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0020.html#chapter324">第3篇　Shell编程实战</a>
+      <ul>
+        <li>
+          <a href="part0021.html#chapter325">第14章　Shell脚本调试技术</a>
+          <ul>
+            <li>
+              <a href="part0021.html#sub326">14.1　Shell脚本中的常见错误</a>
+              <ul>
+                <li>
+                  <a href="part0021.html#sub327">14.1.1　常见语法错误</a>
+                </li>
+                <li>
+                  <a href="part0021.html#sub328">14.1.2　常见逻辑错误</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0021.html#sub329">14.2　Shell脚本调试技术</a>
+              <ul>
+                <li>
+                  <a href="part0021.html#sub330">14.2.1　使用echo命令调试脚本</a>
+                </li>
+                <li>
+                  <a href="part0021.html#sub331">14.2.2　使用trap命令调试Shell脚本</a>
+                </li>
+                <li>
+                  <a href="part0021.html#sub332">14.2.3　使用tee命令调试Shell脚本</a>
+                </li>
+                <li>
+                  <a href="part0021.html#sub333">14.2.4　使用调试钩子调试Shell脚本</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0021.html#sub334">14.3　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0022.html#chapter335">第15章　利用Shell脚本解决实际问题</a>
+          <ul>
+            <li>
+              <a href="part0022.html#sub336">15.1　编写系统服务脚本</a>
+              <ul>
+                <li>
+                  <a href="part0022.html#sub337">15.1.1　系统启动过程</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub338">15.1.2　运行级别</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub339">15.1.3　服务脚本的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub340">15.1.4　编写MySQL服务脚本</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0022.html#sub341">15.2　通过脚本管理Apache服务器日志</a>
+              <ul>
+                <li>
+                  <a href="part0022.html#sub342">15.2.1　Apache以及日志文件简介</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub343">15.2.2　备份归档文件名生成函数</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub344">15.2.3　过期日志备份归档函数</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub345">15.2.4　过期日志删除函数</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub346">15.2.5　日志归档主程序</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub347">15.2.6　定时运行日志归档脚本</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0022.html#sub348">15.3　小结</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0023.html#chapter336">附录CD</a>
+    </li>
+  </ul>
+</div>
+
+
+  </div>
+  
+
+  <div class="calibreEbNav">
+    
+      <a href="part0015.html" class="calibreAPrev">previous page</a>
+    
+
+    <a href="../../pARZf2.html" class="calibreAHome"> start</a>
+
+    
+      <a href="part0017.html" class="calibreANext"> next page</a>
+    
+  </div>
+
+</div>
+
+</body>
+</html>

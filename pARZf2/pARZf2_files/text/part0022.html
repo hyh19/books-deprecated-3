@@ -1,0 +1,2132 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+    <title>第15章　利用Shell脚本解决实际问题</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+
+  
+
+
+<link href="../calibreHtmlOutBasicCss.css" type="text/css" rel="stylesheet" />
+
+</head>
+<body>
+
+<div class="calibreMeta">
+  <div class="calibreMetaTitle">
+  
+  
+    
+    <h1>
+      <a href="../../pARZf2.html">Shell从入门到精通
+</a>
+    </h1>
+    
+    
+  
+  </div>
+  <div class="calibreMetaAuthor">
+    张春晓
+
+  </div>
+</div>
+
+<div class="calibreMain">
+
+  <div class="calibreEbookContent">
+    
+      <div class="calibreEbNavTop">
+        
+          <a href="part0021.html" class="calibreAPrev">previous page</a>
+        
+
+        
+          <a href="part0023.html" class="calibreANext"> next page</a>
+        
+      </div>
+    
+
+    
+    <div class="chapter">
+      <div class="calibre2"></div><h1 class="kindle-cn-heading" id="chapter335"><a href="part0004.html#toc335" class="calibre3">第15章<br class="chapter"/>利用Shell脚本解决实际问题</a>
+      </h1>
+      <p class="kindle-cn-para-left">在前面的章节中，我们详细介绍了Shell编程的各个方面的知识。虽然并非面面俱到，但是应该为读者打下了一个坚实的基础。在本章中，将介绍几个具体的实例，以加深和巩固前面讲过的知识。</p>
+      <p class="kindle-cn-para-left">本章主要涉及的知识点如下所述。</p>
+      <ul class="kindle-cn-ul-square">
+        <li class="calibre5">编写系统服务脚本：主要介绍系统的启动、运行级别、服务脚本的基本语法，以及如何编写MySQL服务脚本。</li>
+        <li class="calibre5">通过脚本管理Apache服务器日志：主要介绍Apache及日志文件、如何编写备份文件名生成函数、旧日志搜索函数、日志备份函数、删除旧日志，以及定时运行脚本等。</li>
+      </ul>
+      <h2 class="kindle-cn-heading1" id="sub336"><a href="part0004.html#toc336" class="calibre8">15.1　编写系统服务脚本</a>
+      </h2>
+      <p class="kindle-cn-para-left">在进行系统管理的时候，一般都需要用到系统服务脚本。通过编写服务脚本，可以使得系统服务的管理更加便利，更加规范。在本节中，将介绍Linux的系统启动过程和初始化过程，并且以MySQL服务脚本为例，来说明系统服务脚本的编写方法。</p>
+      <h3 class="kindle-cn-heading2" id="sub337"><a href="part0004.html#toc337" class="calibre8">15.1.1　系统启动过程</a>
+      </h3>
+<p class="kindle-cn-para-left">从大的方面来讲，Linux系统的启动过程如图15-1所示。当一个Linux系统启动的时候，首先是用户按下电源，接着电脑加电，然后执行BIOS中的固件程序，完成系统硬件的自检。当硬件自检没有发现问题之后，便调用内核装载器来载入系统内核。内核装载器又称为内核装载程序，目前比较流行的是GNU GRUB。GRUB是GRand Unified Bootloader的缩写，它是一个多重操作系统启动管理器，可以用来引导不同系统，例如Windows或者Linux等。</p>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">在不同的硬件系统中，这个过程可能会有所不同，图15-1所描述的是x86硬件平台的过程。</span></p>
+      <div class="chapter">
+        <div class="kindle-cn-image">
+          <p class="kindle-cn-para-center">
+            <img alt="alt1128" src="../images/00069.jpeg" class="calibre19"/>
+          </p>
+          <p class="kindle-cn-caption">图15-1　Linux启动过程</p>
+        </div>
+      </div>
+<p class="kindle-cn-para-left">当Linux内核加载完成之后，便执行/sbin/init程序，创建系统中的第一个进程。init进程的进程ID为1，是Linux系统中所有进程的父进程。init进程会读取/etc/inittab、/etc/init/rc.conf以及/etc/init/rcS.conf等文件，执行一系列的初始化操作。然后执行/etc/rc.d目录中相应的子目录中的服务脚本，创建启动或者停止某项服务。</p>
+      <p class="kindle-cn-para-left">在Linux的启动过程中，有个文件发挥了非常重要的作用，该文件为一个Shell脚本文件，其名称为/etc/rc.d/rc。/etc/rc.d/rc的作用是根据不同的运行级别来启动或者停止服务。无论是对于初学者，还是有一定经验的读者来说，这个文件都是一个极好的范例，有兴趣的读者可以仔细地阅读这个文件的代码。</p>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">在Linux中，/etc/rc是/etc/rc.d/rc文件的符号链接。/etc/rc文件是BSD流派的UNIX系统一直沿用的系统初始化文件。</span></p>
+      <p class="kindle-cn-para-left">当init进程完成所有的初始化任务之后，便出现登录窗口，此时用户可以登录进系统进行操作了。</p>
+      <h3 class="kindle-cn-heading2" id="sub338"><a href="part0004.html#toc338" class="calibre8">15.1.2　运行级别</a>
+      </h3>
+      <p class="kindle-cn-para-left">所谓运行级别，是指UNIX或者Linux等类UNIX操作系统的不同运行模式。在不同的运行级别下，用户可以执行相应的操作，例如运行级别1表示单用户模式，在这种运行级别下，只允许root用户登录，不启动网络服务。运行级别的概念只用于System V流派的UNIX系统以及Linux系统，对于BSD流派的UNIX系统则不使用运行级别的概念。</p>
+      <p class="kindle-cn-para-left">在通常情况下，运行级别分为7级，分别使用0～6这7个数字来表示。典型的运行级别如下所述。</p>
+<ul class="kindle-cn-ul-square">
+      <li class="calibre5">0：停机。</li>
+      <li class="calibre5">1：单用户模式，不启用网络，不启动各种服务，只允许root用户登录进行维护。</li>
+      <li class="calibre5">2：多用户模式，不启用网络，不启动各种服务。</li>
+      <li class="calibre5">3：多用户模式，除图形界面之外，各种网络服务都可以使用。</li>
+      <li class="calibre5">4：用户自定义。</li>
+      <li class="calibre5">5：带图形界面的多用户模式。</li>
+      <li class="calibre5">6：重新启动系统。</li>
+</ul>
+      <p class="kindle-cn-para-left">在Linux系统中，各个运行级别下面需要启动或者停止的服务的脚本都位于特定的目录中，这些目录都位于/etc目录中，其名称为/etc/rc0.d～/etc/rc6.d，分别对应上面7个运行级别。下面列出的是运行级别3所对应的目录下面的部分脚本文件列表：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux rc0.d]# ll /etc/rc3.d/</span>
+total 0
+lrwxrwxrwx      1   root    root    20 Apr  6 13:48     K01certmonger
+-&gt; ../init.d/certmonger
+lrwxrwxrwx      1   root    root    15 Apr  6 13:48     K01numad
+-&gt; ../init.d/numad
+lrwxrwxrwx      1   root    root    16 Apr  6 13:59     K01smartd
+-&gt; ../init.d/smartd
+…
+lrwxrwxrwx      1   root    root    17 Mar  9 15:31     S01sysstat
+-&gt; ../init.d/sysstat
+lrwxrwxrwx      1   root    root    22 Apr  6 13:48     S02lvm2-monitor
+-&gt; ../init.d/lvm2-monitor
+lrwxrwxrwx      1   root    root    18 Apr  6 13:48     S05cgconfig
+-&gt; ../init.d/cgconfig
+…
+</pre>
+</div>
+<p class="kindle-cn-para-left">从上面的输出可以得知，/etc/rc3.d中的脚本文件实际上是/etc/init.d目录中的相应脚本文件的符号链接。这些符号链接的命名有着特定的规则，如果文件名的首字符为大写字母K，表示将要传递stop参数给脚本，以停止该服务。如果文件名的首字符为S，则表示将要传递start参数给脚本，以启动该服务。首字符后面的数字表示该脚本执行的顺序。例如，在上面的结果中，K01numad表示在运行级别3中，将传递stop参数给/etc/init.d/numad脚本文件，以停止numad服务。S01sysstat表示在运行级别3中，将传递start参数给/etc/init.d/sysstat脚本，以启动sysstat服务。</p>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">用户可以通过init命令来切换运行级别。</span></p>
+      <h3 class="kindle-cn-heading2" id="sub339"><a href="part0004.html#toc339" class="calibre8">15.1.3　服务脚本的基本语法</a>
+      </h3>
+      <p class="kindle-cn-para-left">在Linux系统中，服务脚本有固定的语法，通常情况下，服务脚本应该包括处理服务启动、服务停止、服务重新启动，以及查看服务状态的函数。另外，服务脚本还可以接受某些特定的参数，例如start、stop，以及restart等，并且根据这些参数调用不同的函数。</p>
+      <p class="kindle-cn-para-left">下面给出的是某个Linux系统中的Apache Web服务器的服务脚本，为了节省篇幅，省略了部分无关紧要的代码。</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   # 在当前 Shell 中执行定义公共函数的脚本
+02   . /etc/rc.d/init.d/functions
+03
+04
+05   #Apache 各组件的路径
+06   apachectl=/usr/sbin/apachectl
+07   httpd=${HTTPD-/usr/sbin/httpd}
+08   prog=httpd
+09   pidfile=${PIDFILE-/var/run/httpd/httpd.pid}
+10   lockfile=${LOCKFILE-/var/lock/subsys/httpd}
+11
+12   # 脚本执行结果
+13   RETVAL=0
+14   # 停止服务的超时时间
+15   STOP_TIMEOUT=${STOP_TIMEOUT-10}
+16
+17   # 定义启动服务的函数
+18   start() {
+19           echo -n $"Starting $prog: "
+20           LANG=$HTTPD_LANG daemon --pidfile=${pidfile} $httpd $OPTIONS
+21           RETVAL=$?
+22           echo
+23           [ $RETVAL = 0 ] &amp;&amp; touch ${lockfile}
+24           return $RETVAL
+25   }
+26
+27   # 定义停止服务的函数
+28   stop() {
+29           echo -n $"Stopping $prog: "
+30           killproc -p ${pidfile} -d ${STOP_TIMEOUT} $httpd
+31           RETVAL=$?
+32           echo
+33           [ $RETVAL = 0 ] &amp;&amp; rm -f ${lockfile} ${pidfile}
+34   }
+35   # 定义重新加载配置文件的函数
+36   reload() {
+37       echo -n $"Reloading $prog: "
+38       if ! LANG=$HTTPD_LANG $httpd $OPTIONS -t &gt;&amp;/dev/null; then
+39           RETVAL=6
+40           echo $"not reloading due to configuration syntax error"
+41           failure $"not reloading $httpd due to configuration syntax error"
+42       else
+43           # Force LSB behaviour from killproc
+44           LSB=1 killproc -p ${pidfile} $httpd -HUP
+45           RETVAL=$?
+46           if [ $RETVAL -eq 7 ]; then
+47               failure $"httpd shutdown"
+48           fi
+49       fi
+50       echo
+51   }
+52
+53   # 根据用户传递的参数执行不同的操作
+54   case "$1" in
+55      # 启动服务
+56      start)
+57           start
+58           ;;
+59      # 停止服务
+60      stop)
+61           stop
+62           ;;
+63      # 查看服务状态
+64      status)
+65           status -p ${pidfile} $httpd
+66           RETVAL=$?
+67           ;;
+68      # 重新启动服务
+69      restart)
+70           stop
+71           start
+72           ;;
+73      # 强制重新启动
+74      force-reload|reload)
+75           reload
+76           ;;
+77      # 处理其他情况
+78      *)
+79           echo $"Usage: $prog {start|stop|restart|condrestart|
+try-restart|force-reload|reload|status|fullstatus|graceful|help|configt
+est}"
+80           RETVAL=2
+81   esac
+82
+83   exit $RETVAL
+</pre>
+</div>
+      <p class="kindle-cn-para-left">上面给出的代码是一个比较规范的服务脚本。读者可以仔细揣摩上面的代码的整体结构以及每行代码的作用，从而掌握服务脚本的编写方法。</p>
+      <p class="kindle-cn-para-left">在上面的代码中，第2行使用圆点操作符执行/etc/rc.d/init.d/functions文件，该文件定义了服务脚本所需要的大部分的公共函数。之所以使用圆点操作符，而不是直接执行，是因为这些函数需要在当前服务脚本后面的代码中使用到，故将/etc/rc.d/init.d/functions文件与当前服务脚本在同一个子Shell中执行。</p>
+<p class="kindle-cn-para-left">第6～10行将Apache各组件的路径用变量表示出来，然后在后面的代码中通过变量来调用这些组件。这是一个非常好的习惯，因为后面可能有多处代码都用到了这些路径，如果路径发生改变，则只要修改变量的值就可以了，无需修改每处用到路径的代码。</p>
+      <p class="kindle-cn-para-left">第13行是一个服务脚本退出状态的代码，如果脚本执行成功，则返回0；否则，返回其他值。</p>
+<p class="kindle-cn-para-left">第18～51行定义了处理各个操作的函数，当用户指定不同的参数时，程序需要调用这些函数来改变服务的状态。第18～25行定义了启动服务的函数start()，其中第19行输出一行提示信息，第20行启动Apache服务进程，第21行通过系统变量$?获取第19行的命令的执行结果，并且将结果赋给变量RETVAL。第23行在第19行执行成功的情况下，创建/var/lock/subsys/httpd文件，该文件的作用是表示Apache服务器进程已经成功启动。第24行将服务启动的结果返回。</p>
+      <p class="kindle-cn-para-left">第28～34行定义了停止服务的函数stop()。其中第30行通过killproc命令终止Apache服务进程。如果终止成功，则第30行会删除第23行创建的文件以及进程ID文件。</p>
+      <p class="kindle-cn-para-left">第36～51定义了重新加载配置文件的函数，其中的语句与前面两个函数大致相同，不再重复介绍。</p>
+      <p class="kindle-cn-para-left">第54～81行根据用户传递的参数，调用前面定义的函数，从而使得服务进程的状态得以改变。由于分支较多，为了使整个结构清晰，通常情况下，服务脚本都采用case语句，并且通过位置变量$1获取传递的参数值。</p>
+<p class="kindle-cn-para-left">第56～58行是用户传递start参数的时候需要执行的代码。此时需要启动服务，所以直接调用start()函数即可。同理，对于下面的stop、status、restart，以及force-reload和reload等参数，也调用相应的函数。</p>
+      <p class="kindle-cn-para-left">第78～80行处理了其他参数值的情况。也就是说，如果用户传递了除start、stop、restart、condrestart等参数值以外的其他值，则输出一行提示信息，以告诉用户该服务脚本接受哪些参数值。</p>
+      <p class="kindle-cn-para-left">通过上面的例子，可以大致得出服务脚本的基本语法。即先定义处理各种操作的函数，然后通过case结构来根据用户传递的不同的参数值调用前面定义的函数。其中参数值都是固定的，包括start、stop、restart、status以及reload等。</p>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">在15.1.2节中已经讲过，如果/etc/rc0.d～/etc/rc6.d等目录中的脚本的文件名以S开头，则系统在初始化的时候会自动传递start参数该脚本；如果文件名以K开头，则系统将自动传递stop参数给该脚本。</span></p>
+      <h3 class="kindle-cn-heading2" id="sub340"><a href="part0004.html#toc340" class="calibre8">15.1.4　编写MySQL服务脚本</a>
+      </h3>
+<p class="kindle-cn-para-left">为了使读者更加深入理解服务脚本的编写方法，下面以MySQL服务器为例，来介绍如何从头编写一个服务脚本。通常情况下，服务脚本的行数都比较多，所以下面我们分成几个部分来介绍MySQL服务脚本的编写。</p>
+      <p class="kindle-cn-para-left"><span class="kindle-cn-bold">1．定义常量和函数</span></p>
+      <p class="kindle-cn-para-left">为了使程序保持一个良好的结构，需要将某些命令的路径使用变量表示出来，同时，将某些相对独立的功能编写成函数。这部分的代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #MySQL 服务主程序的路径
+02   mysql="/usr/bin/mysqld_safe"
+03
+04   #MySQL 管理工具路径
+05   mysqladmin="/usr/bin/mysqladmin"
+06
+07   # 定义获取 MySQL 选项的函数
+08   get_mysql_option()
+09   {
+10      # 使用 my_print_defaults 命令输出各个选项
+11      result='/usr/bin/my_print_defaults "$1" | sed -n "s/^--$2=//p" | tail
+-n 1'
+12      # 如果文件不存在，则使用默认值
+13      if [ -z "$result" ]; then
+14         result="$3"
+15      fi
+16   }
+17   # 数据库文件路径
+18   get_mysql_option mysqld datadir "/var/lib/mysql"
+19
+20   datadir="$result"
+21
+22   #Socket 文件路径
+23   get_mysql_option mysqld socket "$datadir/mysql.sock"
+24   socketfile="$result"
+25
+26   # 日志文件路径
+27   get_mysql_option mysqld_safe log-error "/var/log/mysqld.log"
+28   errlogfile="$result"
+29
+30   # 进程 ID 文件路径
+31   get_mysql_option mysqld_safe pid-file "/var/run/mysqld/mysqld.pid"
+32   mypidfile="$result"
+</pre>
+</div>
+<p class="kindle-cn-para-left">在上面的代码中，第2行定义了MySQL主程序的路径，如果用户的路径与此不同，可以根据自己的实际情况进行修改。第5行定义了MySQL管理工具mysqladmin的路径，同样，用户可以自行修改以满足自己的需要。第8～16行定义了一个名称为get_mysql_option()的函数，该函数的功能是获取MySQL的各个选项。</p>
+      <p class="kindle-cn-para-left">第11行是一条比较复杂的语句，首先使用my_print_defaults命令输出MySQL的选项值。my_print_defaults是MySQL自带的一个工具，该工具可以输出MySQL配置文件中的各个选项的值。例如，下面的命令输出my.cnf文件中的mysqld组的选项的值：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux init.d]# my_print_defaults mysqld</span>
+--datadir=/var/lib/mysql
+--socket=/var/lib/mysql/mysql.sock
+--user=mysql
+--symbolic-links=0
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在第11行中，my_print_defaults命令的参数通过位置变量$1获取。然后通过管道将输出结果传递给sed命令，sed命令的匹配规则为^--$2=，其中$2为位置变量，表示用户传递的第2个参数值。如果想要获取数据库文件的选项值，则实际匹配规则为^--datadir=。读者可以分析一下上面的my_print_defaults命令的输出结果，就可以理解为什么要使用这样的规则。由于MySQL允许用户在my.cnf配置文件中重复指定某个选项，但是只有最后指定的选项才会生效，所以还需要将sed命令的输出结果传递给tail命令，其中-n 1表示只输出最后一行文本。</p>
+<p class="kindle-cn-para-left">第13～15行是处理某个选项在my.cnf配置文件中不存在的情况，此时，get_mysql_option()函数将返回用户指定的第3个参数值。</p>
+      <p class="kindle-cn-para-left">第18行通过get_mysql_option()函数获取数据库文件的路径，传递给get_mysql_option()函数的参数值分别为mysqld、datadir和/var/lib/mysql。其中mysqld表示在my.cnf文件中，数据库文件的选项位于mysqld这一组中。datadir表示在my.cnf文件中，数据库文件的选项名称为datadir。/var/lib/mysql表示如果在my.cnf文件中没有关于数据库文件的选项，则使用/var/lib/mysql作为数据库文件的路径。</p>
+      <p class="kindle-cn-para-left">第23、27和31行分别获取Socket文件、日志文件和进程ID文件的路径，其原理与获取数据库文件路径相同，不再重复说明。</p>
+      <p class="kindle-cn-para-left"><span class="kindle-cn-bold">2．定义状态处理函数</span></p>
+      <p class="kindle-cn-para-left">接下来再介绍服务脚本中的关键部分，即处理各种操作的函数。实际上，服务脚本的状态操作有许多种，但是其实现方法大同小异，所以下面只给出了3个最常用的函数的定义方法，即start()函数、stop()函数和restart()函数。函数定义的具体代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   # 服务启动函数
+02   start(){
+03      # 如果程序不可执行，则直接退出
+04      [ -x $mysql ] || exit 5
+05      #  判断服务进程是否存在
+06      /usr/bin/mysqladmin --socket="$socketfile" --user=mysql ping 2&gt;&amp;1
+07      if [ $? = 0 ]; then
+08         echo "mysql has been already running."
+09         ret=0
+10      else
+11         if [ ! -d "$datadir/mysql" ] ; then
+12            echo "mysql database does not exists."
+13            exit 1
+14         fi
+15
+16         $mysql --datadir="$datadir" --socket="$socketfile"
+--pid-file="$mypidfile" --basedir=/usr --user=mysql &gt;/dev/null 2&gt;&amp;1 &amp;
+17
+18         ret=$?
+19
+20         if [ $ret -eq 0 ]; then
+21            touch $lockfile
+22         else
+23            echo "starting mysql failed."
+24         fi
+25      fi
+26      return $ret
+27   }
+28
+29   stop(){
+30      # 如果进程文件不存在，则直接退出
+31      if [ ! -f "$mypidfile" ]; then
+32         echo "mysql is not running."
+33         return 0
+34      fi
+35      # 从进程文件中获取进程 ID
+36      mysqlpid='cat "$mypidfile"'
+37      # 如果进程 ID 为整数，则调用 mysqladmin 停止 mysql 服务
+38      if [ -n "$mysqlpid" ]; then
+39         $mysqladmin --socket="$socketfile" --user=root shutdown
+40
+41         ret=$?
+42         # 如果停止成功，则删除锁定文件和 Socket 文件
+43         if [ $ret -eq 0 ]; then
+44            rm -f $lockfile
+45            rm -f "$socketfile"
+46            echo "mysql stopped."
+47            ret=0
+48         else
+49            echo "stopping mysql failed."
+50            ret=1
+51         fi
+52
+53         return $ret
+54   }
+55
+56   restart(){
+57       stop
+58       start
+59   }
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第2～27行定义了start()函数，该函数的功能是启动MySQL服务。第4行判断变量mysql表示的MySQL主程序是否存在并且可以执行，如果不存在或者不可执行，则直接退出。第6行使用mysqladmin命令判断MySQL服务进程是否已经存在。如果服务进程已经存在，返回0；否则，返回非0值。第7行使用系统变量$?获取第6行的返回状态码，如果等于0，则输出一行提示信息；否则，继续执行下面的代码。</p>
+      <p class="kindle-cn-para-left">第11～14行判断MySQL的系统数据库mysql是否存在，如果不存在，则直接退出程序。</p>
+      <p class="kindle-cn-para-left">第16行执行MySQL主程序，第20～23行根据第16行的返回状态码执行相应的操作。如果启动成功，则创建状态锁定文件；否则输出启动失败的提示信息。</p>
+      <p class="kindle-cn-para-left">第29～54行定义了stop()函数，该函数的功能是停止MySQL服务。在本函数中，通过进程ID文件是否存在来判断MySQL进程是否存在。如果存在的话，则在第39行使用mysqladmin命令停止MySQL服务。停止成功之后，则需要删除锁定文件和Socket文件。</p>
+<p class="kindle-cn-para-left">第56～59行定义了restart()函数，该函数的功能是重新启动MySQL服务。其代码比较简单，首先调用前面定义的stop()函数停止MySQL服务，然后再调用start()函数启动MySQL服务。</p>
+      <p class="kindle-cn-para-left"><span class="kindle-cn-bold">3．接收参数值</span></p>
+      <p class="kindle-cn-para-left">最后一部分是整个脚本的流程控制部分，也是脚本的主程序。与上面定义的函数相对应，此处只处理了4个参数的情况，具体代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   # 根据参数值执行相应的操作
+02   case "$1" in
+03      # 启动服务
+04      start)
+05         start
+06         ;;
+07      # 停止服务
+08      stop)
+09         stop
+10       ;;
+11      # 查看状态
+12      status)
+13         re='pidof "$procname"'
+14
+15         if [ "$re" -gt 0 ]; then
+16            echo "mysql is running."
+17         else
+18            echo "mysql is not running."
+19         fi
+20         ;;
+21      # 重新启动
+22      restart)
+23         restart
+24         ;;
+25      *)
+26         echo $"Usage: $0 {start|stop|status|restart}"
+27         exit 2
+28   esac
+29
+30   exit $?
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第4行是用户传入start参数值的情况，此时需要调用start()函数。第8行是用户传入stop参数值的情况，此时需要调用stop()函数。第12行是用户传入status参数值的情况，此时通过pidof函数来判断指定的进程是否存在，如果pidof命令的返回值大于0，表示指定的进程存在；否则，表示指定的进程不存在。第22～24行是处理用户传入restart参数值的情况，此时需要调用restart()函数。</p>
+<p class="kindle-cn-para-left">以上整个程序的代码请参见本书所配光盘中的chapter15目录中的mysql文件，具体代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">001   #-----------------------------/chapter15/mysql------------------
+002   #!/bin/sh
+003   #
+004   # MySQL 服务脚本
+005   #  指定运行级别以及优先级
+006   # chkconfig: - 64 36
+007   # description:  MySQL database server.
+008
+009   #MySQL 服务主程序的路径
+010   mysql="/usr/bin/mysqld_safe"
+011
+012   #MySQL 管理工具路径
+013   mysqladmin="/usr/bin/mysqladmin"
+014
+015   # 定义获取 MySQL 选项的函数
+016   get_mysql_option()
+017   {
+018      # 使用 my_print_defaults 命令输出各个选项
+019      result='/usr/bin/my_print_defaults "$1" | sed -n "s/^--$2=//p" |
+tail -n 1'
+020      # 如果文件不存在，则使用默认值
+021      if [ -z "$result" ]; then
+022         result="$3"
+023      fi
+024   }
+025   # 数据库文件路径
+026   get_mysql_option mysqld datadir "/var/lib/mysql"
+027
+028   datadir="$result"
+029
+030   #Socket 文件路径
+031   get_mysql_option mysqld socket "$datadir/mysql.sock"
+032   socketfile="$result"
+033
+034   # 日志文件路径
+035   get_mysql_option mysqld_safe log-error "/var/log/mysqld.log"
+036   errlogfile="$result"
+037
+038   # 进程 ID 文件路径
+039   get_mysql_option mysqld_safe pid-file "/var/run/mysqld/mysqld.pid"
+040   mypidfile="$result"
+041
+042   # 服务启动函数
+043   start(){
+044      # 如果程序不可执行，则直接退出
+045      [ -x $mysql ] || exit 5
+046      #  判断服务进程是否存在
+047      /usr/bin/mysqladmin --socket="$socketfile" --user=mysql ping 2&gt;&amp;1
+048      if [ $? = 0 ]; then
+049         echo "mysql has been already running."
+050         ret=0
+051      else
+052         if [ ! -d "$datadir/mysql" ] ; then
+053            echo "mysql database does not exists."
+054            exit 1
+055         fi
+056
+057         $mysql --datadir="$datadir" --socket="$socketfile" --pid-file=
+"$mypidfile" --basedir=/usr --user=mysql &gt;/dev/null 2&gt;&amp;1 &amp;
+058
+059         ret=$?
+060
+061         if [ $ret -eq 0 ]; then
+062            touch $lockfile
+063         else
+064            echo "starting mysql failed."
+065         fi
+066      fi
+067      return $ret
+068   }
+069
+070   stop(){
+071      # 如果进程文件不存在，则直接退出
+072      if [ ! -f "$mypidfile" ]; then
+073         echo "mysql is not running."
+074         return 0
+075      fi
+076      # 从进程文件中获取进程 ID
+077      mysqlpid='cat "$mypidfile"'
+078      # 如果进程 ID 为整数，则调用 mysqladmin 停止 mysql 服务
+079      if [ -n "$mysqlpid" ]; then
+080         $mysqladmin --socket="$socketfile" --user=root shutdown
+081
+082         ret=$?
+083         # 如果停止成功，则删除锁定文件和 Socket 文件
+084         if [ $ret -eq 0 ]; then
+085            rm -f $lockfile
+086            rm -f "$socketfile"
+087            echo "mysql stopped."
+088            ret=0
+089         else
+090            echo "stopping mysql failed."
+091            ret=1
+092         fi
+093
+094         return $ret
+095   }
+096
+097   restart(){
+098       stop
+099       start
+100   }
+101
+102   # 根据参数值执行相应的操作
+103   case "$1" in
+104      # 启动服务
+105      start)
+106         start
+107         ;;
+108      # 停止服务
+109      stop)
+110         stop
+111       ;;
+112      # 查看状态
+113      status)
+114         if [ -n pidof "$procname" ]; then
+115            echo "mysql is running."
+116         fi
+117         ;;
+118      # 重新启动
+119      restart)
+120         restart
+121         ;;
+122      *)
+123         echo $"Usage: $0 {start|stop|status|restart}"
+124         exit 2
+125   esac
+126
+127   exit $?
+</pre>
+</div>
+<p class="kindle-cn-para-left">在上面的代码中，第6行需要特别说明一下。该行的作用是告诉chkconfig命令，当前的服务脚本可以在哪些运行级别下面执行。其中连字符-表示当前脚本适用于所有的运行级别。如果只想在某些运行级别下面执行，则可以直接用数字指定，例如：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"># chkconfig: 345 64 36
+</pre>
+</div>
+      <p class="kindle-cn-para-no-indent">表示当前脚本可以在3、4和5这3个运行级别下面运行。后面的2个数字分别表示当前脚本在启动和停止时的优先级。数值越小，优先级越高；反之，优先级越低。</p>
+      <p class="kindle-cn-para-left">当整个mysql脚本都编写完成之后，将其复制到/etc/init.d目录中，并且赋予可执行权限，命令如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter15]# cp mysql /etc/init.d/
+[root@linux chapter15]# chmod +x /etc/init.d/mysqld</span>
+</pre>
+</div>
+      <p class="kindle-cn-para-left">接下来使用chkconfig命令更新系统服务，如下所示：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter15]# chkconfig mysql on</span>
+</pre>
+</div>
+      <p class="kindle-cn-para-left">最后，用户就可以使用service命令来启动、停止或者查看运行状态了，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter15]# service mysql start
+[root@linux chapter15]# service mysql status</span>
+mysql is running.
+<span class="kindle-cn-bold">[root@linux chapter15]# service mysql stop</span>
+mysql stopped.
+</pre>
+</div>
+<p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">为了使系统初始化的时候可以启动MySQL服务，需要使用chkconfig命令将新编写的服务脚本添加到系统服务中。其中chkconfig命令中的服务名与服务脚本文件名称相同。</span></p>
+      <h2 class="kindle-cn-heading1" id="sub341"><a href="part0004.html#toc341" class="calibre8">15.2　通过脚本管理Apache服务器日志</a>
+      </h2>
+      <p class="kindle-cn-para-left">在系统维护的过程中，Apache Web服务器的日志管理也是一件比较麻烦的工作。如果能够通过脚本来自动将旧日志文件归档，然后将其删除，则可以大大减轻系统管理员的工作。本节将介绍如何通过脚本以及任务计划来自动管理Apache日志。</p>
+      <h3 class="kindle-cn-heading2" id="sub342"><a href="part0004.html#toc342" class="calibre8">15.2.1　Apache以及日志文件简介</a>
+      </h3>
+<p class="kindle-cn-para-left">Apache是目前世界上最为流行的Web服务器之一，特别是最热门和访问量大的网站，都几乎无一例外地采用了Apache作为网站的服务器软件。Apache是由美国Apache软件基金会管理的一个开放源码的应用软件，可以在绝大部分的操作系统中运行，包括UNIX、Linux以及Windows等。</p>
+      <p class="kindle-cn-para-left">对于系统管理员来说，日志是一个非常有用的工具。日志记录了服务器的活动、性能，以及出现的问题，在出现故障的时候，借助日志可以快速地发现原因所在，从而在最短的时间内解决问题。</p>
+      <p class="kindle-cn-para-left">Apache服务器提供了非常全面而灵活的日志记录功能，主要包括两种日志类型，分别为错误日志和访问日志。</p>
+<p class="kindle-cn-para-left">错误日志是最重要的日志文件，其文件名和位置取决于Apache的配置文件httpd.conf中的ErrorLog指令，绝大部分情况下，错误日志的名称为error_log或者error.log位于/var/log/httpd/目录中。Apache服务器将有关诊断和请求处理中出现的错误信息都存到这个错误日志中，所以如果服务器启动或者运行中出现问题，则用户首先应该查看错误日志，以了解具体的原因。</p>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">在UNIX或者Linux中，错误日志的名称通常为error_log，而在Windows中，错误日志的名称通常为error.log。</span></p>
+      <p class="kindle-cn-para-left">为了便于帮助用户了解故障原因，错误日志中对于每条日志，都有一些描述信息，如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux ~]# more /var/log/httpd/360zippo.com-error_log-20130414</span>
+[Sun Apr 07 05:11:04 2013] [error] [client 183.62.115.227] File does not
+exist: /data1/www/js/js, referer: http://www.360zippo.com/
+[Sun Apr 07 05:11:04 2013] [error] [client 183.62.115.227] File does not
+exist: /data1/www/js/js, referer: http://www.360zippo.com/
+…
+</pre>
+</div>
+      <p class="kindle-cn-para-left">从上面的内容可以得知，每一条错误日志通常包括错误发生的日期和时间、严重性、导致错误的IP地址，以及具体的原因。例如，在上面的例子中，错误的原因为文件不存在。在错误日志中，文件使用文件系统绝对路径表示，而非Web服务器中的路径。</p>
+      <p class="kindle-cn-para-left">访问日志记录了Apache服务器处理的所有的请求，其文件名和位置取决于httpd.conf文件中的CustomLog指令。通常情况下，访问日志位于/var/log/httpd/目录中，其文件名为access_log或者access.og。</p>
+      <p class="kindle-cn-para-left">访问日志的格式非常灵活，通常情况下包括客户端的IP地址、请求时间和日期、请求的URL，以及状态等，如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux httpd]# more 360zippo.com-access_log</span>
+123.125.68.154 - - [28/Apr/2013:03:42:55 +0800] "GET /category-26-b0.html
+HTTP/1.1" 200 5457
+42.62.37.107 - - [28/Apr/2013:03:43:02 +0800] "GET /brand-12-c0-
+3-shop_price-ASC.html HTTP/1.0" 200 6268
+42.62.37.107 - - [28/Apr/2013:03:46:10 +0800] "GET /gallery.php?id=
+115&amp;img=297 HTTP/1.0" 200 867
+42.62.37.107 - - [28/Apr/2013:03:46:38 +0800] "GET /user.php?act=
+affiliate&amp;goodsid=98 HTTP/1.0" 200 3846
+42.62.37.107 - - [28/Apr/2013:03:47:10 +0800] "GET /gallery.php?id=
+75&amp;img=216 HTTP/1.0" 200 881
+42.62.37.107 - - [28/Apr/2013:03:50:36 +0800] "GET /gallery.php?id=
+116&amp;img=305 HTTP/1.0" 200 879
+</pre>
+</div>
+      <p class="kindle-cn-para-left">通过上面的输出结果，可以得知每条访问日志通常包括客户端的IP地址、客户端的身份、客户端的标识、服务器完成请求处理时的时间、客户端请求资源的方法、资源URL、返回状态码，以及资源的大小等。</p>
+<p class="kindle-cn-para-left">尽管Apache服务器的日志都由文本组成，但是如果应用的场合是一个访问量非常大的网站的话，则这些日志文件会很快塞满整个文件系统。所以，必须采用适当的手段定期清理这些日志。但是这些日志又是系统管理员进行故障处理的重要依据，所以不可以将其简单地删除，而应定期地将其压缩归档，并且转移到其他存储设备上。下面的内容就是逐步介绍各个步骤的实现方法。</p>
+      <h3 class="kindle-cn-heading2" id="sub343"><a href="part0004.html#toc343" class="calibre8">15.2.2　备份归档文件名生成函数</a>
+      </h3>
+      <p class="kindle-cn-para-left">为日志归档文件指定一个有意义的名称非常重要。按照惯例，备份文件的名称一般是以备份的时间命名的。这样做有两个好处，其一是通过文件名就可以知道当前备份创建的时间，其二是文件名不会出现重名的情况。正因为以备份日期命名有着非常大的便利性，所以在本例中专门编写一个函数来生成文件名称。</p>
+      <p class="kindle-cn-para-left">生成备份归档文件名的函数如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   # 该函数生成文件名
+02   function filename()
+03   {
+04      # 生成时间戳字符串
+05      timestamp=$(date +%Y%m%d%H%M%S)
+06      # 输出完整的文件名
+07      echo "$1".$timestamp."tar"
+08   }
+</pre>
+</div>
+<p class="kindle-cn-para-left">在上面的代码中，第2行是函数定义的开头，其中函数名为filename()。第5行通过date命令生成一个时间戳字符串。在该行语句中，使用$()符号执行Shell命令。其中date命令的语法需要特别说明一下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">date +%Y%m%d%H%M%S
+</pre>
+</div>
+      <p class="kindle-cn-para-left">字符串+%Y%m%d%H%M%S为date命令输出结果的格式说明，其中%Y表示4位数字的年份，%m表示两位数字的月份，%d表示两位数字的日，%H表示24小时制的小时，%M表示两位数字的分钟，%S表示两位数字的秒数。格式字符串前面的加号+是固定的。date与格式字符串之间有一个空格。</p>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">在date命令的格式字符串中，字母的大小写有不同的涵义。例如，字符%Y表示完整的4位数字的年份，而%y表示两位数字的年份。通过格式字符串，date命令可以输出各种格式的日期字符串，读者可以参考date命令的手册。</span></p>
+      <p class="kindle-cn-para-left">第7行使用echo语句将文件名输出，其中位置变量$1表示用户传入的参数值，该参数值组成文件名的第1部分。文件名的第2部分即第5行生成的字符串。这两部分之间使用圆点操作符连接起来。由于本例的日志归档需要使用tar命令，所以文件名的后缀为.tar。</p>
+      <p class="kindle-cn-para-left">用户可在Shell程序中使用以下方法获取函数生成的文件名：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">file='filename httpd_log'
+</pre>
+</div>
+      <p class="kindle-cn-para-left">生成的文件名的格式如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">httpd_log.20130430012016.tar
+</pre>
+</div>
+      <h3 class="kindle-cn-heading2" id="sub344"><a href="part0004.html#toc344" class="calibre8">15.2.3　过期日志备份归档函数</a>
+      </h3>
+<p class="kindle-cn-para-left">在编写完成归档文件名生成函数之后，接下来就要编写一个函数来将旧的日志文件进行归档。归档函数的功能是查找日志目录中前一天生成的日志文件，然后通过tar命令将其归档。为了节省磁盘空间，还可以将归档后的备份档案压缩。归档函数的代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   # 日志归档函数
+02   function archivelog()
+03   {
+04      # 生成归档文件名
+05      archivefile='filename httpd_log'
+06
+07      # 获取存储归档日志的目录
+08      archivedest=$1
+09
+10      # 如果目标目录不存在，则创建该目录
+11      if [ ! -d archivedest ];then
+12         mkdir -p $archivedest
+13      fi
+14
+15      # 进入日志文件所在的目录
+16      cd /var/log/httpd
+17
+18      # 查找 1 天前的日志文件，并且进行归档
+19      find . -mtime +1 -exec tar -rf $archivedest$archivefile {} \;
+20
+21      # 将归档日志压缩
+22      zip $archivedest$archivefile".zip" $archivedest$archivefile
+23
+24      # 压缩成功后删除压缩前的归档日志
+25      if [ "$?" -eq 0 ]
+26      then
+27         rm -f $archivedest$archivefile
+28      fi
+29
+30      return $?
+31   }
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第5行通过前面定义的归档文件名生成函数生成一个文件名。第8行获取用户指定的存放归档日志的路径。如果目标路径不存在，则在第11～13行使用mkdir命令创建。在第12行中，mkdir命令使用了-p选项，其原因为目标路径通常会由多层目录构成，如果路径中的某层目录不存在，则使用-p选项之后，mkdir命令会依次创建各层目录。</p>
+      <p class="kindle-cn-para-left">第16行通过cd命令将当前工作目录切换到Apache的日志文件所在的目录，便于后面使用tar命令时用相对路径表示要归档的文件。</p>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">在默认情况下，tar命令在归档的时候会去掉文件名最前面的根目录符号，从而使档案中的文件使用相对路径表示。这样做的好处非常明显，即在提取文件的时候，被提取的文件会释放到当前的工作目录中，而不会直接释放到绝对路径表示的目录中。这样可以避免无意中覆盖其他的文件。</span></p>
+      <p class="kindle-cn-para-left">第19行使用find命令搜索修改时间为1天前的文件，其中选项-mtime表示根据修改时间来搜索文件，+1表示修改时间距当前时间超过1天。-exec表示对搜索到的文件执行后面指定的操作，即使用tar命令归档。</p>
+      <p class="kindle-cn-para-left">在tar命令中，我们使用了-rf选项，其中-r选项表示将文件追加到已有档案中，-f选项表示后面紧跟的是档案的文件名。在第19行中，档案的文件名由archivedest和archivefile这两个变量连接而成。关于find命令的使用方法，请参考本书第12章。</p>
+      <p class="kindle-cn-para-left">第22行将归档生成的档案文件进行压缩，其目的是为了节省磁盘空间。</p>
+      <p class="kindle-cn-para-left">第27行在压缩归档文件成功的前提下，将未压缩的归档文件删除。</p>
+      <h3 class="kindle-cn-heading2" id="sub345"><a href="part0004.html#toc345" class="calibre8">15.2.4　过期日志删除函数</a>
+      </h3>
+      <p class="kindle-cn-para-left">当所有的过期日志都已经成功备份之后，就可以将其从磁盘中删除，以释放被占用的磁盘空间。过期日志删除函数比较简单，其代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   # 删除已经归档的过期日志文件
+02   function removearchivedlog()
+03   {
+04      cd /var/log/httpd
+05      # 查找 1 天前生成的日志文件，并且将其删除
+06      find . -mtime +1 -exec rm -f $archivedest$archivefile {} \;
+07   }
+</pre>
+</div>
+      <p class="kindle-cn-para-left">其中，起主要作用的是第6行的find语句，将搜索到的文件传递给rm命令。</p>
+      <h3 class="kindle-cn-heading2" id="sub346"><a href="part0004.html#toc346" class="calibre8">15.2.5　日志归档主程序</a>
+      </h3>
+      <p class="kindle-cn-para-left">到目前为止，本例中所有使用到的函数都已经编写完成。接下来是编写主程序，调用前面所定义的各个函数。主程序的代码比较简单，如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   # 将过期日志归档
+02   archivelog "/root/chapter15/"
+03
+04   # 删除已归档日志
+05   if [ "$?" -eq 0 ]
+06   then
+07      removearchivedlog
+08   fi
+09
+10   exit 0
+</pre>
+</div>
+      <p class="kindle-cn-para-left">第2行调用archivelog()函数将过期日志备份到/root/chapter15/路径下面，第7行将归档后的过期日志删除。</p>
+      <p class="kindle-cn-para-left">本例完整的代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #------------------------/chapter15/archivelog.sh------------------
+02   #! /bin/bash
+03
+04   # 归档文件名生成函数
+05   function filename()
+06   {
+07      timestamp=$(date +%Y%m%d%H%M%S)
+08      echo "$1".$timestamp."tar"
+09   }
+10   # 过期日志归档函数
+11   function archivelog()
+12   {
+13      archivefile='filename httpd_log'
+14
+15      archivedest=$1
+16
+17      if [ ! -d archivedest ];then
+18         mkdir -p $archivedest
+19      fi
+20
+21      cd /var/log/httpd
+22
+23      find . -mtime +1 -exec tar -rf $archivedest$archivefile {} \;
+24
+25      zip $archivedest$archivefile".zip" $archivedest$archivefile
+26
+27      if [ "$?" -eq 0 ]
+28      then
+29         rm -f $archivedest$archivefile
+30      fi
+31
+32      return $?
+33   }
+34
+35   # 已归档日志删除函数
+36   function removearchivedlog()
+37   {
+38      cd /var/log/httpd
+39
+40      find . -mtime +1 -exec rm -f $archivedest$archivefile {} \;
+41   }
+42
+43   # 将过期日志归档
+44   archivelog "/root/chapter15/"
+45
+46   # 删除已归档日志
+47   if [ "$?" -eq 0 ]
+48   then
+49      removearchivedlog
+50   fi
+51
+52   exit 0
+</pre>
+</div>
+      <h3 class="kindle-cn-heading2" id="sub347"><a href="part0004.html#toc347" class="calibre8">15.2.6　定时运行日志归档脚本</a>
+      </h3>
+<p class="kindle-cn-para-left">要实现Apache日志的完全自动化管理，必须定时运行上面创建的归档脚本。通常情况下，用户可以使用两种方法来实现脚本的定时运行。一种方法是使用sleep命令，另外一种方法是使用cron工具。下面将分别对这两种方法进行介绍。</p>
+      <p class="kindle-cn-para-left">sleep命令可以使脚本进程暂时休眠指定的时间间隔，到期之后进程会重新开始执行。要使用sleep命令实现脚本的定义执行，需要将前面的主程序进行修改，将第43～50行放在一个循环结构中，如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   # 无限循环
+02   while true
+03   do
+04      # 归档过期日志
+05      archivelog "/root/chapter15/"
+06
+07      if [ "$?" -eq 0 ]
+08      then
+09         # 删除过期日志
+10         removearchivedlog
+11      fi
+12      # 休眠 1 天
+13      sleep 86400
+14   done
+</pre>
+</div>
+<p class="kindle-cn-para-left">为了使得归档操作能够不断地重复执行，将archivelog()和removearchivedlog()这两个函数的调用都放在了一个无限循环结构中。第13行使用sleep命令使进程每天执行一次，其中sleep命令以秒为单位。</p>
+      <p class="kindle-cn-para-left">修改完成之后，用户可以使用以下命令执行归档脚本：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter15]# ./archivelog.sh &amp;</span>
+</pre>
+</div>
+      <p class="kindle-cn-para-left">下面重点介绍如何使用cron工具来重复执行某项任务。</p>
+      <p class="kindle-cn-para-left"><span class="kindle-cn-bold">1．cron简介</span></p>
+      <p class="kindle-cn-para-left">对于系统任务的调度是每个操作系统都必须提供的功能。Windows的任务计划程序如图15-2所示。</p>
+
+
+      <div class="chapter">
+        <div class="kindle-cn-image">
+          <p class="kindle-cn-para-center">
+            <img alt="alt1160" src="../images/00070.jpeg" class="calibre14"/>
+          </p>
+          <p class="kindle-cn-caption">图15-2　Windows任务计划程序</p>
+        </div>
+</div>
+
+
+      <p class="kindle-cn-para-left">通过任务计划，用户可以实现在每天、每周或者每月重复执行某任务，例如系统备份或者发送电子邮件等。</p>
+      <p class="kindle-cn-para-left">Linux的任务计划管理是通过cron工具实现的。cron这个名字来自古希腊语的chronos，即时间的意思。cron工具主要包括3个组成部分，分别为crontab文件、crontab命令，以及crond守护进程。crontab文件记录了用户的任务计划列表，用户可以通过crontab命令来管理crontab文件中的任务计划列表，crond进程是cron工具的服务进程，该进程会读取crontab文件中的任务计划并且定期执行。</p>
+      <p class="kindle-cn-para-left"><span class="kindle-cn-bold">2．crontab文件及其基本语法</span></p>
+      <p class="kindle-cn-para-left">crontab文件包含需要提交给crond守护进程的一系列任务计划。每个用户可以拥有自己的crontab文件；整个操作系统也可以拥有一个全局的crontab文件。全局crontab文件只能由系统管理员来管理，其文件名通常为/etc/crontab；而每个用户的crontab文件则可以由每个用户管理，通常位于/var/spool/cron目录中，其文件名为每个用户的登录名。</p>
+<p class="kindle-cn-para-left">在crontab文件中，每一行都描述一项任务计划。每一行均遵循特定的语法格式，一般包含6个字段，其中前5个字段描述任务计划执行时间，第6个字段描述任务计划中需要执行的命令，字段之间通过空格或者制表符隔开。</p>
+      <p class="kindle-cn-para-left">下面给出的是PostgresSQL数据库的服务账户postgres的crontab文件的内容：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux cron]# more /var/spool/cron/postgres</span>
+*/5     *        *        *       *
+    /var/lib/pgsql/scripts/auto_archive_log.sh
+</pre>
+</div>
+      <p class="kindle-cn-para-left">图15-3描述了crontab文件中任务计划的各个字段的涵义及其取值范围。</p>
+      <div class="chapter">
+        <div class="kindle-cn-image">
+          <p class="kindle-cn-para-center">
+            <img alt="alt1160" src="../images/00071.jpeg" class="calibre17"/>
+          </p>
+          <p class="kindle-cn-caption">图15-3　crontab文件中任务计划的字段</p>
+        </div>
+      </div>
+<ul class="kindle-cn-ul-square">
+      <li class="calibre5">分钟：描述任务计划被执行时的分钟数，其取值范围为0～59，例如取值为0时表示整点执行。</li>
+      <li class="calibre5">小时：描述任务计划被执行时的小时数，其取值范围为0～23，例如取值为0时表示0点执行作业。</li>
+      <li class="calibre5">日：描述任务计划在每个月的哪天执行，其取值范围为1～31，例如取值为1时表示每个月的第1天执行作业。</li>
+      <li class="calibre5">月：描述任务计划在哪个月执行，其取值范围为1～12，例如取值为12时表示每年的12月份执行作业。</li>
+      <li class="calibre5">周：描述任务计划在每周的第几天执行，其取值范围为0～7，其中0和7都表示星期天，其余1～6分别表示星期一至星期六。例如取值为0或者7表示将在每个星期日执行作业。</li>
+      <li class="calibre5">需要执行的命令：通常使用绝对路径表示，当前用户需要拥有执行权限。对于每个时间字段，都遵循以下语法规则：</li>
+      <li class="calibre5">如果需要指定多个值，则使用逗号隔开各个值。例如，用户可以在小时字段中使用0,2,4,6,8,10,12,14,16,18,20,22表示每隔2个小时执行一次任务。还可以在日期字段中使用1,15,31表示每月的第1、15和31天执行作业。</li>
+      <li class="calibre5">如果用户需要为某个字段指定一段连续的值，则可以使用连字符。例如，用户可以在日期字段使用1-7表示每月的第1～7天执行作业。</li>
+      <li class="calibre5">用户可以使用通配符*来匹配所有可能的值。例如，用户在分钟字段使用星号*表示每分钟都执行作业，在小时字段中使用星号*表示每个小时都执行作业。</li>
+      <li class="calibre5">用户可以使用斜线操作符/来跳过某些给定的数值。例如，用户在小时字段中使用*/2表示每隔2个小时执行作业，等价于直接使用0,2,4,6,8,10,12,14,16,18,20,22表示。</li>
+</ul>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">与Linux系统中其他的配置文件相同，crontab文件也支持行注释。在每个文本行的开头使用#符号，表示从行首一直到行尾都是注释的内容。</span></p>
+      <p class="kindle-cn-para-left"><span class="kindle-cn-bold">3．显示用户的任务计划列表</span></p>
+      <p class="kindle-cn-para-left">用户可以通过crontab -l命令来列出每个用户的任务列表。在默认情况下，crontab命令只列出当前用户的任务清单，如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter15]# crontab -l</span>
+1        1        *        *         *        /backup.sh
+*/4      1        *        *         *        /sendemail.sh
+</pre>
+</div>
+      <p class="kindle-cn-para-left">作为系统管理员，root用户可以查看其他所有用户的任务计划列表。此时，需要使用-u选项来指定用户，如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux ~]# crontab -l -u postgres</span>
+*/5      *        *        *         *
+    /var/lib/pgsql/scripts/auto_archive_log.sh
+</pre>
+</div>
+      <p class="kindle-cn-para-left">crontab-l命令会读取/var/spool/cron目录中的以用户登录名命名的文件的内容，然后将其输出。因此，crontab-l命令的输出结果与直接查看/var/spool/cron目录中的相应文件的内容是一致的。</p>
+      <p class="kindle-cn-para-left"><span class="kindle-cn-bold">4．编辑用户的任务计划列表</span></p>
+<p class="kindle-cn-para-left">用户可以使用含有-e选项的crontab命令来编辑某个用户的任务计划列表，其中，用户名需要使用-u选项指定。在默认情况下，crontab命令修改的是当前用户的任务计划列表。</p>
+<p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">如果无意中输入了无选项的crontab命令，请使用Ctrl+C组合键或者q命令退出编辑器，此时编辑器不会保存修改。如果使用w命令保存了修改，则原有的crontab文件的所有内容都将被清除，变成空文件。这一点在编辑crontab文件时一定要注意。</span></p>
+      <p class="kindle-cn-para-left">例如，下面的命令修改root用户的任务计划列表，将前面创建的Apache日志归档脚本添加进去：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter15]# crontab -e</span>
+</pre>
+</div>
+      <p class="kindle-cn-para-left">当输入以上命令并且按回车键之后，会出现一个全屏的编辑器窗口。通常情况下，该编辑器为vi或者vim，具体需要使用哪个编辑器，用户可以根据自己的需要设定。进入编辑模式后，在文件的末尾追加一行：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">0        0        *        *        *        /root/chapter15/archivelog.sh
+</pre>
+</div>
+      <p class="kindle-cn-para-no-indent">以上语句表示每天的0时0分执行一次/root/chapter15/archivelog.sh脚本。输入完成之后，切换到命令模式，输入以下命令保存并退出编辑器：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">:wq
+</pre>
+</div>
+      <p class="kindle-cn-para-left">如果保存成功，Shell会给出以下提示信息：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">"/tmp/crontab.WFJCBU" 1L, 40C written
+crontab: installing new crontab
+</pre>
+</div>
+      <p class="kindle-cn-para-left">以上信息告诉用户，已经成功地安装了新的任务计划。</p>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">如果对于vi编辑器不熟悉，可以参考本书的2.2节。</span></p>
+      <p class="kindle-cn-para-left">添加完成之后，用户可以使用crontab-l命令查看计划列表，如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">[root@linux log]# crontab -l
+0 * * * * /root/chapter15/archivelog.sh
+</pre>
+</div>
+      <p class="kindle-cn-para-left">通过上面的输出结果，可以确认Apache日志归档脚本已经成功地添加到了crontab文件中。</p>
+      <h2 class="kindle-cn-heading1" id="sub348"><a href="part0004.html#toc348" class="calibre8">15.3　小结</a>
+      </h2>
+<p class="kindle-cn-para-left">本章以两个具体的例子说明了如何通过Shell编程来解决实际问题。这两个例子非常具有代表性，且非常实用。本章的重点在于使读者掌握根据自己的实际需要，来编写复杂脚本文件的方法。尽管本书介绍的是Shell编程，但是读者不应该仅仅局限于脚本本身。除了脚本之外，还应该了解Linux系统的其他知识，例如系统服务的原理，以及任务计划的管理等。只有全面掌握这些知识，才可以编写出功能完善的Shell程序。</p>
+</div>
+  
+
+  </div>
+
+  
+  <div class="calibreToc">
+    <h2><a href="../../pARZf2.html"> Table of contents</a></h2>
+     <div>
+  <ul>
+    <li>
+      <a href="part0001.html#UGI0-55ac501d2b9f4bebb0296c8a16b339b4">内容简介</a>
+    </li>
+    <li>
+      <a href="part0003.html#2RHM0-55ac501d2b9f4bebb0296c8a16b339b4">前言</a>
+    </li>
+    <li>
+      <a href="part0004.html#3Q280-55ac501d2b9f4bebb0296c8a16b339b4">目录</a>
+    </li>
+    <li>
+      <a href="part0005.html#chapter2">第1篇　认识Shell编程</a>
+      <ul>
+        <li>
+          <a href="part0006.html#chapter3">第1章　Shell入门基础</a>
+          <ul>
+            <li>
+              <a href="part0006.html#sub4">1.1　为什么学习和使用Shell编程</a>
+            </li>
+            <li>
+              <a href="part0006.html#sub5">1.2　什么是Shell</a>
+              <ul>
+                <li>
+                  <a href="part0006.html#sub6">1.2.1　Shell的起源</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub7">1.2.2　Shell的功能</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub8">1.2.3　Shell的分类</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0006.html#sub9">1.3　作为程序设计语言的Shell</a>
+              <ul>
+                <li>
+                  <a href="part0006.html#sub10">1.3.1　交互式程序</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub11">1.3.2　创建脚本</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub12">1.3.3　把脚本设置为可执行</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0006.html#sub13">1.4　向脚本传递参数</a>
+              <ul>
+                <li>
+                  <a href="part0006.html#sub14">1.4.1　Shell脚本的参数</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub15">1.4.2　参数扩展</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0006.html#sub16">1.5　第一个Shell程序：Hello，Bash Shell！</a>
+              <ul>
+                <li>
+                  <a href="part0006.html#sub17">1.5.1　Shell脚本的基本元素</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub18">1.5.2　指定命令解读器</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub19">1.5.3　Shell脚本中的注释和风格</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub20">1.5.4　如何执行Shell程序</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub21">1.5.5　Shell程序的退出状态</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0006.html#sub22">1.6　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0007.html#chapter23">第2章　Shell编程环境的搭建</a>
+          <ul>
+            <li>
+              <a href="part0007.html#sub24">2.1　在不同的操作系统上搭建Shell编程环境</a>
+              <ul>
+                <li>
+                  <a href="part0007.html#sub25">2.1.1　在Windows上搭建Shell编程环境</a>
+                </li>
+                <li>
+                  <a href="part0007.html#sub26">2.1.2　在Linux上搭建Shell编程环境</a>
+                </li>
+                <li>
+                  <a href="part0007.html#sub27">2.1.3　在FreeBSD上搭建Shell编程环境</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0007.html#sub28">2.2　编辑器的选择</a>
+              <ul>
+                <li>
+                  <a href="part0007.html#sub29">2.2.1　图形化编辑器</a>
+                </li>
+                <li>
+                  <a href="part0007.html#sub30">2.2.2　vi（vim）编辑器</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0007.html#sub31">2.3　系统环境的搭建</a>
+              <ul>
+                <li>
+                  <a href="part0007.html#sub32">2.3.1　Shell配置文件</a>
+                </li>
+                <li>
+                  <a href="part0007.html#sub33">2.3.2　命令别名</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0007.html#sub34">2.4　小结</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0008.html#chapter35">第2篇　Shell编程基础</a>
+      <ul>
+        <li>
+          <a href="part0009.html#chapter36">第3章　变量和引用</a>
+          <ul>
+            <li>
+              <a href="part0009.html#sub37">3.1　深入认识变量</a>
+              <ul>
+                <li>
+                  <a href="part0009.html#sub38">3.1.1　什么是变量</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub39">3.1.2　变量的命名</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub40">3.1.3　变量的类型</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub41">3.1.4　变量的定义</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub42">3.1.5　变量和引号</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub43">3.1.6　变量的作用域</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub43a">3.1.7　系统变量</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub44">3.1.8　环境变量</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0009.html#sub45">3.2　变量赋值和清空</a>
+              <ul>
+                <li>
+                  <a href="part0009.html#sub46">3.2.1　变量赋值</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub47">3.2.2　引用变量的值</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub48">3.2.3　清除变量</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0009.html#sub49">3.3　引用和替换</a>
+              <ul>
+                <li>
+                  <a href="part0009.html#sub50">3.3.1　引用</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub51">3.3.2　全引用</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub52">3.3.3　部分引用</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub53">3.3.4　命令替换</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub53a">3.3.5　转义</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0009.html#sub54">3.4　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0010.html#chapter55">第4章　条件测试和判断语句</a>
+          <ul>
+            <li>
+              <a href="part0010.html#sub56">4.1　条 件 测 试</a>
+              <ul>
+                <li>
+                  <a href="part0010.html#sub57">4.1.1　条件测试的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub58">4.1.2　字符串测试</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub59">4.1.3　整数测试</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub60">4.1.4　文件测试</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub61">4.1.5　逻辑操作符</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0010.html#sub62">4.2　条件判断语句</a>
+              <ul>
+                <li>
+                  <a href="part0010.html#sub63">4.2.1　使用简单的if语句进行条件判断</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub64">4.2.2　使用if else语句进行流程控制</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub65">4.2.3　使用if elif语句进行多条件判断</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub66">4.2.4　使用exit语句退出程序</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0010.html#sub67">4.3　多条件判断语句case</a>
+              <ul>
+                <li>
+                  <a href="part0010.html#sub68">4.3.1　多条件判断语句case的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub69">4.3.2　利用case语句处理选项参数</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub70">4.3.3　利用case语句处理用户输入</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0010.html#sub71">4.4　运 算 符</a>
+              <ul>
+                <li>
+                  <a href="part0010.html#sub72">4.4.1　算术运算符</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub73">4.4.2　位运算符</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub74">4.4.3　自增/自减运算符</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub75">4.4.4　数字常量的进制</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0010.html#sub76">4.5　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0011.html#chapter77">第5章　循 环 结 构</a>
+          <ul>
+            <li>
+              <a href="part0011.html#sub78">5.1　步进循环语句for</a>
+              <ul>
+                <li>
+                  <a href="part0011.html#sub79_1">5.1.1　带列表的for循环语句</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub79">5.1.2　不带列表的for循环语句</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub80">5.1.3　类C风格的for循环语句</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub81">5.1.4　使用for循环语句处理数组</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0011.html#sub82">5.2　until循环语句</a>
+              <ul>
+                <li>
+                  <a href="part0011.html#sub83">5.2.1　until语句的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub84">5.2.2　利用until语句批量增加用户</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0011.html#sub85">5.3　while循环语句</a>
+              <ul>
+                <li>
+                  <a href="part0011.html#sub86">5.3.1　while语句的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub87">5.3.2　通过计数器控制while循环结构</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub88">5.3.3　通过结束标记控制while循环结构</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub89">5.3.4　理解while语句与until语句的区别</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0011.html#sub90">5.4　嵌 套 循 环</a>
+            </li>
+            <li>
+              <a href="part0011.html#sub91">5.5　利用break和continue语句控制循环</a>
+              <ul>
+                <li>
+                  <a href="part0011.html#sub92">5.5.1　利用break语句控制循环</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub93">5.5.2　利用continue语句控制循环</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub94">5.5.3　分析break语句和continue语句的区别</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0011.html#sub95">5.6　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0012.html#chapter96">第6章　函数</a>
+          <ul>
+            <li>
+              <a href="part0012.html#sub97">6.1　函数</a>
+              <ul>
+                <li>
+                  <a href="part0012.html#sub98">6.1.1　什么是函数</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub99">6.1.2　函数的定义</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub100">6.1.3　函数的调用</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub101">6.1.4　函数链接</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub102">6.1.5　函数的返回值</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub103">6.1.6　函数和别名</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub104">6.1.7　再议全局变量和局部变量</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0012.html#sub105">6.2　函 数 参 数</a>
+              <ul>
+                <li>
+                  <a href="part0012.html#sub106">6.2.1　含有参数的函数的调用方法</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub107">6.2.2　获取函数参数的个数</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub108">6.2.3　通过位置变量接收参数值</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub109">6.2.4　移动位置参数</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub110">6.2.5　通过getopts接收函数参数</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub111">6.2.6　间接参数传递</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub112">6.2.7　通过全局变量传递数据</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub113">6.2.8　传递数组参数</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0012.html#sub114">6.3　函数库文件</a>
+              <ul>
+                <li>
+                  <a href="part0012.html#sub115">6.3.1　函数库文件的定义</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub116">6.3.2　函数库文件的调用</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0012.html#sub117">6.4　递 归 函 数</a>
+            </li>
+            <li>
+              <a href="part0012.html#sub118">6.5　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0013.html#chapter119">第7章　数组</a>
+          <ul>
+            <li>
+              <a href="part0013.html#sub120">7.1　定 义 数 组</a>
+              <ul>
+                <li>
+                  <a href="part0013.html#sub121">7.1.1　通过指定元素值来定义数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub122">7.1.2　通过declare语句定义数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub123">7.1.3　通过元素值集合定义数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub124">7.1.4　通过键值对定义数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub125">7.1.5　数组和普通变量</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0013.html#sub126">7.2　数组的赋值</a>
+              <ul>
+                <li>
+                  <a href="part0013.html#sub127">7.2.1　按索引为元素赋值</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub128">7.2.2　通过集合为数组赋值</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub129">7.2.3　在数组末尾追加新元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub130">7.2.4　通过循环为数组元素赋值</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0013.html#sub131">7.3　访 问 数 组</a>
+              <ul>
+                <li>
+                  <a href="part0013.html#sub132">7.3.1　访问第1个数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub133">7.3.2　通过下标访问数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub134">7.3.3　计算数组的长度</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub135">7.3.4　通过循环遍历数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub136">7.3.5　引用所有的数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub137">7.3.6　以切片方式获取部分数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub138">7.3.7　数组元素的替换</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0013.html#sub139">7.4　删 除 数 组</a>
+              <ul>
+                <li>
+                  <a href="part0013.html#sub140">7.4.1　删除指定数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub141">7.4.2　删除整个数组</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0013.html#sub142">7.5　数组的其他操作</a>
+              <ul>
+                <li>
+                  <a href="part0013.html#sub143">7.5.1　复制数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub144">7.5.2　连接数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub145">7.5.3　加载文件内容到数组</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0013.html#sub146">7.6　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0014.html#chapter147">第8章　正则表达式</a>
+          <ul>
+            <li>
+              <a href="part0014.html#sub148">8.1　什么是正则表达式</a>
+              <ul>
+                <li>
+                  <a href="part0014.html#sub149">8.1.1　为什么使用正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub150">8.1.2　如何学习正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub150a">8.1.3　如何实践正则表达式</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0014.html#sub151">8.2　正则表达式基础</a>
+              <ul>
+                <li>
+                  <a href="part0014.html#sub152">8.2.1　正则表达式的原理</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub153">8.2.2　基本正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub154">8.2.3　扩展正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub155">8.2.4　Perl正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub156">8.2.5　正则表达式字符集</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0014.html#sub157">8.3　正则表达式应用</a>
+              <ul>
+                <li>
+                  <a href="part0014.html#sub158">8.3.1　匹配单个字符</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub159">8.3.2　匹配多个字符</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub160">8.3.3　匹配字符串的开头或者结尾</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub161">8.3.4　运算符优先级</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub162">8.3.5　子表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub163">8.3.6　通配符</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0014.html#sub164">8.4　grep命令</a>
+              <ul>
+                <li>
+                  <a href="part0014.html#sub165">8.4.1　grep命令的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub166">8.4.2　grep命令族简介</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0014.html#sub167">8.5　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0015.html#chapter168">第9章　基本文本处理</a>
+          <ul>
+            <li>
+              <a href="part0015.html#sub169">9.1　使用echo命令输出文本</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub170">9.1.1　显示普通字符串</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub171">9.1.2　显示转义字符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub172">9.1.3　显示变量</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub173">9.1.4　换行和不换行</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub174">9.1.5　显示命令执行结果</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub175">9.1.6　echo命令执行结果的重定向</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub176">9.2　文本的格式化输出</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub177">9.2.1　使用UNIX制表符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub178">9.2.2　使用fold命令格式化行</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub179">9.2.3　使用fmt命令格式化段落</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub180">9.2.4　使用rev命令反转字符顺序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub181">9.2.5　使用pr命令格式化文本页</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub182">9.3　使用sort命令对文本排序</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub183">9.3.1　sort命令的基本用法</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub184">9.3.2　使用单个关键字排序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub185">9.3.3　根据指定的列排序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub186">9.3.4　根据关键字降序排序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub187">9.3.5　数值列的排序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub188">9.3.6　自定义列分隔符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub189">9.3.7　删除重复的行</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub190">9.3.8　根据多个关键字排序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub191">9.3.9　使用sort命令合并文件</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub192">9.4　文本的统计</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub193">9.4.1　输出含有行号的文本行</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub194">9.4.2　统计行数</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub195">9.4.3　统计单词数和字符数</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub196">9.5　使用cut命令选取文本列</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub197">9.5.1　cut命令及其语法</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub198">9.5.2　选择指定的文本列</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub199">9.5.3　选择指定数量的字符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub200">9.5.4　排除不包含列分隔符的行</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub201">9.6　使用paste命令拼接文本列</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub202">9.6.1　paste命令及其语法</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub203">9.6.2　自定义列分隔符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub204">9.6.3　拼接指定的文本列</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub205">9.7　使用join命令联接文本列</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub206">9.7.1　join命令及其语法</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub207">9.7.2　指定联接关键字列</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub208">9.7.3　内联接文本文件</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub209">9.7.4　左联接文本文件</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub210">9.7.5　右联接文本文件</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub211">9.7.6　全联接文本文件</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub212">9.7.7　自定义输出列</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub213">9.8　使用tr命令替换文件内容</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub214">9.8.1　tr命令及其语法</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub215">9.8.2　去除重复出现的字符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub216">9.8.3　删除空行</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub216a">9.8.4　大小写转换</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub216b">9.8.5　删除指定字符</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub217">9.9　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0016.html#chapter218">第10章　流 编 辑</a>
+          <ul>
+            <li>
+              <a href="part0016.html#sub219">10.1　sed命令及其语法</a>
+              <ul>
+                <li>
+                  <a href="part0016.html#sub220">10.1.1　sed命令以及语法</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub221">10.1.2　sed命令的工作方式</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub222">10.1.3　使用行号定位文本行</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub223">10.1.4　使用正则表达式定位文本行</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0016.html#sub224">10.2　sed命令的常用操作</a>
+              <ul>
+                <li>
+                  <a href="part0016.html#sub225">10.2.1　sed编辑命令基本语法</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub226">10.2.2　选择文本</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub227">10.2.3　替换文本</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub228">10.2.4　删除文本</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub229">10.2.5　追加文本</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub230">10.2.6　插入文本</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0016.html#sub231">10.3　组 合 命 令</a>
+              <ul>
+                <li>
+                  <a href="part0016.html#sub232">10.3.1　使用-e选项执行多个子命令</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub233">10.3.2　使用分号执行多个子命令</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub234">10.3.3　对一个地址使用多个子命令</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub235">10.3.4　sed脚本文件</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0016.html#sub236">10.4　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0017.html#chapter237">第11章　文本处理利器awk命令</a>
+          <ul>
+            <li>
+              <a href="part0017.html#sub238">11.1　awk入门</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub239">11.1.1　awk的功能</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub240">11.1.2　awk命令的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub241">11.1.3　awk的工作流程</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub242">11.1.4　执行awk程序的几种方式</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub246">11.2　awk的模式匹配</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub247">11.2.1　关系表达式</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub248">11.2.2　正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub249">11.2.3　混合模式</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub250">11.2.4　区间模式</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub243">11.2.5　BEGIN模式</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub251">11.2.6　END模式</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub252">11.3　变量</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub253">11.3.1　变量的定义和引用</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub254">11.3.2　系统内置变量</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub255">11.3.3　记录分隔符和字段分隔符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub256">11.3.4　记录和字段的引用</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub257">11.4　运算符和表达式</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub258">11.4.1　算术运算符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub259">11.4.2　赋值运算符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub260">11.4.3　条件运算符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub261">11.4.4　逻辑运算符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub262">11.4.5　关系运算符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub263">11.4.6　其他运算符</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub264">11.5　函数</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub265">11.5.1　字符串函数</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub266">11.5.2　算术函数</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub267">11.6　数组</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub268">11.6.1　数组的定义和赋值</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub269">11.6.2　遍历数组</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub270">11.7　流 程 控 制</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub271">11.7.1　if语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub272">11.7.2　while语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub273">11.7.3　do…while语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub274">11.7.4　for语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub275">11.7.5　break语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub276">11.7.6　continue语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub277">11.7.7　next语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub278">11.7.8　exit语句</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub279">11.8　awk程序的格式化输出</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub280">11.8.1　基本print语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub281">11.8.2　格式化输出printf语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub282">11.8.3　使用sprintf()函数生成格式化字符串</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub283">11.9　awk的程序与Shell的交互</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub284">11.9.1　通过管道实现与Shell的交换</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub285">11.9.2　通过system函数实现与Shell的交互</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub286">11.10　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0018.html#chapter287">第12章　文件的操作</a>
+          <ul>
+            <li>
+              <a href="part0018.html#sub288">12.1　文件</a>
+              <ul>
+                <li>
+                  <a href="part0018.html#sub289">12.1.1　列出文件</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub290">12.1.2　文件类型</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub291">12.1.3　文件的权限</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0018.html#sub292">12.2　查 找 文 件</a>
+              <ul>
+                <li>
+                  <a href="part0018.html#sub293">12.2.1　find命令以及语法</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub294">12.2.2　find命令：路径</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub295">12.2.3　find命令：测试</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub296">12.2.4　find命令：使用!运算符对测试求反</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub297">12.2.5　find命令：处理文件权限错误信息</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub298">12.2.6　find命令：动作</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0018.html#sub299">12.3　比 较 文 件</a>
+              <ul>
+                <li>
+                  <a href="part0018.html#sub300">12.3.1　使用comm比较文件</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub301">12.3.2　使用diff比较文件</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0018.html#sub302">12.4　文件描述符</a>
+              <ul>
+                <li>
+                  <a href="part0018.html#sub303">12.4.1　什么是文件描述符</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub304">12.4.2　标准输入、标准输出和标准错误</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0018.html#sub305">12.5　重 定 向</a>
+              <ul>
+                <li>
+                  <a href="part0018.html#sub306">12.5.1　输出重定向（覆盖）</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub307">12.5.2　输出重定向（追加）</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub308">12.5.3　输入重定向</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub309">12.5.4　当前文档</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub310">12.5.5　重定向两个文件描述符</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub311">12.5.6　使用exec命令分配文件描述符</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0018.html#sub312">12.6　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0019.html#chapter313">第13章　子Shell与进程处理</a>
+          <ul>
+            <li>
+              <a href="part0019.html#sub314">13.1　子Shell</a>
+              <ul>
+                <li>
+                  <a href="part0019.html#sub315">13.1.1　什么是子Shell</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub316">13.1.2　内部命令、保留字和外部命令</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub317">13.1.3　在子Shell中执行命令</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub318">13.1.4　把子Shell中的变量值传回父Shell</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0019.html#sub319">13.2　进 程 处 理</a>
+              <ul>
+                <li>
+                  <a href="part0019.html#sub320">13.2.1　什么是进程</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub321">13.2.2　通过脚本监控进程</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub322">13.2.3　作业控制</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub322a">13.2.4　信号与trap命令</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0019.html#sub323">13.3　小结</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0020.html#chapter324">第3篇　Shell编程实战</a>
+      <ul>
+        <li>
+          <a href="part0021.html#chapter325">第14章　Shell脚本调试技术</a>
+          <ul>
+            <li>
+              <a href="part0021.html#sub326">14.1　Shell脚本中的常见错误</a>
+              <ul>
+                <li>
+                  <a href="part0021.html#sub327">14.1.1　常见语法错误</a>
+                </li>
+                <li>
+                  <a href="part0021.html#sub328">14.1.2　常见逻辑错误</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0021.html#sub329">14.2　Shell脚本调试技术</a>
+              <ul>
+                <li>
+                  <a href="part0021.html#sub330">14.2.1　使用echo命令调试脚本</a>
+                </li>
+                <li>
+                  <a href="part0021.html#sub331">14.2.2　使用trap命令调试Shell脚本</a>
+                </li>
+                <li>
+                  <a href="part0021.html#sub332">14.2.3　使用tee命令调试Shell脚本</a>
+                </li>
+                <li>
+                  <a href="part0021.html#sub333">14.2.4　使用调试钩子调试Shell脚本</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0021.html#sub334">14.3　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0022.html#chapter335">第15章　利用Shell脚本解决实际问题</a>
+          <ul>
+            <li>
+              <a href="part0022.html#sub336">15.1　编写系统服务脚本</a>
+              <ul>
+                <li>
+                  <a href="part0022.html#sub337">15.1.1　系统启动过程</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub338">15.1.2　运行级别</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub339">15.1.3　服务脚本的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub340">15.1.4　编写MySQL服务脚本</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0022.html#sub341">15.2　通过脚本管理Apache服务器日志</a>
+              <ul>
+                <li>
+                  <a href="part0022.html#sub342">15.2.1　Apache以及日志文件简介</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub343">15.2.2　备份归档文件名生成函数</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub344">15.2.3　过期日志备份归档函数</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub345">15.2.4　过期日志删除函数</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub346">15.2.5　日志归档主程序</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub347">15.2.6　定时运行日志归档脚本</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0022.html#sub348">15.3　小结</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0023.html#chapter336">附录CD</a>
+    </li>
+  </ul>
+</div>
+
+
+  </div>
+  
+
+  <div class="calibreEbNav">
+    
+      <a href="part0021.html" class="calibreAPrev">previous page</a>
+    
+
+    <a href="../../pARZf2.html" class="calibreAHome"> start</a>
+
+    
+      <a href="part0023.html" class="calibreANext"> next page</a>
+    
+  </div>
+
+</div>
+
+</body>
+</html>
