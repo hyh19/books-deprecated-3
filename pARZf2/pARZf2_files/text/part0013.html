@@ -1,0 +1,2378 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+    <title>第7章　数组</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+
+  
+
+
+<link href="../calibreHtmlOutBasicCss.css" type="text/css" rel="stylesheet" />
+
+</head>
+<body>
+
+<div class="calibreMeta">
+  <div class="calibreMetaTitle">
+  
+  
+    
+    <h1>
+      <a href="../../pARZf2.html">Shell从入门到精通
+</a>
+    </h1>
+    
+    
+  
+  </div>
+  <div class="calibreMetaAuthor">
+    张春晓
+
+  </div>
+</div>
+
+<div class="calibreMain">
+
+  <div class="calibreEbookContent">
+    
+      <div class="calibreEbNavTop">
+        
+          <a href="part0012.html" class="calibreAPrev">previous page</a>
+        
+
+        
+          <a href="part0014.html" class="calibreANext"> next page</a>
+        
+      </div>
+    
+
+    
+  <div class="chapter">
+    <div class="calibre2"></div><h1 class="kindle-cn-heading" id="chapter119"><a href="part0004.html#toc119" class="calibre3">第7章<br class="chapter"/>数组</a></h1>
+
+<p class="kindle-cn-para-left">Shell是一种非常强大的脚本语言。在前面几章中，我们已经学习了Shell的相关基础知识，包括变量的使用。实际上，Shell的功能远不止这些。Shell语言还支持数组，提供了包括数组的定义、访问，以及删除等在内的一系列的操作。本章将介绍如何在Shell中使用数组类型。</p>
+
+    <p class="kindle-cn-para-left">本章主要涉及的知识点如下所述。</p>
+
+    <ul class="kindle-cn-ul-square">
+      <li class="calibre5">定义数组：主要介绍在Shell中定义数组变量的各种方法，包括通过指定元素值来定义数组、通过declare语句定义数组、通过元素值集合定义数组、通过键值对定义数组，以及通过字符串定义数组等。</li>
+
+      <li class="calibre5">数组的赋值：主要介绍如何为数组元素赋值，包括通过循环为数组元素赋值、通过索引为数组元素赋值、通过集合为数组元素赋值，以及在数组末尾追加新元素等。</li>
+
+<li class="calibre5">访问数组：主要介绍数组元素的访问方法，包括如何访问数组的第1个元素、通过索引访问数组元素、计算数组长度、通过循环遍历数组元素、以字符串的形式输出所有的数组元素、以切片方式获取部分数组元素，以及数组元素的替换等。</li>
+
+      <li class="calibre5">删除数组：介绍如何销毁数组变量，包括删除某个指定的数组元素，以及删除整个数组等。</li>
+
+      <li class="calibre5">数组的其他操作：主要包括数组的复制、数组的连接，以及如何从文本文件中加载数据到数组等。</li>
+    </ul>
+
+    <h2 class="kindle-cn-heading1" id="sub120"><a href="part0004.html#toc120" class="calibre8">7.1　定义数组</a></h2>
+
+    <p class="kindle-cn-para-left">所谓数组，是指将具有相同类型的若干变量按照一定的顺序组织起来的一种数据类型。Shell语言对于数组的支持非常强大。在Shell中，用户可以通过多种方式来创建一个数组。为了能够使读者充分了解数组的创建方法，本节将介绍最常用的几种数组定义方法。</p>
+
+    <h3 class="kindle-cn-heading2" id="sub121"><a href="part0004.html#toc121" class="calibre8">7.1.1　通过指定元素值来定义数组</a></h3>
+
+<p class="kindle-cn-para-left">在Shell中，用户可以通过直接指定数组中的元素值来定义一个新的数组变量，其基本语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">array[key]=value
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的语法中，array表示数组变量的名称；key参数表示数组元素的索引，通常是一个整数值；value表示key所对应的数组元素的值。通过以上语句，用户可以定义名称为array的新数组变量。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例7-1</span>】演示如何通过直接指定元素值来定义数组，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter7/ex7-1.sh------------------
+02   #! /bin/bash
+03
+04   # 指定数组元素值
+05   array[1]=one
+06   array[3]=three
+07
+08   # 输出数组元素
+09   echo "${array[@]}"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第5行和第6行分别指定了索引为1和3的两个元素的值，其中数组名称为array。尽管没有明确定义这个变量名，但是通过第5行和第6行代码，Shell会自动创建一个名称为array的数组，并且将第2个元素和第3个元素的值分别赋为one和two这两个字符串。第9行以字符串的形式输出整个数组的元素的值，其中${array[@]}表示获取所有数组元素的值，关于该语句的使用方法，将在随后介绍。</p>
+
+          <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">Shell中的数组的下标（索引）从0开始。这一点与C、C++或者Java等语言是相同的。</span></p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter7]# ./ex7-1.sh</span>
+one three
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">从上面的执行结果可以得知，第9行代码的echo语句输出了第5行和第6行定义的两个元素的值，这两个值之间用空格隔开。</p>
+
+    <h3 class="kindle-cn-heading2" id="sub122"><a href="part0004.html#toc122" class="calibre8">7.1.2　通过declare语句定义数组</a></h3>
+
+    <p class="kindle-cn-para-left">在第3章中，我们已经介绍过，用户可以通过declare语句来声明变量。除此之外，用户还可以使用该语句来定义数组。在使用该语句定义数组时，其基本语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">declare -a array
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的语法中，-a选项表示后面定义的是一个数组，其名称为array。</p>
+    <p class="kindle-cn-para-left">【例7-2】演示如何通过declare语句来声明数组，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter7/ex7-2.sh------------------
+02   #! /bin/bash
+03
+04   # 定义数组
+05   declare -a array
+06   # 为元素赋值
+07   array[0]=1
+08   array[1]=2
+09   # 输出元素值
+10   echo "${array[@]}"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第5行通过declare语句声明了一个名称为array的数组，接下来的两行代码是为数组元素赋值，第10行输出所有元素的值。</p>
+
+<p class="kindle-cn-para-left">尽管上面的代码看起来并没有什么问题，但是实际上在Shell中，这样的声明不是非常必要的。因为在Shell中，所有的变量都不必显式定义就可以用做数组。事实上，在某种意义上讲，所有的变量都是数组，而且赋值给没有下标的变量与赋值给下标为0的元素的效果是相同的。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter7]# ./ex7-2.sh</span>
+1 2
+</pre>
+</div>
+
+    <h3 class="kindle-cn-heading2" id="sub123"><a href="part0004.html#toc123" class="calibre8">7.1.3　通过元素值集合定义数组</a></h3>
+
+    <p class="kindle-cn-para-left">在某些情况下，用户可能需要一次性为数组的所有元素提供一个值。此时，用户可以以元素值集合的形式来定义数组，其基本语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">array=( v<sub class="calibre16">0</sub> v<sub class="calibre16">1</sub> v<sub class="calibre16">2</sub> ... v<sub class="calibre16">n</sub>)
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的语法中，array表示数组名称，等号后面的是所有的元素值的集合，这些值按照一定的顺序来排列，之间用空格隔开，最后所有的值用圆括号括起来。Shell会将这些值从下标为0的第1个元素开始，依次将这些值赋给数组的所有元素。</p>
+
+    <p class="kindle-cn-para-left">另外，在上面的语法中，用户并没有显示指定数组元素的具体个数。在这种情况下，数组元素的个数与值的个数相同。</p>
+
+          <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">Shell中的数组的下标从0开始，在本书中，第1个数组元素是指下标为0的元素。</span></p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例7-3</span>】演示如何通过元素值集合来创建数组变量，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter7/ex7-3.sh------------------
+02   #! /bin/bash
+03
+04   # 定义数组
+05   array=(1 2 3 4 5 6 7 8)
+06   # 输出第 1 个数组元素的值
+07   echo "the first element is ${#array[0]}"
+08   # 输出所有元素的值
+09   echo "the elements of this array are ${array[@]}"
+10   # 输出数组长度
+11   echo "the size of the array is ${#array[@]}"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第5行通过8个值来创建一个名称为array的数组。第7行输出第1个元素的值，第9行输出所有元素的值，第11行输出数组的长度，其中变量${@array[@]}表示数组中元素的个数。关于该变量的使用方法，将在随后介绍。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter7]# ./ex7-3.sh</span>
+the first element is 1
+the elements of this array are 1 2 3 4 5 6 7 8
+the size of the array is 8
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">从上面的执行结果可以得知，第1个值1赋给了下标为0的第1个元素。同时，所有元素的值按照用户指定的顺序排列。所创建的数组的长度与用户提供的值的个数相同。</p>
+
+    <h3 class="kindle-cn-heading2" id="sub124"><a href="part0004.html#toc124" class="calibre8">7.1.4　通过键值对定义数组</a></h3>
+
+<p class="kindle-cn-para-left">在前面的例子中，我们已经介绍了许多创建数组的方法。但是在前面的例子中，当为数组元素提供值时，一般都是连续赋值的。实际上，在Shell中，数组元素的索引并不一定是连续的。</p>
+
+    <p class="kindle-cn-para-left">当用户需要定义索引不连续的数组时，需要显示指定要赋值的数组元素，也就是要为哪个数组元素指定值。此时，用户可以使用键值对的方式来定义数组，其基本语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">array=([0]=value<sub class="calibre16">0</sub> [1]=vlaue<sub class="calibre16">1</sub> [2]=value<sub class="calibre16">2</sub> ... [n]=value<sub class="calibre16">n</sub>)
+</pre>
+</div>
+
+<p class="kindle-cn-para-left">在上面的语法中，等号左边的array表示数组名，等号右边的圆括号表示数组元素及其值。其中方括号里面的数字表示数组元素的索引（下标），value0、value1、value2…valuen表示所对应的元素的值。每个索引和值组成一个键值对，键和值之间用等号隔开。</p>
+
+    <p class="kindle-cn-para-left">当通过键值对定义数组时，用户所提供的键值对中的元素索引不一定是连续的，可以任意指定要赋值的元素的索引。之所以可以这样操作，是因为用户已经显式指定了索引， Shell就可以知道值和索引的对应关系。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例7-4</span>】演示通过键值对定义数组的方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter7/ex7-5.sh------------------
+02   #! /bin/bash
+03
+04   # 定义数组
+05   array=([1]=one [4]=four)
+06   # 输出数组长度
+07   echo "the size of the array is  ${#array[@]}"
+08   # 输出索引为 4 的元素的值
+09   echo "the fourth element is ${array[4]}"
+</pre>
+</div>
+
+<p class="kindle-cn-para-left">在上面的代码中，第5行定义了一个名称为array的数组变量，同时为该数组指定了两个元素的值，其索引分别为1和4。第7行输出数组元素的个数，第9行输出索引为4的元素的值。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter7]# ./ex7-4.sh</span>
+the size of the array is 2
+the fourth element is four
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">从上面的执行结果可以得知，【例7-4】所定义的数组的元素的个数为2，其中索引为4的元素的值为four。</p>
+
+    <p class="kindle-cn-para-left">在【例7-4】中，数组元素的索引为整数。实际上，Shell中的数组的索引并不仅仅是数字，还可以是字符串，这称为关联数组。在使用关联数组时，需要首先使用declare语句来声明数组，然后再通过键值对的形式为数组元素提供值。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例7-5</span>】演示关联数组的使用方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter7/ex7-5.sh------------------
+02   #! /bin/bash
+03
+04   # 声明数组
+05   declare -A array
+06
+07   # 为数组赋值
+08   array=([flower]=rose [fruit]=apple)
+09   # 输出第 1 个元素的值
+10   echo "the flower is ${array[flower]}"
+11   # 输出第 2 个元素的值
+12   echo "the fruit is ${array[fruit]}"
+13   # 输出数组长度
+14   echo "the size of the array is ${#array[@]}"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第8行通过含有-A选项的declare语句声明了一个名称为array的数组，为该数组提供了两个键值对，其中第1个键值对的索引为字符串flower，第2个键值对的索引为fruit。第10行输出索引为flower的元素的值，第12行输出索引为fruit的元素的值，第14行输出数组的元素的个数。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter7]# ./ex7-5.sh</span>
+the flower is rose
+the fruit is apple
+the size of the array is 2
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">从上面的执行结果可以得知，所有元素的值都被正确地输出。</p>
+
+          <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">关联数组在bash 4.0及以上版本获得支持。</span></p>
+
+    <h3 class="kindle-cn-heading2" id="sub125"><a href="part0004.html#toc125" class="calibre8">7.1.5　数组和普通变量</a></h3>
+
+<p class="kindle-cn-para-left">在Shell中，所有的普通变量实际上都可以当做数组变量来使用。对普通变量操作与对相同名称的下标为0的元素的操作是等效的。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例7-6</span>】演示如何将普通变量作为数组来处理，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter7/ex7-6.sh------------------
+02   #! /bin/bash
+03
+04   # 定义字符串变量
+05   array="hello, world."
+06   # 输出下标为 0 的元素的值
+07   echo "${array[0]}"
+08   # 输出所有元素的值
+09   echo "${array[@]}"
+10   # 输出所有元素的值
+11   echo "${array[*]}"
+</pre>
+</div>
+
+<p class="kindle-cn-para-left">在上面的代码中，第5行定义了了一个名称为array的普通变量，并且赋予一个字符串作为初始值。第7行输出下标为0的第1个元素的值，第9和第11行都是输出所有元素的值，其中的符号@和*都是通配符，表示匹配所有的元素。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter7]# ./ex7-6.sh</span>
+hello, world.
+hello, world.
+hello, world.
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">从上面的执行结果可以得知，3条echo语句都输出了相同的内容，都是第5行代码赋予普通变量的字符串。所以，数组的第1个元素的值与同名普通变量的值是相同的。另外，当定义一个普通变量时，实际上可以以数组的形式来操作该变量，但是这个数组只有一个元素。</p>
+
+    <h2 class="kindle-cn-heading1" id="sub126"><a href="part0004.html#toc126" class="calibre8">7.2　数组的赋值</a></h2>
+
+    <p class="kindle-cn-para-left">当用户定义好数组之后，就可以用它来存储数据了。这就需要为数组赋值。数组的赋值与普通变量的赋值有许多不同之处，本节将介绍如何在Shell中为数组赋值。</p>
+
+    <h3 class="kindle-cn-heading2" id="sub127"><a href="part0004.html#toc127" class="calibre8">7.2.1　按索引为元素赋值</a></h3>
+
+<p class="kindle-cn-para-left">在Shell中，为数组元素赋值有两种基本的方法，分别是按索引赋值和以集合的形式赋值。其中，按索引赋值是最基本的赋值方法，其基本语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">array[n]=value<sub class="calibre16">n</sub>
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">其中，array是数组名称，方括号里面的n表示元素的索引，等号右边的value<sub class="calibre16">n</sub>表示元素n的值。以上语法表示将索引为n的元素的值赋为valuen。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例7-7</span>】演示通过索引来为数组赋值的方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter7/ex7-7.sh------------------
+02   #! /bin/bash
+03
+04   # 定义数组
+05   students=(John Rose Tom Tim)
+06
+07   # 输出元素值
+08   echo "the old students are: ${students[*]}"
+09
+10   # 改变第 1 个元素的值
+11   students[0]=Susan
+12   # 改变第 4 个元素的值
+13   students[3]=Jack
+14   # 输出数组新的值
+15   echo "the new students are: ${students[*]}"
+16
+17   # 声明关联数组
+18   declare -A grades
+19   # 初始化新的数组
+20   grades=([john]=90 [rose]=87 [tim]=78 [tom]=85 [jack]=76)
+21   # 输出数组元素值
+22   echo "the old grades are: ${grades[@]}"
+23   # 改变 Tim 的分数
+24   grades[tim]=84
+25   # 重新输出数组元素值
+26   echo "the new grades are: ${grades[@]}"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，一共定义了两个数组。其中第4～15行是关于第1个数组的操作。第5行定义了名称为students的数组，并且赋予一组初始值。第8行输出所有元素的值。第11行和第13行分别修改第1个和第4个元素的值。第15行重新输出数组的值。</p>
+
+    <p class="kindle-cn-para-left">第17～26行是关于第2个数组的操作，该数组是一个关联数组。其索引是一组姓名，而值则是一组分数。第18行是通过declare语句声明的数组变量，第20行以键值对的形式定义了数组grades。第22行输出数组grades所有元素的值。第24行修改索引为tim的元素的值。第26行重新输出数组grades的值。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter7]# ./ex7-7.sh</span>
+the old students are: John Rose Tom Tim
+the new students are: Susan Rose Tom Jack
+the old grades are: 78 87 76 85 90
+the new grades are: 84 87 76 85 90
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">从上面的执行结果可以得知，通过索引可以明确指定要修改数组中的那个元素的值。当执行赋值语句之后，目标元素的值发生改变。</p>
+
+    <h3 class="kindle-cn-heading2" id="sub128"><a href="part0004.html#toc128" class="calibre8">7.2.2　通过集合为数组赋值</a></h3>
+
+    <p class="kindle-cn-para-left">通过集合为数组赋值与通过集合定义数组的语法完全相同。当为某个数组提供一组值时，Shell会从第1个元素开始，依次将这些值赋给每个元素。当新的值的个数超过原来的数组长度时，Shell会在数组末尾追加新的元素；当新的值的个数少于原来的数组长度时， Shell会将新的值从第1个元素开始赋值，然后删除超出的元素。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例7-8</span>】演示通过集合为数组元素赋值的方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter7/ex7-8.sh------------------
+02   #! /bin/bash
+03
+04   # 定义数组
+05   a=(a b c def)
+06   # 输出所有元素的值
+07   echo "${a[@]}"
+08
+09   # 为数组元素重新赋值
+10   a=(h i j k l)
+11   # 输出所有元素的值
+12   echo "${a[@]}"
+13   # 为数组元素重新赋值
+14
+15   a=(m n)
+16   echo "${a[@]}"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第5行定义了一个名称为a的数组，并且赋予了4个初始值。第10行以集合的形式为该数组重新赋值，提供了5个值。第15行再次为该数组重新赋值，这次只提供了2个值。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter7]# ./ex7-8.sh</span>
+a b c def
+h i j k l
+m n
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">从上面的执行结果可以得知，第1次输出了最初的4个值，第2次输出了新的5个值，而第3次只输出了2个值。</p>
+
+          <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">在使用值集合时，如果某个值中含有空格，则需要使用单引号或者双引号将其引用起来。否则，Shell会将其认为是两个元素值。</span></p>
+
+    <h3 class="kindle-cn-heading2" id="sub129"><a href="part0004.html#toc129" class="calibre8">7.2.3　在数组末尾追加新元素</a></h3>
+
+<p class="kindle-cn-para-left">在Shell中，向已有的数组末尾追加新的元素非常方便。在通过索引为数组元素赋值时，如果指定的索引不存在，则Shell会自动添加一个新的元素，并且将指定的值赋给该元素。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例7-9</span>】演示如何在数组末尾追加新的数组元素，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter7/ex7-9.sh------------------
+02   #! /bin/bash
+03
+04   # 定义数组
+05   array=(1 2)
+06   # 输出数组
+07   echo "${array[@]}"
+08   # 向数组末尾追加元素
+09   array[2]=3
+10   array[3]=4
+11   echo "${array[@]}"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter7]# ./ex7-9.sh</span>
+1 2
+1 2 3 4
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">从上面的执行结果可以得知，当执行第9行和第10行代码之后，数组元素由原来的2个增加为4个，同时，原来的数组元素仍然保持。</p>
+
+    <p class="kindle-cn-para-left">对于关联数组来说，向数组末尾追加元素同样非常方便。下面以具体的例子说明如何在关联数组后面追加新元素。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例7-10</span>】演示向关联数组追加新元素的方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter7/ex7-10.sh------------------
+02   #! /bin/bash
+03
+04   # 定义数组
+05   declare -A array
+06   # 初始化数组
+07   array=([a]=a [b]=b)
+08
+09   echo "the old elements are ${array[@]}"
+10   # 向数组追加元素
+11   array[c]=c
+12
+13   echo "the new elements are ${array[@]}"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第5行使用declare语句定义了一个关联数组。第7行以键值对的形式赋予数组初始值。第11行向数组末尾追加了一个新的元素。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter7]# ./ex7-10.sh</span>
+the old elements are a b
+the new elements are a b c
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">从上面的执行结果可以得知，新的数组元素已经被追加。</p>
+
+          <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">无论以何种方式为关联数组赋值，都需要显示指定元素的下标。否则会出现以下错误：</span></p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">./ex7-9.sh: line 7: array: 1: must use subscript when assigning associative
+array
+</pre>
+</div>
+
+    <h3 class="kindle-cn-heading2" id="sub130"><a href="part0004.html#toc130" class="calibre8">7.2.4　通过循环为数组元素赋值</a></h3>
+
+    <p class="kindle-cn-para-left">在实践中，最常用的数组赋值方法是通过一个循环语句逐个为每个元素提供值。这个循环语句可以是前面介绍的任意一种循环语句，例如for、while或者until等。</p>
+
+<p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例7-11</span>】演示为数组元素逐个赋值的方法。在本例中，通过for循环语句将1～10这10个数字赋给一个数组，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter7/ex7-11.sh------------------
+02   #! /bin/bash
+03
+04   # 通过循环为数组赋值
+05   for i in {1..10}
+06   do
+07      array[$i]=$i
+08   done
+09   # 输出元素的值
+10   echo "${array[@]}"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第5行是for循环语句的开始，其中变量i为循环变量。for循环语句将依次把1～10这10个整数赋给该变量。第7行是赋值语句，其中等号左边方括号里面的变量i为数组元素的索引，等号右边为将要赋给数组元素的值。第10行输出所有元素的值。在循环执行的过程中，Shell会逐个向数组array末尾追加元素，并且赋予新的值。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter7]# ./ex7-11.sh</span>
+1 2 3 4 5 6 7 8 9 10
+</pre>
+</div>
+
+    <h2 class="kindle-cn-heading1" id="sub131"><a href="part0004.html#toc131" class="calibre8">7.3　访问数组</a></h2>
+
+    <p class="kindle-cn-para-left">当用户将数据存储到数组之后，下一步就是如何读取这些数组元素的值。对于数组的读取操作，Shell也提供了许多非常灵活的手段。本节将介绍如何访问数组元素。</p>
+
+    <h3 class="kindle-cn-heading2" id="sub132"><a href="part0004.html#toc132" class="calibre8">7.3.1　访问第1个数组元素</a></h3>
+
+    <p class="kindle-cn-para-left">此处所指的第1个数组元素，是指下标为0的元素。前面已经介绍过，所有的普通变量都可以当做数组变量来处理。当用户对普通变量进行赋值操作时，与对同名数组中下标为0的第1个数组元素的操作效果是相同的。反过来，如果用户把数组变量看做普通的变量，直接使用数组名称来访问数组，会出现什么结果呢？</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例7-12</span>】演示通过数组名访问第1个元素的值，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter7/ex7-12.sh------------------
+02   #! /bin/bash
+03
+04   # 定义数组
+05   array=(1 2 3 4 5)
+06   # 通过数组名访问数组
+07   echo "${array}"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第7行的大括号里面不再是array[@]，而直接是数组名。下面看一下程序的执行结果，如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter7]# ./ex7-12.sh</span>
+1
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">可以发现，【例7-12】输出了数组的第1个元素的值。事实上确实如此，在Shell中，当直接使用数组名来访问数组时，得到的是下标为0的元素的值。</p>
+
+    <h3 class="kindle-cn-heading2" id="sub133"><a href="part0004.html#toc133" class="calibre8">7.3.2　通过下标访问数组元素</a></h3>
+
+    <p class="kindle-cn-para-left">与其他程序设计语言一样，通常情况下，访问数组中某个具体的元素都是通过下标来指定的，其基本语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">array[n]
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">其中array表示数组名称，n表示下标。在Shell中，下标从0开始，因此第1个数组元素是array[0]。如果数组的长度为n，则最后一个元素的下标为n-1。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例7-13</span>】演示如何通过下标来访问数组的元素，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter7/ex7-13.sh------------------
+02   #! /bin/bash
+03
+04   # 定义数组
+05   array=(Mon Tue Wed Thu Fri Sat Sun)
+06   # 输出下标为 0 的元素
+07   echo "the first element is ${array[0]}"
+08   # 输出下标为 3 的元素
+09   echo "the fourth element is ${array[3]}"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter7]# ./ex7-13.sh</span>
+the first element is Mon
+the fourth element is Thu
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在使用下标访问数组元素时，一定要注意Shell中的数组的下标是从0开始，与Java或者C++等语言保持一致。</p>
+
+    <h3 class="kindle-cn-heading2" id="sub134"><a href="part0004.html#toc134" class="calibre8">7.3.3　计算数组的长度</a></h3>
+
+    <p class="kindle-cn-para-left">在Shell中，用户可以通过特殊操作符$#来获得数组长度。该操作符的基本语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">${#array[@]}
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">或者</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">${#array[*]}
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的语法中，array表示数组名称，方括号中的@或者*是通配符，表示匹配所有的元素。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例7-14</span>】演示如何使用$#操作符来获取数组长度，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter7/ex7-14.sh------------------
+02   #! /bin/bash
+03
+04   # 定义数组
+05   array=(Mon Tue Wed Thu Fri Sat Sun)
+06   # 输出数组长度
+07   echo "the length of the array is ${#array[@]}"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">第5行定义了一个含有7个元素的数组。第7行输出数组的长度。</p>
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter7]# ./ex7-14.sh</span>
+the length of the array is 7
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">通过$#操作符，除了可以获取整个数组的长度之外，还可以获取某个数组元素的长度。当使用该操作符获取具体元素的长度时，其基本语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">${#array[n]}
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的语法中，array表示数组名称，n表示元素的下标。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例7-15</span>】演示如何通过$#操作符获取某个数组元素的长度，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter7/ex7-15.sh------------------
+02   #! /bin/bash
+03
+04   # 定义数组
+05   linux[0]="Debian"
+06   linux[1]="RedHat"
+07   linux[2]="Ubuntu"
+08   linux[3]="Suse"
+09
+10   # 输出第 4 个元素
+11   echo "the fourth element is ${linux[3]}"
+12   # 输出第 4 个元素的值
+13   echo "the length of the fourth element is ${#linux[3]}"
+14   # 输出第 1 个元素的值
+15   echo "the first element is ${linux}"
+16   # 输出第 1 个元素的长度
+17   echo "the length of the first element is ${#linux}"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第5～8行定义了含有4个元素的数组，第11行输出第4个元素的值，第13行输出第4个元素的长度。第15行输出了第1个元素的值。第17行输出第1个元素的长度。前面已经讲过，在Shell中，通过数组名可以访问第1个元素。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter7]# ./ex7-15.sh</span>
+the fourth element is Suse
+the length of the fourth element is 4
+the first element is Debian
+the length of the first element is 6
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">从上面的执行结果可以得知，第4个元素为Suse，其字符串长度为4。第1个元素为Debian，其长度为6。</p>
+
+    <h3 class="kindle-cn-heading2" id="sub135"><a href="part0004.html#toc135" class="calibre8">7.3.4　通过循环遍历数组元素</a></h3>
+
+    <p class="kindle-cn-para-left">在程序设计时，数组的遍历是一个极其常见的操作。通常情况下，用户需要使用循环结构来实现数组元素的遍历。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例7-16</span>】演示如何通过for循环结构来遍历数组，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter7/ex7-16.sh------------------
+02   #! /bin/bash
+03
+04   # 定义数组
+05   array=(Mon Tue Wed Thu Fri Sat Sun)
+06   # 通过下标访问数组
+07   for i in {0..6}
+08   do
+09      echo "${array[$i]}"
+10   done
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第6～9行通过循环依次输出数组的各个元素。</p>
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter7]# ./ex7-16.sh</span>
+Mon
+Tue
+Wed
+Thu
+Fri
+Sat
+Sun
+</pre>
+</div>
+
+<p class="kindle-cn-para-left">在【例7-16】中，for循环结构需要预先知道数组元素的个数。如果用户不知道数组的长度，则无法使用【例7-16】中的方法。因此，我们需要对其进行改进，使其能够自动判断数组的长度。</p>
+
+<p class="kindle-cn-para-left">在7.3.3节中，我们已经介绍了获取数组长度的方法。如果将获取数组长度和循环结构结合起来，则会使得遍历数组元素的算法更加灵活。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例7-17</span>】本例对【例7-16】中的算法进行改进，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter7/ex7-17.sh------------------
+02   #! /bin/bash
+03
+04   array=(Mon Tue Wed Thu Fri Sat Sun)
+05   # 获取数组长度
+06   len="${#array[@]}"
+07   # 通过循环结构遍历数组
+08   for ((i=0;i&lt;$len;i++))
+09   do
+10      echo "${array[$i]}"
+11   done
+</pre>
+</div>
+
+<p class="kindle-cn-para-left">在上面的代码中，第6行通过操作符$#获取当前数组array的长度，并且将其赋给变量len。第8行中将数组长度len作为循环终止条件。通过以上改进，使得遍历数组的操作更加灵活，用户无需预先知道数组的长度。</p>
+
+    <h3 class="kindle-cn-heading2" id="sub136"><a href="part0004.html#toc136" class="calibre8">7.3.5　引用所有的数组元素</a></h3>
+
+<p class="kindle-cn-para-left">在Shell脚本中，用户可以通过多种不同的方法来输出整个数组。前面介绍过，用户可以通过下标来访问某个具体的数组元素。但是，如果用户指定下标为@或者*，则表示引用当前数组中的所有的元素。其中，符号@或者*称为通配符，表示匹配所有的元素。</p>
+
+    <p class="kindle-cn-para-left">实际上，这种引用所有数组元素的方法在前面的许多例子中已经使用过，在此做一个系统的介绍。当用户使用@或者*引用所有的数组元素时，Shell会将所有的数组元素的值列举出来，这些值之间用空格隔开。在某些情况下，用户可能会需要这种方式来处理数组元素。</p>
+
+<p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例7-18</span>】演示通过通配符引用数组元素的方法。在本例中用户通过通配符来获取所有的数组元素，并且将其作为for循环的条件，然后在循环体中依次对各个数组元素进行处理。代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter7/ex7-18.sh------------------
+02   #! /bin/bash
+03
+04   array=(Mon Tue Wed Thu Fri Sat Sun)
+05   # 通过循环输出所有的数组元素
+06   for e in "${array[@]}"
+07   do
+08      echo "$e"
+09   done
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">用户已经知道，for循环结构的一种就是使用列表作为循环条件。而使用通配符@或者*获取的数组元素的值恰好是以列表的形式呈现的，所以用户可以很方便地将其作为for循环语句的列表条件。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter7]# ./ex7-18.sh</span>
+Mon
+Tue
+Wed
+Thu
+Fri
+Sat
+Sun
+</pre>
+</div>
+
+    <h3 class="kindle-cn-heading2" id="sub137"><a href="part0004.html#toc137" class="calibre8">7.3.6　以切片方式获取部分数组元素</a></h3>
+
+<p class="kindle-cn-para-left">所谓切片，是指截取数组的部分元素或者某个元素的部分内容。例如，指定一个具体的数组，截取从第2个元素开始的5个元素。或者，截取某个数组中指定元素的前几个字符。</p>
+
+    <p class="kindle-cn-para-left">当然，对于上面所说的切片，用户完全可以使用循环结构来实现。但是对于切片，Shell提供了更加快捷的方式。用户可以像获取数组元素的值一样来获取数组的某个切片。获取切片的基本语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">${array [@|*]:start:length}
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的语法中，array表示数组名称，方括号中的符号@和*的涵义与前面介绍的完全相同，都是通配符，表示匹配所有的数组元素，两者只能选择一个。start参数表示起始元素的下标，下标永远从0开始。length表示要截取的数组元素的个数。通过以上切片，用户得到的是一个空格隔开的多个元素值组成的字符串。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例7-19</span>】演示如何进行数组切片，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter7/ex7-19.sh------------------
+02   #! /bin/bash
+03
+04   linux=("Debian" "RedHat" "Ubuntu" "Suse" "Fedora" "UTS" "CentOS")
+05   # 数组切片
+06   echo ${linux[@]:2:4}
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第4行定义了一个含有7个元素的数组。第6行从下标为2的数组元素开始，截取其中的4个元素。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter7]# ./ex7-19.sh</span>
+Ubuntu Suse Fedora UTS
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">从上面的执行结果可以得知，程序从Ubuntu开始，一直输出到UTS。</p>
+
+    <p class="kindle-cn-para-left">通过上面的方式，用户得到的切片是一个字符串，并非数组。当然用户可以将这个切片赋给其他的变量，以供其他地方使用。下面的例子就验证了这一点。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例7-20</span>】演示将切片结果赋给变量的方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter7/ex7-20.sh------------------
+02   #! /bin/bash
+03
+04   linux=("Debian" "RedHat" "Ubuntu" "Suse" "Fedora" "UTS" "CentOS")
+05   # 将切片结果赋给一个变量
+06   var=${linux[@]:2:4}
+07
+08   echo "$var"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第6行将切片结果赋给了一个名称为var的变量，第8行输出该变量的值。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果与【例7-19】完全相同，如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter7]# ./ex7-20.sh</span>
+Ubuntu Suse Fedora UTS
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">但是，在某些情况下，用户可能希望切片得到的结果仍然是一个数组。要得到这个结果，用户可以使用圆括号操作符，其基本语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">(${array [@|*]:start:length})
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">上面的语法只是在原来的基础上增加了一对圆括号。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例7-21</span>】演示将切片结果以数组形式保存的方法。本例将切片的结果赋给了一个新的数组变量，然后输出新的数组的长度，最后通过循环输出所有的数组元素。代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter7/ex7-21.sh------------------
+02   #! /bin/bash
+03
+04   # 定义数组
+05   linux=("Debian" "RedHat" "Ubuntu" "Suse" "Fedora" "UTS" "CentOS")
+06   # 切片
+07   array=(${linux[@]:2:4})
+08   # 获取新的数组的长度
+09   length="${#array[@]}"
+10   # 输出数组长度
+11   echo "the length of new array is $length"
+12   # 通过循环输出各个元素
+13   for ((i=0;i&lt;$length;i++))
+14   do
+15      echo "${array[$i]}"
+16   done
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第7行将切片结果赋给了新的数组变量array，第13行通过for循环结果输出所有的数组元素。由于新的数组的下标仍然是从0开始的，所以循环变量i的值也要从0开始。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter7]# ./ex7-21.sh</span>
+the length of new array is 4
+Ubuntu
+Suse
+Fedora
+UTS
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">从上面的执行结果可以得知，新的数组的长度为4。其数组元素为切片得到的4个数组元素。</p>
+
+    <p class="kindle-cn-para-left">除了可以对数组进行切片之外，用户还可以对数组元素进行切片，截取某个数组元素的一部分，得到一个子字符串。对数组元素进行切片的语法与对数组进行切片的语法基本相同。只是将其中的通配符换成某个具体的下标，如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">${array [n]:start:length}
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的语法中，n表示要切片的数组元素的下标。start参数表示开始的位置，与前面介绍的一样，这个开始位置也从0开始计算。length表示要截取的长度。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例7-22</span>】演示如何对数组元素进行切片，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter7/ex7-22.sh------------------
+02   #! /bin/bash
+03
+04   linux=("Debian" "RedHat" "Ubuntu" "Suse" "Fedora" "UTS" "CentOS")
+05   # 对数组元素切片
+06   str=(${linux[4]:2:4})
+07   # 输出切片结果
+08   echo "$str"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第6行对下标为4的第5个元素进行切片，从第3个字符开始，截取其中的4个字符。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter7]# ./ex7-22.sh</span>
+dora
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">从上面的执行结果可以得知，下标为4的元素为Fedora，从0开始计算，位于位置2的字符为d，从d开始数起，第4个字符为a，所以最终得到的结果为dora。</p>
+
+          <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">无论是对数组进行切片还是对数组元素进行切片，如果其中的长度值超过数组或者数组元素的长度，都会截取到数组或者数组元素的末尾为止。</span></p>
+
+    <h3 class="kindle-cn-heading2" id="sub138"><a href="part0004.html#toc138" class="calibre8">7.3.7　数组元素的替换</a></h3>
+
+<p class="kindle-cn-para-left">在Shell中，用户还可以对数组进行另外一种特殊的操作，称为数组元素的替换。所谓替换，是指将某个数组元素的部分内容用其他的字符串来代替，但是并不影响原来的数组的值。</p>
+
+    <p class="kindle-cn-para-left">数组元素替换的基本语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">${array[@|*]/pattern/replacement}
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的语法中，array表示要操作的数组名称，pattern参数表示要搜索的字符串， replacement参数表示用来替换的字符串。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例7-23</span>】演示如何对数组进行替换，以及如何将替换的结果赋给一个新的数组变量。代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter7/ex7-23.sh------------------
+02   #! /bin/bash
+03
+04   # 定义数组
+05   a=(1 2 3 4 5)
+06   # 输出替换结果
+07   echo "the result is ${a[@]/3/100}"
+08   # 输出原始数组
+09   echo "the old array is ${a[@]}"
+10   # 将替换结果赋给一个数组变量
+11   a=(${a[@]/3/100})
+12   # 输出新的数组变量的值
+13   echo "the new array is ${a[@]}"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第5行定义了一个由数字组成的数组。第7行将其中的3替换成100，然后输出替换后的结果。第9行输出原始数组的值。第11行将替换后的结果赋给一个新的数组变量，由于此处使用了圆括号，所以得到的仍然是一个数组。第13行输出新的数组的所有元素的值。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter7]# ./ex7-23.sh</span>
+the result is 1 2 100 4 5
+the old array is 1 2 3 4 5
+the new array is 1 2 100 4 5
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">其中，第1行的字符串是代码第7行的输出结果，可以发现其中的3已经被替换成了100。第2行的字符串是第9行代码的输出结果，之所以输出原始数组的值，是为了验证替换操作是否改变了原始数组的值。从上面的输出结果可以得知，替换操作并不影响数组的原始值。第3行的字符串是第13行代码的输出，得到的是新的数组变量的值。</p>
+
+          <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">在【例7-23】中，为了得到一个新的数组变量，用户需要使用圆括号操作符。否则，得到的将是一个字符串变量。</span></p>
+
+    <h2 class="kindle-cn-heading1" id="sub139"><a href="part0004.html#toc139" class="calibre8">7.4　删除数组</a></h2>
+
+    <p class="kindle-cn-para-left">当某个数组变量不再需要时，用户可以将其删除，从而释放相应的内存。用户可以删除整个数组，也可以删除其中的数组元素。下面将介绍如何对数组或者元素进行删除。</p>
+
+    <h3 class="kindle-cn-heading2" id="sub140"><a href="part0004.html#toc140" class="calibre8">7.4.1　删除指定数组元素</a></h3>
+
+    <p class="kindle-cn-para-left">与删除其他的Shell变量一样，用户可以使用unset命令来删除某个数组元素，其基本语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">unset array[n]
+</pre>
+</div>
+
+<p class="kindle-cn-para-left">在上面的语法中，array表示数组名称，n表示要删除的数组元素的下标，从0开始计算。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例7-24</span>】演示如何删除数组元素，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter7/ex7-24.sh------------------
+02   #! /bin/bash
+03
+04   linux=("Debian" "RedHat" "Ubuntu" "Suse" "Fedora" "UTS" "CentOS")
+05    输出原始数组长度
+06   echo "the length of original array is ${#linux[@]}"
+07   # 输出数组的原始值
+08   echo "the old array is ${linux[@]}"
+09   # 删除下标为 3 的元素
+10   unset linux[3]
+11    输出新的数组的长度
+12   echo "the length of new array is ${#linux[@]}"
+13   # 输出新的数组的值
+14   echo "the new array is ${linux[@]}"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第6行输出原始数组的值，第10行删除下标为3的数组元素，第13行重新输出新的数组的值。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter7]# ./ex7-24.sh</span>
+the length of original array is 7
+the old array is Debian RedHat Ubuntu Suse Fedora UTS CentOS
+the length of new array is 6
+the new array is Debian RedHat Ubuntu Fedora UTS CentOS
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">从上面的执行结果可以得知，下标为3的数组元素Suse已经被删除。同时，数组的长度也由原来的7变成了6。</p>
+
+    <h3 class="kindle-cn-heading2" id="sub141"><a href="part0004.html#toc141" class="calibre8">7.4.2　删除整个数组</a></h3>
+
+    <p class="kindle-cn-para-left">如果某个数组不再需要了，用户同样可以使用unset命令来将其删除，基本语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">unset array
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">其中，array表示要删除的数组的名称。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例7-25</span>】演示如何删除整个数组，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter7/ex7-1.sh------------------
+02   #! /bin/bash
+03
+04   linux=("Debian" "RedHat" "Ubuntu" "Suse" "Fedora" "UTS" "CentOS")
+05   # 删除整个数组
+06   unset linux
+07   echo "${linux[@]}"
+</pre>
+</div>
+
+<p class="kindle-cn-para-left">在上面的代码中，第6行使用unset删除了名称为linux的数组，第7行输出数组的内容。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter7]# ./ex7-25.sh</span>
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">从上面的执行结果可以得知，当输出被删除之后，程序只输出了一个空行。</p>
+
+    <h2 class="kindle-cn-heading1" id="sub142"><a href="part0004.html#toc142" class="calibre8">7.5　数组的其他操作</a></h2>
+
+    <p class="kindle-cn-para-left">Shell的数组还提供了许多其他的操作，例如数组的复制、数组的连接，以及从文本文件中加载数据到数组，对于用户来说，这些操作也非常重要，本节将详细介绍这操作的实现方法。</p>
+
+    <h3 class="kindle-cn-heading2" id="sub143"><a href="part0004.html#toc143" class="calibre8">7.5.1　复制数组</a></h3>
+
+    <p class="kindle-cn-para-left">所谓复制数组，是指创建一个已经存在的数组的副本。也就是将一个数组的内容全部存储到另外一个新的数组中。</p>
+
+    <p class="kindle-cn-para-left">在Shell中，用户可以通过以下语法来实现数组的复制：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">newarray=("${array[@]}")
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">其中，newarray表示新的数组，array表示已有的数组。同样，其中的@表示匹配所有的数组元素。右边最外层是一对圆括号。</p>
+
+    <p class="kindle-cn-para-left"><span class="kindle-cn-bold">【例7-26】</span>演示数组复制的方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter7/ex7-26.sh------------------
+02   #! /bin/bash
+03
+04   linux=("Debian" "RedHat" "Ubuntu" "Suse" "Fedora" "UTS" "CentOS")
+05   # 复制数组
+06   linux2=("${linux[@]}")
+07   echo "${linux2[@]}"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第6行创建了一个名称为linux2的数组副本，第7行输出新的数组的内容。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter7]# ./ex7-26.sh</span>
+Debian RedHat Ubuntu Suse Fedora UTS CentOS
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">可以发现，新的数组的内容与原来的数组的内容完全相同。</p>
+
+          <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">其中的@符号也可以使用*来代替。</span></p>
+
+    <h3 class="kindle-cn-heading2" id="sub144"><a href="part0004.html#toc144" class="calibre8">7.5.2　连接数组</a></h3>
+
+    <p class="kindle-cn-para-left">连接数组是指将2个数组的数组元素连接在一起，变成一个大的数组。新的数组依次包含2个数组的所有的元素。数组连接的语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">("$array1[@]}" "${array2[@]}")
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">其中，array1表示第1个数组，array2表示第2个数组。这2个数组按照先后顺序用空格隔开，最外边用一对圆括号包围起来。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例7-27</span>】演示连接数组的方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter7/ex7-27.sh------------------
+02   #! /bin/bash
+03
+04   # 定义 2 个数组
+05   linux=("Debian" "RedHat" "Ubuntu" "Suse" "Fedora" "UTS" "CentOS")
+06   shell=("bash" "csh" "ksh" "rsh" "sh" "rc" "tcsh")
+07
+08   # 连接数组
+09   linuxshell=("${linux[@]}" "${shell[@]}")
+10
+11   # 输出合并后的数组
+12   echo "the new array is ${linuxshell[@]}"
+13   # 输出新的数组的长度
+14   echo "the length of new array is ${#linuxshell[@]}"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第5～6行分别定义了2个数组。第9行将这2个数组连接在一起。第12行输出合并后的数组的所有的元素，第14行输出合并后的数组的长度。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter7]# ./ex7-27.sh</span>
+the new array is Debian RedHat Ubuntu Suse Fedora UTS CentOS bash csh ksh
+rsh sh rc tcsh
+the length of new array is 14
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">从上面的执行结果可以得知，第1个数组的元素排在新数组的前面，第2个数组的元素排在新数组的后面。合并后的数组的长度等于原来的2个数组的长度的和，即14。</p>
+
+          <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">在执行数组连接时，参与连接的数组之间要保留1个空格。</span></p>
+
+    <h3 class="kindle-cn-heading2" id="sub145"><a href="part0004.html#toc145" class="calibre8">7.5.3　加载文件内容到数组</a></h3>
+
+<p class="kindle-cn-para-left">在Shell中，用户可以将普通的文本文件的内容直接加载到数组中，文件的每一行构成数组一个元素的内容。这在处理一些日志文件的时候非常有用。</p>
+
+    <p class="kindle-cn-para-left">首先准备一个文本文件，该文件比较简单，只包含4行文本，内容如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter7]# cat demo.txt</span>
+Ubuntu
+Suse
+Fedora
+UTS
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例7-28</span>】演示如何将demo.txt文件的内容加载到一个数组中，然后将数组的内容依次打印出来。代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter7/ex7-28.sh------------------
+02   #! /bin/bash
+03
+04   # 加载文件内容
+05   content=(`cat "demo.txt"`)
+06   # 通过循环输出数组内容
+07   for s in "${content[@]}"
+08   do
+09      echo "$s"
+10   done
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第5行将cat命令的执行结果赋给数组变量content。第7～10行依次输出数组content的各个元素的值。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter7]# ./ex7-28.sh</span>
+Ubuntu
+Suse
+Fedora
+UTS
+</pre>
+</div>
+
+    <h2 class="kindle-cn-heading1" id="sub146"><a href="part0004.html#toc146" class="calibre8">7.6　小结</a></h2>
+
+<p class="kindle-cn-para-left">本章详细介绍了Shell数组的使用方法。主要内容包括数组的定义、数组的赋值、数组元素的访问方法、删除数组，以及数组的其他的操作方法等。重点在于掌握Shell数组的定义方法、引用数组元素的基本语法、数组元素的赋值方法，以及如何删除某个数组元素或者整个数组变量等。在下一章中，将介绍正则表达式的用法。</p>
+  </div>
+
+
+  </div>
+
+  
+  <div class="calibreToc">
+    <h2><a href="../../pARZf2.html"> Table of contents</a></h2>
+     <div>
+  <ul>
+    <li>
+      <a href="part0001.html#UGI0-55ac501d2b9f4bebb0296c8a16b339b4">内容简介</a>
+    </li>
+    <li>
+      <a href="part0003.html#2RHM0-55ac501d2b9f4bebb0296c8a16b339b4">前言</a>
+    </li>
+    <li>
+      <a href="part0004.html#3Q280-55ac501d2b9f4bebb0296c8a16b339b4">目录</a>
+    </li>
+    <li>
+      <a href="part0005.html#chapter2">第1篇　认识Shell编程</a>
+      <ul>
+        <li>
+          <a href="part0006.html#chapter3">第1章　Shell入门基础</a>
+          <ul>
+            <li>
+              <a href="part0006.html#sub4">1.1　为什么学习和使用Shell编程</a>
+            </li>
+            <li>
+              <a href="part0006.html#sub5">1.2　什么是Shell</a>
+              <ul>
+                <li>
+                  <a href="part0006.html#sub6">1.2.1　Shell的起源</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub7">1.2.2　Shell的功能</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub8">1.2.3　Shell的分类</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0006.html#sub9">1.3　作为程序设计语言的Shell</a>
+              <ul>
+                <li>
+                  <a href="part0006.html#sub10">1.3.1　交互式程序</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub11">1.3.2　创建脚本</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub12">1.3.3　把脚本设置为可执行</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0006.html#sub13">1.4　向脚本传递参数</a>
+              <ul>
+                <li>
+                  <a href="part0006.html#sub14">1.4.1　Shell脚本的参数</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub15">1.4.2　参数扩展</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0006.html#sub16">1.5　第一个Shell程序：Hello，Bash Shell！</a>
+              <ul>
+                <li>
+                  <a href="part0006.html#sub17">1.5.1　Shell脚本的基本元素</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub18">1.5.2　指定命令解读器</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub19">1.5.3　Shell脚本中的注释和风格</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub20">1.5.4　如何执行Shell程序</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub21">1.5.5　Shell程序的退出状态</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0006.html#sub22">1.6　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0007.html#chapter23">第2章　Shell编程环境的搭建</a>
+          <ul>
+            <li>
+              <a href="part0007.html#sub24">2.1　在不同的操作系统上搭建Shell编程环境</a>
+              <ul>
+                <li>
+                  <a href="part0007.html#sub25">2.1.1　在Windows上搭建Shell编程环境</a>
+                </li>
+                <li>
+                  <a href="part0007.html#sub26">2.1.2　在Linux上搭建Shell编程环境</a>
+                </li>
+                <li>
+                  <a href="part0007.html#sub27">2.1.3　在FreeBSD上搭建Shell编程环境</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0007.html#sub28">2.2　编辑器的选择</a>
+              <ul>
+                <li>
+                  <a href="part0007.html#sub29">2.2.1　图形化编辑器</a>
+                </li>
+                <li>
+                  <a href="part0007.html#sub30">2.2.2　vi（vim）编辑器</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0007.html#sub31">2.3　系统环境的搭建</a>
+              <ul>
+                <li>
+                  <a href="part0007.html#sub32">2.3.1　Shell配置文件</a>
+                </li>
+                <li>
+                  <a href="part0007.html#sub33">2.3.2　命令别名</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0007.html#sub34">2.4　小结</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0008.html#chapter35">第2篇　Shell编程基础</a>
+      <ul>
+        <li>
+          <a href="part0009.html#chapter36">第3章　变量和引用</a>
+          <ul>
+            <li>
+              <a href="part0009.html#sub37">3.1　深入认识变量</a>
+              <ul>
+                <li>
+                  <a href="part0009.html#sub38">3.1.1　什么是变量</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub39">3.1.2　变量的命名</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub40">3.1.3　变量的类型</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub41">3.1.4　变量的定义</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub42">3.1.5　变量和引号</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub43">3.1.6　变量的作用域</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub43a">3.1.7　系统变量</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub44">3.1.8　环境变量</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0009.html#sub45">3.2　变量赋值和清空</a>
+              <ul>
+                <li>
+                  <a href="part0009.html#sub46">3.2.1　变量赋值</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub47">3.2.2　引用变量的值</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub48">3.2.3　清除变量</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0009.html#sub49">3.3　引用和替换</a>
+              <ul>
+                <li>
+                  <a href="part0009.html#sub50">3.3.1　引用</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub51">3.3.2　全引用</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub52">3.3.3　部分引用</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub53">3.3.4　命令替换</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub53a">3.3.5　转义</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0009.html#sub54">3.4　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0010.html#chapter55">第4章　条件测试和判断语句</a>
+          <ul>
+            <li>
+              <a href="part0010.html#sub56">4.1　条 件 测 试</a>
+              <ul>
+                <li>
+                  <a href="part0010.html#sub57">4.1.1　条件测试的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub58">4.1.2　字符串测试</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub59">4.1.3　整数测试</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub60">4.1.4　文件测试</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub61">4.1.5　逻辑操作符</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0010.html#sub62">4.2　条件判断语句</a>
+              <ul>
+                <li>
+                  <a href="part0010.html#sub63">4.2.1　使用简单的if语句进行条件判断</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub64">4.2.2　使用if else语句进行流程控制</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub65">4.2.3　使用if elif语句进行多条件判断</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub66">4.2.4　使用exit语句退出程序</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0010.html#sub67">4.3　多条件判断语句case</a>
+              <ul>
+                <li>
+                  <a href="part0010.html#sub68">4.3.1　多条件判断语句case的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub69">4.3.2　利用case语句处理选项参数</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub70">4.3.3　利用case语句处理用户输入</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0010.html#sub71">4.4　运 算 符</a>
+              <ul>
+                <li>
+                  <a href="part0010.html#sub72">4.4.1　算术运算符</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub73">4.4.2　位运算符</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub74">4.4.3　自增/自减运算符</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub75">4.4.4　数字常量的进制</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0010.html#sub76">4.5　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0011.html#chapter77">第5章　循 环 结 构</a>
+          <ul>
+            <li>
+              <a href="part0011.html#sub78">5.1　步进循环语句for</a>
+              <ul>
+                <li>
+                  <a href="part0011.html#sub79_1">5.1.1　带列表的for循环语句</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub79">5.1.2　不带列表的for循环语句</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub80">5.1.3　类C风格的for循环语句</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub81">5.1.4　使用for循环语句处理数组</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0011.html#sub82">5.2　until循环语句</a>
+              <ul>
+                <li>
+                  <a href="part0011.html#sub83">5.2.1　until语句的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub84">5.2.2　利用until语句批量增加用户</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0011.html#sub85">5.3　while循环语句</a>
+              <ul>
+                <li>
+                  <a href="part0011.html#sub86">5.3.1　while语句的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub87">5.3.2　通过计数器控制while循环结构</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub88">5.3.3　通过结束标记控制while循环结构</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub89">5.3.4　理解while语句与until语句的区别</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0011.html#sub90">5.4　嵌 套 循 环</a>
+            </li>
+            <li>
+              <a href="part0011.html#sub91">5.5　利用break和continue语句控制循环</a>
+              <ul>
+                <li>
+                  <a href="part0011.html#sub92">5.5.1　利用break语句控制循环</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub93">5.5.2　利用continue语句控制循环</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub94">5.5.3　分析break语句和continue语句的区别</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0011.html#sub95">5.6　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0012.html#chapter96">第6章　函数</a>
+          <ul>
+            <li>
+              <a href="part0012.html#sub97">6.1　函数</a>
+              <ul>
+                <li>
+                  <a href="part0012.html#sub98">6.1.1　什么是函数</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub99">6.1.2　函数的定义</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub100">6.1.3　函数的调用</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub101">6.1.4　函数链接</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub102">6.1.5　函数的返回值</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub103">6.1.6　函数和别名</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub104">6.1.7　再议全局变量和局部变量</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0012.html#sub105">6.2　函 数 参 数</a>
+              <ul>
+                <li>
+                  <a href="part0012.html#sub106">6.2.1　含有参数的函数的调用方法</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub107">6.2.2　获取函数参数的个数</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub108">6.2.3　通过位置变量接收参数值</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub109">6.2.4　移动位置参数</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub110">6.2.5　通过getopts接收函数参数</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub111">6.2.6　间接参数传递</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub112">6.2.7　通过全局变量传递数据</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub113">6.2.8　传递数组参数</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0012.html#sub114">6.3　函数库文件</a>
+              <ul>
+                <li>
+                  <a href="part0012.html#sub115">6.3.1　函数库文件的定义</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub116">6.3.2　函数库文件的调用</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0012.html#sub117">6.4　递 归 函 数</a>
+            </li>
+            <li>
+              <a href="part0012.html#sub118">6.5　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0013.html#chapter119">第7章　数组</a>
+          <ul>
+            <li>
+              <a href="part0013.html#sub120">7.1　定 义 数 组</a>
+              <ul>
+                <li>
+                  <a href="part0013.html#sub121">7.1.1　通过指定元素值来定义数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub122">7.1.2　通过declare语句定义数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub123">7.1.3　通过元素值集合定义数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub124">7.1.4　通过键值对定义数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub125">7.1.5　数组和普通变量</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0013.html#sub126">7.2　数组的赋值</a>
+              <ul>
+                <li>
+                  <a href="part0013.html#sub127">7.2.1　按索引为元素赋值</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub128">7.2.2　通过集合为数组赋值</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub129">7.2.3　在数组末尾追加新元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub130">7.2.4　通过循环为数组元素赋值</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0013.html#sub131">7.3　访 问 数 组</a>
+              <ul>
+                <li>
+                  <a href="part0013.html#sub132">7.3.1　访问第1个数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub133">7.3.2　通过下标访问数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub134">7.3.3　计算数组的长度</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub135">7.3.4　通过循环遍历数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub136">7.3.5　引用所有的数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub137">7.3.6　以切片方式获取部分数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub138">7.3.7　数组元素的替换</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0013.html#sub139">7.4　删 除 数 组</a>
+              <ul>
+                <li>
+                  <a href="part0013.html#sub140">7.4.1　删除指定数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub141">7.4.2　删除整个数组</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0013.html#sub142">7.5　数组的其他操作</a>
+              <ul>
+                <li>
+                  <a href="part0013.html#sub143">7.5.1　复制数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub144">7.5.2　连接数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub145">7.5.3　加载文件内容到数组</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0013.html#sub146">7.6　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0014.html#chapter147">第8章　正则表达式</a>
+          <ul>
+            <li>
+              <a href="part0014.html#sub148">8.1　什么是正则表达式</a>
+              <ul>
+                <li>
+                  <a href="part0014.html#sub149">8.1.1　为什么使用正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub150">8.1.2　如何学习正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub150a">8.1.3　如何实践正则表达式</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0014.html#sub151">8.2　正则表达式基础</a>
+              <ul>
+                <li>
+                  <a href="part0014.html#sub152">8.2.1　正则表达式的原理</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub153">8.2.2　基本正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub154">8.2.3　扩展正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub155">8.2.4　Perl正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub156">8.2.5　正则表达式字符集</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0014.html#sub157">8.3　正则表达式应用</a>
+              <ul>
+                <li>
+                  <a href="part0014.html#sub158">8.3.1　匹配单个字符</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub159">8.3.2　匹配多个字符</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub160">8.3.3　匹配字符串的开头或者结尾</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub161">8.3.4　运算符优先级</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub162">8.3.5　子表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub163">8.3.6　通配符</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0014.html#sub164">8.4　grep命令</a>
+              <ul>
+                <li>
+                  <a href="part0014.html#sub165">8.4.1　grep命令的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub166">8.4.2　grep命令族简介</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0014.html#sub167">8.5　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0015.html#chapter168">第9章　基本文本处理</a>
+          <ul>
+            <li>
+              <a href="part0015.html#sub169">9.1　使用echo命令输出文本</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub170">9.1.1　显示普通字符串</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub171">9.1.2　显示转义字符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub172">9.1.3　显示变量</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub173">9.1.4　换行和不换行</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub174">9.1.5　显示命令执行结果</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub175">9.1.6　echo命令执行结果的重定向</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub176">9.2　文本的格式化输出</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub177">9.2.1　使用UNIX制表符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub178">9.2.2　使用fold命令格式化行</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub179">9.2.3　使用fmt命令格式化段落</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub180">9.2.4　使用rev命令反转字符顺序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub181">9.2.5　使用pr命令格式化文本页</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub182">9.3　使用sort命令对文本排序</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub183">9.3.1　sort命令的基本用法</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub184">9.3.2　使用单个关键字排序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub185">9.3.3　根据指定的列排序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub186">9.3.4　根据关键字降序排序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub187">9.3.5　数值列的排序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub188">9.3.6　自定义列分隔符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub189">9.3.7　删除重复的行</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub190">9.3.8　根据多个关键字排序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub191">9.3.9　使用sort命令合并文件</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub192">9.4　文本的统计</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub193">9.4.1　输出含有行号的文本行</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub194">9.4.2　统计行数</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub195">9.4.3　统计单词数和字符数</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub196">9.5　使用cut命令选取文本列</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub197">9.5.1　cut命令及其语法</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub198">9.5.2　选择指定的文本列</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub199">9.5.3　选择指定数量的字符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub200">9.5.4　排除不包含列分隔符的行</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub201">9.6　使用paste命令拼接文本列</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub202">9.6.1　paste命令及其语法</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub203">9.6.2　自定义列分隔符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub204">9.6.3　拼接指定的文本列</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub205">9.7　使用join命令联接文本列</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub206">9.7.1　join命令及其语法</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub207">9.7.2　指定联接关键字列</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub208">9.7.3　内联接文本文件</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub209">9.7.4　左联接文本文件</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub210">9.7.5　右联接文本文件</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub211">9.7.6　全联接文本文件</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub212">9.7.7　自定义输出列</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub213">9.8　使用tr命令替换文件内容</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub214">9.8.1　tr命令及其语法</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub215">9.8.2　去除重复出现的字符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub216">9.8.3　删除空行</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub216a">9.8.4　大小写转换</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub216b">9.8.5　删除指定字符</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub217">9.9　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0016.html#chapter218">第10章　流 编 辑</a>
+          <ul>
+            <li>
+              <a href="part0016.html#sub219">10.1　sed命令及其语法</a>
+              <ul>
+                <li>
+                  <a href="part0016.html#sub220">10.1.1　sed命令以及语法</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub221">10.1.2　sed命令的工作方式</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub222">10.1.3　使用行号定位文本行</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub223">10.1.4　使用正则表达式定位文本行</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0016.html#sub224">10.2　sed命令的常用操作</a>
+              <ul>
+                <li>
+                  <a href="part0016.html#sub225">10.2.1　sed编辑命令基本语法</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub226">10.2.2　选择文本</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub227">10.2.3　替换文本</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub228">10.2.4　删除文本</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub229">10.2.5　追加文本</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub230">10.2.6　插入文本</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0016.html#sub231">10.3　组 合 命 令</a>
+              <ul>
+                <li>
+                  <a href="part0016.html#sub232">10.3.1　使用-e选项执行多个子命令</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub233">10.3.2　使用分号执行多个子命令</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub234">10.3.3　对一个地址使用多个子命令</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub235">10.3.4　sed脚本文件</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0016.html#sub236">10.4　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0017.html#chapter237">第11章　文本处理利器awk命令</a>
+          <ul>
+            <li>
+              <a href="part0017.html#sub238">11.1　awk入门</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub239">11.1.1　awk的功能</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub240">11.1.2　awk命令的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub241">11.1.3　awk的工作流程</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub242">11.1.4　执行awk程序的几种方式</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub246">11.2　awk的模式匹配</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub247">11.2.1　关系表达式</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub248">11.2.2　正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub249">11.2.3　混合模式</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub250">11.2.4　区间模式</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub243">11.2.5　BEGIN模式</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub251">11.2.6　END模式</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub252">11.3　变量</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub253">11.3.1　变量的定义和引用</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub254">11.3.2　系统内置变量</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub255">11.3.3　记录分隔符和字段分隔符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub256">11.3.4　记录和字段的引用</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub257">11.4　运算符和表达式</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub258">11.4.1　算术运算符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub259">11.4.2　赋值运算符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub260">11.4.3　条件运算符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub261">11.4.4　逻辑运算符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub262">11.4.5　关系运算符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub263">11.4.6　其他运算符</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub264">11.5　函数</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub265">11.5.1　字符串函数</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub266">11.5.2　算术函数</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub267">11.6　数组</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub268">11.6.1　数组的定义和赋值</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub269">11.6.2　遍历数组</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub270">11.7　流 程 控 制</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub271">11.7.1　if语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub272">11.7.2　while语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub273">11.7.3　do…while语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub274">11.7.4　for语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub275">11.7.5　break语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub276">11.7.6　continue语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub277">11.7.7　next语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub278">11.7.8　exit语句</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub279">11.8　awk程序的格式化输出</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub280">11.8.1　基本print语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub281">11.8.2　格式化输出printf语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub282">11.8.3　使用sprintf()函数生成格式化字符串</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub283">11.9　awk的程序与Shell的交互</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub284">11.9.1　通过管道实现与Shell的交换</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub285">11.9.2　通过system函数实现与Shell的交互</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub286">11.10　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0018.html#chapter287">第12章　文件的操作</a>
+          <ul>
+            <li>
+              <a href="part0018.html#sub288">12.1　文件</a>
+              <ul>
+                <li>
+                  <a href="part0018.html#sub289">12.1.1　列出文件</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub290">12.1.2　文件类型</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub291">12.1.3　文件的权限</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0018.html#sub292">12.2　查 找 文 件</a>
+              <ul>
+                <li>
+                  <a href="part0018.html#sub293">12.2.1　find命令以及语法</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub294">12.2.2　find命令：路径</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub295">12.2.3　find命令：测试</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub296">12.2.4　find命令：使用!运算符对测试求反</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub297">12.2.5　find命令：处理文件权限错误信息</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub298">12.2.6　find命令：动作</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0018.html#sub299">12.3　比 较 文 件</a>
+              <ul>
+                <li>
+                  <a href="part0018.html#sub300">12.3.1　使用comm比较文件</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub301">12.3.2　使用diff比较文件</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0018.html#sub302">12.4　文件描述符</a>
+              <ul>
+                <li>
+                  <a href="part0018.html#sub303">12.4.1　什么是文件描述符</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub304">12.4.2　标准输入、标准输出和标准错误</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0018.html#sub305">12.5　重 定 向</a>
+              <ul>
+                <li>
+                  <a href="part0018.html#sub306">12.5.1　输出重定向（覆盖）</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub307">12.5.2　输出重定向（追加）</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub308">12.5.3　输入重定向</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub309">12.5.4　当前文档</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub310">12.5.5　重定向两个文件描述符</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub311">12.5.6　使用exec命令分配文件描述符</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0018.html#sub312">12.6　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0019.html#chapter313">第13章　子Shell与进程处理</a>
+          <ul>
+            <li>
+              <a href="part0019.html#sub314">13.1　子Shell</a>
+              <ul>
+                <li>
+                  <a href="part0019.html#sub315">13.1.1　什么是子Shell</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub316">13.1.2　内部命令、保留字和外部命令</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub317">13.1.3　在子Shell中执行命令</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub318">13.1.4　把子Shell中的变量值传回父Shell</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0019.html#sub319">13.2　进 程 处 理</a>
+              <ul>
+                <li>
+                  <a href="part0019.html#sub320">13.2.1　什么是进程</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub321">13.2.2　通过脚本监控进程</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub322">13.2.3　作业控制</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub322a">13.2.4　信号与trap命令</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0019.html#sub323">13.3　小结</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0020.html#chapter324">第3篇　Shell编程实战</a>
+      <ul>
+        <li>
+          <a href="part0021.html#chapter325">第14章　Shell脚本调试技术</a>
+          <ul>
+            <li>
+              <a href="part0021.html#sub326">14.1　Shell脚本中的常见错误</a>
+              <ul>
+                <li>
+                  <a href="part0021.html#sub327">14.1.1　常见语法错误</a>
+                </li>
+                <li>
+                  <a href="part0021.html#sub328">14.1.2　常见逻辑错误</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0021.html#sub329">14.2　Shell脚本调试技术</a>
+              <ul>
+                <li>
+                  <a href="part0021.html#sub330">14.2.1　使用echo命令调试脚本</a>
+                </li>
+                <li>
+                  <a href="part0021.html#sub331">14.2.2　使用trap命令调试Shell脚本</a>
+                </li>
+                <li>
+                  <a href="part0021.html#sub332">14.2.3　使用tee命令调试Shell脚本</a>
+                </li>
+                <li>
+                  <a href="part0021.html#sub333">14.2.4　使用调试钩子调试Shell脚本</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0021.html#sub334">14.3　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0022.html#chapter335">第15章　利用Shell脚本解决实际问题</a>
+          <ul>
+            <li>
+              <a href="part0022.html#sub336">15.1　编写系统服务脚本</a>
+              <ul>
+                <li>
+                  <a href="part0022.html#sub337">15.1.1　系统启动过程</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub338">15.1.2　运行级别</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub339">15.1.3　服务脚本的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub340">15.1.4　编写MySQL服务脚本</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0022.html#sub341">15.2　通过脚本管理Apache服务器日志</a>
+              <ul>
+                <li>
+                  <a href="part0022.html#sub342">15.2.1　Apache以及日志文件简介</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub343">15.2.2　备份归档文件名生成函数</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub344">15.2.3　过期日志备份归档函数</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub345">15.2.4　过期日志删除函数</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub346">15.2.5　日志归档主程序</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub347">15.2.6　定时运行日志归档脚本</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0022.html#sub348">15.3　小结</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0023.html#chapter336">附录CD</a>
+    </li>
+  </ul>
+</div>
+
+
+  </div>
+  
+
+  <div class="calibreEbNav">
+    
+      <a href="part0012.html" class="calibreAPrev">previous page</a>
+    
+
+    <a href="../../pARZf2.html" class="calibreAHome"> start</a>
+
+    
+      <a href="part0014.html" class="calibreANext"> next page</a>
+    
+  </div>
+
+</div>
+
+</body>
+</html>

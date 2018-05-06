@@ -1,0 +1,2356 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+    <title>第3章　变量和引用</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+
+  
+
+
+<link href="../calibreHtmlOutBasicCss.css" type="text/css" rel="stylesheet" />
+
+</head>
+<body>
+
+<div class="calibreMeta">
+  <div class="calibreMetaTitle">
+  
+  
+    
+    <h1>
+      <a href="../../pARZf2.html">Shell从入门到精通
+</a>
+    </h1>
+    
+    
+  
+  </div>
+  <div class="calibreMetaAuthor">
+    张春晓
+
+  </div>
+</div>
+
+<div class="calibreMain">
+
+  <div class="calibreEbookContent">
+    
+      <div class="calibreEbNavTop">
+        
+          <a href="part0008.html" class="calibreAPrev">previous page</a>
+        
+
+        
+          <a href="part0010.html" class="calibreANext"> next page</a>
+        
+      </div>
+    
+
+    
+  <div class="chapter">
+    <div class="calibre2"></div><h1 class="kindle-cn-heading" id="chapter36"><a href="part0004.html#toc36" class="calibre3">第3章<br class="chapter"/>变量和引用</a></h1>
+
+    <p class="kindle-cn-para-left">在任何程序设计语言里面，变量都是一个非常重要的话题。变量是程序设计语言中不可缺少的元素。正确、恰当地使用变量可以增加程序的可读性，提高程序的健壮性和灵活性。本章将从变量的基础知识开始，依次介绍什么是变量、变量的赋值和替换，以及变量的引用。</p>
+
+    <p class="kindle-cn-para-left">本章主要涉及的知识点如下所述。</p>
+
+    <ul class="kindle-cn-ul-square">
+      <li class="calibre5">深入认识变量：主要介绍什么是变量、变量的命名、变量的类型、变量的有效范围，以及系统变量和用户自定义变量等。</li>
+
+      <li class="calibre5">变量的赋值和替换：主要介绍如何为变量赋值、如何取得变量的值、如何清空变量的值，以及如何进行变量替换。</li>
+
+      <li class="calibre5">引用：主要介绍什么是全引用、部分引用、命令替换和转义等。</li>
+    </ul>
+
+    <h2 class="kindle-cn-heading1" id="sub37"><a href="part0004.html#toc37" class="calibre8">3.1　深入认识变量</a></h2>
+
+<p class="kindle-cn-para-left">在程序设计语言中，变量是一个非常重要的概念。也是初学者在进行Shell程序设计之前必须掌握的一个非常基础的概念。只有理解变量的使用方法，才能设计出良好的程序。本节将介绍Shell中变量的相关知识。</p>
+
+    <h3 class="kindle-cn-heading2" id="sub38"><a href="part0004.html#toc38" class="calibre8">3.1.1　什么是变量</a></h3>
+
+    <p class="kindle-cn-para-left">顾名思义，变量就是程序设计语言中的一个可以变化的量，当然，可以变化的是变量的值。变量在几乎所有的程序设计语言中都有定义，并且其涵义也大同小异。从本质上讲，变量就是在程序中保存用户数据的一块内存空间，而变量名就是这块内存空间的地址。</p>
+
+    <p class="kindle-cn-para-left">在程序的执行过程中，保存数据的内存空间的内容可能会不断地发生变化，但是，代表内存地址的变量名却保持不变。</p>
+
+    <p class="kindle-cn-para-left">由于变量的值是在计算机的内存中，所以当计算机被重新启动后，变量的值将会丢失。因此，对于需要长久保存的数据，应该写入到磁盘中，避免存储在变量中。</p>
+
+    <h3 class="kindle-cn-heading2" id="sub39"><a href="part0004.html#toc39" class="calibre8">3.1.2　变量的命名</a></h3>
+
+    <p class="kindle-cn-para-left">对初学者来说，可以简单地认为，变量就是保存在计算机内存中的一系列的键值对。例如：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">str="hello"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的语句中，等号前面的部分就是键，等号后面的就是值。用户使用变量的目的就是通过键来存取不同的值。</p>
+
+    <p class="kindle-cn-para-left">在程序设计语言中，一般将上述语句中的键称为变量名。因此，用户是通过变量名来对变量所代表的值进行存取。</p>
+
+<p class="kindle-cn-para-left">在不同的程序设计语言中，对于变量名的要求有所不同。在Shell中，变量名可以由字母、数字或者下划线组成，并且只能以字母或者下划线开头。对于变量名的程序，Shell并没有做出明确的规定。因此，用户可以使用任意长度的字符串作为变量名。但是，为了提高程序的可读性，建议用户使用相对较短的字符串作为变量名。</p>
+
+    <p class="kindle-cn-para-left">在一个设计良好的程序中，变量的命名有着非常大的学问。通常情况下，用户应该尽可能选择有明确意义的英文单词作为变量名，尽量避免使用拼音或者毫无意义的字符串作为变量名。这样的话，用户通过变量名就可以了解该变量的作用。</p>
+
+    <p class="kindle-cn-para-left">例如，下面的变量名都是非常好的选择：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">PATH=/sbin
+UID=100
+JAVA_HOME="/usr/lib/jvm/jre-1.6.0-openjdk.x86_64/bin/../.."
+SSHD=/usr/sbin/sshd
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">而下面的变量名则相对可读性较差：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">a="123"
+str1="hello"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">因为程序的阅读者没有从变量名上面获取到任何有用的信息。当变量较多的时候，程序设计者本身也会搞不清楚这些变量的作用是什么，从而导致程序发生错误。</p>
+
+<p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">在Shell语言中，变量名的大小写是敏感的，因此，大小写不同的两个变量名并不代表同一个变量。</span></p>
+
+    <h3 class="kindle-cn-heading2" id="sub40"><a href="part0004.html#toc40" class="calibre8">3.1.3　变量的类型</a></h3>
+
+    <p class="kindle-cn-para-left">与变量密切相关的有两个概念，其中一个是变量的类型，另外一个是变量的作用域。此处先介绍变量的类型，有效范围将在随后介绍。</p>
+
+<p class="kindle-cn-para-left">根据变量类型确定的时间，可以将程序设计语言分为两类，分别是静态类型语言和动态类型语言。其中，静态类型语言是在程序的编译期间就确定变量类型的语言，例如Java、C++和PASCAL，在这些语言中使用变量时，必须首先声明其类型。动态设计语言是在程序执行过程中才确定变量的数据类型的语言。常见的动态语言有VBScript、PHP及Python等。在这些语言中，变量的数据类型根据第一次赋给该变量的值的数据类型来确定。</p>
+
+    <p class="kindle-cn-para-left">同样，根据是否强制要求类型定义，可以将程序设计语言分为强类型语言和弱类型语言。强类型语言要求用户在定义变量时必须明确指定其数据类型，例如Java和C++。在强类型语言中，数据类型之间的转换非常重要。与之相反，弱类型语言则不要求用户明确指定变量的数据类型，例如VBScript。用户可以将任意类型的数值赋给该变量。并且，变量的数据类型之间的转换也无需明确进行。</p>
+
+    <p class="kindle-cn-para-left">Shell是一种动态类型语言和弱类型语言，即在Shell中，变量的数据类型无需显示地声明，变量的数据类型会根据不同的操作有所变化。准确地讲，Shell中的变量是不分数据类型的，统一地按照字符串存储。但是根据变量的上下文环境，允许程序执行一些不同的操作，例如字符串的比较和整数的加减等。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例3-1</span>】演示Shell变量的数据类型，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter3/ex3-1.sh------------------
+02   #! /bin/bash
+03
+04   # 定义变量 x ，并且赋值为 123
+05   x=123
+06   # 变量 x 加 1
+07   let "x += 1"
+08   # 输出变量 x 的值
+09   echo "x = $x"
+10   # 显示空行
+11   echo
+12   # 替换 x 中的 1 为 abc ，并且将值赋给变量 y
+13   y=${x/1/abc}
+14   # 输出变量 y 的值
+15   echo "y = $y"
+16   # 声明变量 y
+17   declare -i y
+18   # 输出变量 y 的值
+19   echo "y = $y"
+20   # 变量 y 的值加 1
+21   let "y += 1"
+22   # 输出变量 y 的值
+23   echo "y = $y"
+24   # 显示空行
+25   echo
+26   # 将字符串赋给变量 z
+27   z=abc22
+28   # 输出变量 z 的值
+29   echo "z = $z"
+30   # 替换变量 z 中的 abc 为数字 11 ，并且将值赋给变量 m
+31   m=${z/abc/11}
+32   # 输出变量 m 的值
+33   echo "m = $m"
+34   # 变量 m 加 1
+35   let "m += 1"
+36   # 输出变量 m 的值
+37   echo "m = $m"
+38
+39   echo
+40   # 将空串赋给变量 n
+41   n=""
+42   # 输出变量 n 的值
+43   echo "n = $n"
+44   # 变量 n 加 1
+45   let "n += 1"
+46   echo "n = $n"
+47   echo
+48   # 输出空变量 p 的值
+49   echo "p = $p"
+50   #  变量 p 加 1
+51   let "p += 1"
+52   echo "p = $p"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">为了便于介绍，首先看一下以上程序的执行结果，如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">01   [root@linux chapter3]# ./ex3-1.sh</span>
+02   x = 124
+03
+04   y = abc24
+05   y = abc24
+06   y = 1
+07
+08   z = abc22
+09   m = 1122
+10   m = 1123
+11
+12   n =
+13   n = 1
+14
+15   p =
+16   p = 1
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在【例3-1】中，第5行定义了变量x，并且将一个整数值赋给该变量，所以变量x的数据类型为整数。第7行使用let语句将变量x的值加1，从而变成了124，输出结果的第2行正是程序的第9行的echo语句的执行结果。</p>
+
+    <p class="kindle-cn-para-left">代码的第13行将变量x的值中的数字1替换成了字符串abc，并且将替换后的结果赋给变量y，所以变量y实际上是一个字符串。执行结果的第4行是代码的第15行的echo语句的执行结果。</p>
+
+    <p class="kindle-cn-para-left">代码的第17行是使用declare语句声明整数变量y，但是这个语句并不影响当前变量y的值，因此，执行结果的第5行是代码第19行的echo语句的执行结果。</p>
+
+    <p class="kindle-cn-para-left">代码的第21行是将变量y加1，用户可能已经注意到，此时变量y的值为abc24，这个值是一个含有字母和数字的字符串。为了能够执行加法运算，Shell会自动进行数据类型的转换，如果遇到含有非数字的字符串，则该字符串将被转换成整数0，所以，当执行加1运算之后，变量y的值就变成1。执行结果的第6行是代码第23行的echo语句的输出。</p>
+
+    <p class="kindle-cn-para-left">代码的第27行将一个含有字母的字符串赋给变量z，然后在第29行输出该变量的值，得到了结果的第8行。</p>
+
+    <p class="kindle-cn-para-left">代码的第31行将变量z的值中的字母abc替换为整数11，并且将替换后的结果赋给变量m，在第33行输出变量m的值，即执行结果的第9行。</p>
+
+    <p class="kindle-cn-para-left">代码的第35行将变量m的值加1，由于此时y的值为1122，这是一个完全由数字组成的字符串，所以Shell可以将其转换为整数，然后执行加法运算，得到结果为1123。</p>
+
+    <p class="kindle-cn-para-left">代码的第41行～第52行分别测试了在空串以及没有定义的变量的情况下，执行加法运算的执行结果。从上面的执行结果可以得知，在这两种情况下，变量的值都会被转换为整数0。</p>
+
+    <p class="kindle-cn-para-left">从上面的执行结果可以看到，Shell中的变量非常灵活，可以参与任何运算。实际上，在Shell中，一切变量都是字符串类型的。</p>
+
+    <h3 class="kindle-cn-heading2" id="sub41"><a href="part0004.html#toc41" class="calibre8">3.1.4　变量的定义</a></h3>
+
+<p class="kindle-cn-para-left">在Shell中，通常情况下用户可以直接使用变量，无需先进行定义，当用户第一次使用某个变量名时，实际上就同时定义了这个变量，在变量的作用域内，用户都可以使用该变量。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例3-2</span>】演示通过直接使用变量来定义变量，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter3/ex3-2.sh------------------
+02   #! /bin/bash
+03
+04   # 定义变量 a
+05   a=1
+06   # 定义变量 b
+07   b="hello"
+08   # 定义变量 c
+09   c="hello world"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第5行定义了一个名称为a的变量，同时将一个数字赋给该变量。第7行定义了一个名称为b的变量，同时将一个字符串赋给该变量。第9行定义了一个变量c，同时将一个包含空格的字符串赋给该变量。在Shell语言中，如果变量的值包含空格，则一定要使用引号引用起来。</p>
+
+    <p class="kindle-cn-para-left">尽管通过以上方式可以非常方便地定义变量，但是，对于变量的某些属性却不容易控制，例如，变量的类型和读写属性等。为了更好地控制变量的相关属性，bash提供了一个名称为declare的命令来声明变量，该命令的基本语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">declare attribute variable
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">其中，attribute表示变量的属性，常用的属性有如下所述。</p>
+
+<ul class="kindle-cn-ul-square">
+    <li class="calibre5">-p：显示所有变量的值。</li>
+
+    <li class="calibre5">-i：将变量定义为整数。在之后就可以直接对表达式求值，结果只能是整数。如果求值失败或者不是整数，就设置为0。</li>
+
+    <li class="calibre5">-r：将变量声明为只读变量。只读变量不允许修改，也不允许删除。</li>
+
+    <li class="calibre5">-a：变量声明为数组变量。但这没有必要。所有变量都不必显式定义就可以用做数组。事实上，在某种意义上，所有变量都是数组，而且赋值给没有下标的变量与赋值给下标为0的数组元素相同。</li>
+
+    <li class="calibre5">-f：显示所有自定义函数，包括名称和函数体。</li>
+
+    <li class="calibre5">-x：将变量设置成环境变量，这样在随后的脚本和程序中可以使用。参数variable表示变量名称。</li>
+</ul>
+
+          <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">declare命令又写做typeset。</span></p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例3-3</span>】演示使用不同的方法声明变量，导致变量在不同的环境下表现出不同的行为，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter3/ex3-3.sh------------------
+02   #! /bin/bash
+03
+04    定义变量 x ，并将一个算术式赋给它
+05   x=6/3
+06   echo "$x"
+07   # 定义变量 x 为整数
+08   declare -i x
+09   echo "$x"
+10   # 将算术式赋给变量 x
+11   x=6/3
+12   echo "$x"
+13   # 将字符串赋给变量 x
+14   x=hello
+15   echo "$x"
+16   # 将浮点数赋给变量 x
+17   x=3.14
+18   echo "$x"
+19   # 取消变量 x 的整数属性
+20   declare +i x
+21   # 重新将算术式赋给变量 x
+22   x=6/3
+23   echo "$x"
+24   # 求表达式的值
+25   x=$[6/3]
+26   echo "$x"
+27   # 求表达式的值
+28   x=$((6/3))
+29   echo "$x"
+30   # 声明只读变量 x
+31   declare -r x
+32   echo "$x"
+33   # 尝试为只读变量赋值
+34   x=5
+35   echo "$x"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">以上程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   [root@linux chapter3]# ./ex3-3.sh
+02   6/3
+03   6/3
+04   2
+05   0
+06   ./ex3-3.sh: line 15: 3.14: syntax error: invalid arithmetic operator
+(error token is ".14")
+07   0
+08   6/3
+09   2
+10   2
+11   2
+12   ./ex3-3.sh: line 32: x: readonly variable
+13   2
+</pre>
+</div>
+
+<p class="kindle-cn-para-left">下面对比执行结果分析一下【例3-3】中的代码。第5行使用通常的方法定义了一个变量x，并且将一个算术式作为初始值赋给该变量。第6行输出变量x的值。前面已经讲过，Shell中将所有的数据都看做是字符串来存储的，所以在程序执行的时候，Shell并不将6/3当成一个将被求值的算术式，而是作为一个普通的字符串，所以第6行直接输出了这个算术式本身，得到了结果的第2行。</p>
+
+    <p class="kindle-cn-para-left">代码的第8行使用declare语句声明了变量x为整数，但是程序并没对变量x重新赋值，所以第9行的echo语句的执行结果仍然得到算术式本身，即结果的第3行。</p>
+
+    <p class="kindle-cn-para-left">代码的第11行对变量x重新赋值，将前面的算术表达式赋给它。因为当变量被声明为整数之后，可以直接参与算术运算，所以第12行的echo语句中输出了算术式的值，即结果的第4行。</p>
+
+<p class="kindle-cn-para-left">第14行尝试将一个字符串值赋给整数变量x，并且在第15行使用echo语句输出x的值。在Shell中，如果变量被声明成整数，把一个结果不是整数的表达式赋值给它时，就会变成0。因此，结果第5行中的0是代码第15行的echo语句的输出。</p>
+
+    <p class="kindle-cn-para-left">第17行将一个浮点数赋给变量x，因为bash并不内置对浮点数的支持，所以得到了执行结果中的第6行的错误消息，此时，变量x的值变为0，即结果的第7行中的0。</p>
+
+    <p class="kindle-cn-para-left">第20行取消变量x的整数类型属性，第22行重新将算术式赋给变量x，并且在第23行使用echo语句输出变量x的值。由于此时变量x已经不是整数变量，所以不能直接参数算术运算。因此，变量x的值仍然得到了算术式本身，即结果的第8行。</p>
+
+<p class="kindle-cn-para-left">在Shell中，为了得到算术式的值，可以有两种方法，其中一种就是使用方括号，即第25行中的方式。结果的第9行正是此时变量x的值。另外一种是使用圆括号，即第28行中的方式。从执行结果可以得知，这两种方式都可以得到用户所期望的结果。</p>
+
+    <p class="kindle-cn-para-left">第31行使用-r选项声明了一个只读变量，第43行尝试为该变量重新赋值，从而得到了结果中第12行的错误消息。此时变量x的值仍然是2，所以才有结果中的第13行。</p>
+
+    <h3 class="kindle-cn-heading2" id="sub42"><a href="part0004.html#toc42" class="calibre8">3.1.5　变量和引号</a></h3>
+
+    <p class="kindle-cn-para-left">在Shell编程中，正确理解引号的作用非常重要。Shell语言中一共有3种引号，分别为单引号（' '）、双引号（" "）和反引号（` `）。这3种引号的作用是不同的，其中单引号括起来的字符都作为普通字符出现；由双引号括起来的字符，除“$”、“\”、“'”和“"”这几个字符仍是特殊字符并保留其特殊功能外，其余字符仍作为普通字符对待；由反引号括起来的字串被Shell解释为命令，在执行时，Shell首先执行该命令，并以它的标准输出结果取代整个反引号（包括两个反引号）部分。关于单引号和双引号的作用，将在后面的引用部分介绍，下面举例说明一下反引号的使用方法。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例3-4</span>】演示反引号使用方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter3/ex3-4.sh------------------
+02   #! /bin/bash
+03
+04   # 输出当前目录
+05   echo "current directory is `pwd`"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第5行的语句中包含一个由反引号引用起来的Shell命令pwd。以上命令的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter3]# ./ex3-4.sh</span>
+current directory is /root/chapter3
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">从上面的执行结果可以得知，代码的第5行在执行的过程中会首先执行pwd命令，用该命令的执行结果取代命令所在的位置，然后执行echo语句。</p>
+
+          <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">反引号是键盘左上角的波浪号“～”下面的那个符号。</span></p>
+
+    <h3 class="kindle-cn-heading2" id="sub43"><a href="part0004.html#toc43" class="calibre8">3.1.6　变量的作用域</a></h3>
+
+<p class="kindle-cn-para-left">接下来讨论Shell语言中的与变量密切相关的另外一个概念，即变量的作用域。与其他程序设计语言一样，Shell中的变量也分为全局变量和局部变量两种。下面分别介绍这两种变量的作用域。</p>
+
+    <p class="kindle-cn-para-left"><span class="kindle-cn-bold">1．全局变量</span></p>
+
+<p class="kindle-cn-para-left">通常认为，全局变量是使用范围较大的变量，它不仅限于某个局部使用。在Shell语言中，全局变量可以在脚本中定义，也可以在某个函数中定义。在脚本中定义的变量都是全局变量，其作用域为从被定义的地方开始，一直到Shell脚本结束或者被显式地删除。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例3-5</span>】演示全局变量的使用方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter3/ex3-5.sh------------------
+02   #! /bin/bash
+03
+04   # 定义函数
+05   func()
+06   {
+07      # 输出变量 x 的值
+08      echo "$v1"
+09      # 修改变量 x 的值
+10      v1=200
+11   }
+12   # 在脚本中定义变量 x
+13   v1=100
+14   # 调用函数
+15   func
+16   # 输出变量 x 的值
+17   echo "$v1"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第5行～第11定义了名称为func()的函数，第8行在函数内部输出全局变量v1的值，第10行修改全局变量v1的值为200，第13行在脚本中，即函数外面定义了变量v1，该变量是全局变量。第15行调用函数func()，第17行重新输出修改后的变量v1的值。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter3]# ./ex3-5.sh</span>
+100
+200
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的执行结果中，100是第8行的echo语句的输出，从执行结果可以得知，在函数func()内部可以访问全局变量v1。200是第17行的echo语句的输出，这是因为程序的第10行在函数func()内部修改了变量v1的值。从【例3-5】的执行结果可以得知，在脚本中定义的变量为全局变量，不仅可以在脚本中直接使用，还可以在函数内部直接使用。</p>
+
+<p class="kindle-cn-para-left">除了在脚本中定义全局变量之外，在函数内部定义的变量默认情况下也是全局变量，其作用域为从函数被调用时执行变量定义的地方开始，一直到Shell脚本结束或者被显式地删除为止。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例3-6</span>】演示在函数内部定义全局变量的方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter3/ex3-6.sh------------------
+02   #! /bin/bash
+03
+04   # 定义函数
+05   func()
+06   {
+07      # 在函数内部定义变量
+08      v2=200
+09   }
+10   # 调用函数
+11   func
+12   # 输出变量的值
+13   echo "$v2"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第5行～第9行定义了名称为func()的函数，其中在第8行定义了一个名称为v2的变量。第11行调用func()函数，第13行输出变量v2的值。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter3]# ./ex3-6.sh</span>
+200
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">之所以会得到200，是因为在Shell中，默认情况下，函数内部定义的变量也属于全局变量。因此，在代码的第8行定义的变量v2在函数外部仍然可以使用。</p>
+
+          <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">函数的参数是局部变量。</span></p>
+
+    <p class="kindle-cn-para-left"><span class="kindle-cn-bold">2．局部变量</span></p>
+
+    <p class="kindle-cn-para-left">与全局变量相比，局部变量的使用范围较小，通常仅限于某个程序段访问，例如函数内部。在Shell语言中，可以在函数内部通过local关键字定义局部变量，另外，函数的参数也是局部变量。</p>
+
+<p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例3-7</span>】演示使用local关键字定义局部变量。本例对【例3-6】的代码稍作改动，在定义变量v2的时候使用local关键字，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter3/ex3-7.sh------------------
+02   #! /bin/bash
+03
+04   # 定义函数
+05   func()
+06   {
+07      # 使用 local 关键字定义局部变量
+08      local v2=200
+09   }
+10   # 调用函数
+11   func
+12   # 输出变量的值
+13   echo "$v2"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter3]# ./ex3-7.sh</span>
+</pre>
+</div>
+
+<p class="kindle-cn-para-left">从上面的执行结果可以得知，由于在函数内部使用local关键字显式地定义了局部变量，所以在函数外面不能获得该变量的值。第13行的echo语句仅仅输出了空值。</p>
+
+          <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">关于函数的详细介绍请参见本书第6章。</span></p>
+
+    <p class="kindle-cn-para-left">如果用户在函数外面定义了一个全局变量，同时在某个函数内部又存在相同名称的局部变量，则在调用该函数时，函数内部的局部变量会屏蔽函数外部定义的全局变量。也就是说，在出现同名的情况下，函数内部的局部变量会优先被使用。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例3-8</span>】演示全局变量和局部变量的区别。在本例中，定义两个名称都为v1的变量，其中一个为全局变量，另外一个为局部变量，然后分别比较这两个变量的不同的行为，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter3/ex3-8.sh------------------
+02   #! /bin/bash
+03
+04   # 定义函数
+05   func()
+06   {
+07      # 输出全局变量 v1 的值
+08      echo "global variable v1 is $v1"
+09      # 定义局部变量 v1
+10      local v1=2
+11      # 输出局部变量 v1 的值
+12      echo "local variable v1 is $v1"
+13   }
+14   # 定义全局变量 v1
+15   v1=1
+16   # 调用函数
+17   func
+18   # 输出全局变量 v1 的值
+19   echo "global variable v1 is $v1"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第5行～第13行定义了函数func()。由于函数内部的局部变量是在第10行定义的，所以第8行的echo语句输出的是全局变量v1的值。第10行使用local关键字定义相同名称的局部变量v1，并且赋值为2。第12行输出了局部变量v1的值。第15行定义了全局变量v1，并且赋值为1。第17行调用函数func()。第19行输出全局变量v1的值。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter3]# ./ex3-8.sh</span>
+global variable v1 is 1
+local variable is 2
+global variable is 1
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">从上面的执行结果可以得知，在函数func()中，第一次输出的是全局变量v1的值，第二次输出的是局部变量v1的值。尽管在函数内部修改了变量v1的值，但是这只影响到局部变量v1，所以在函数外部输出的仍然是全局变量的值。</p>
+
+          <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">Shell变量中的符号“$”表示取变量的值。只有在取值的时候才使用，定义和赋值时无需使用符号“$”。另外，实际上Shell中变量的原型为${var}，而常用的书写形式$var只是一个简写。在某些情况下，简写形式会导致程序执行错误。</span></p>
+    <h3 class="kindle-cn-heading2" id="sub43a"><a href="part0004.html#toc43a" class="calibre8">3.1.7　系统变量</a></h3>
+
+    <p class="kindle-cn-para-left">Shell语言的系统变量主要在对参数判断和命令返回值判断时使用，包括脚本和函数的参数，以及脚本和函数的返回值。Shell语言中的系统变量并不多，但是十分有用，特别是在做一些参数检测的时候。表3-1列出了常用的系统变量。</p>
+
+<p class="kindle-cn-caption"><span class="kindle-cn-bold">表3-1　Shell中常用的系统变量</span></p>
+<table cellspacing="0" class="kindle-cn-table-body">
+      <tr class="calibre13">
+        <td class="kindle-cn-table-th">变　量</td>
+
+        <td class="kindle-cn-table-th1">说　明</td>
+      </tr>
+
+      <tr class="calibre13">
+        <td class="kindle-cn-table-dg1a">$n</td>
+
+        <td class="kindle-cn-table-dg">n是一个整数，从1开始，表示参数的位置，例如$1表示第1个参数，$2表示第2个参数等</td>
+      </tr>
+
+      <tr class="calibre13">
+        <td class="kindle-cn-table-dg1a">$#</td>
+
+        <td class="kindle-cn-table-dg">命令行参数的个数</td>
+      </tr>
+
+      <tr class="calibre13">
+        <td class="kindle-cn-table-dg1a">$0</td>
+
+        <td class="kindle-cn-table-dg">当前Shell脚本的名称</td>
+      </tr>
+
+      <tr class="calibre13">
+        <td class="kindle-cn-table-dg1a">$?</td>
+
+        <td class="kindle-cn-table-dg">前一个命令或者函数的返回状态码</td>
+      </tr>
+
+      <tr class="calibre13">
+        <td class="kindle-cn-table-dg1a">$*</td>
+
+        <td class="kindle-cn-table-dg">以“参数1参数2……”的形式将所有的参数通过一个字符串返回</td>
+      </tr>
+
+      <tr class="calibre13">
+        <td class="kindle-cn-table-dg1a">$@</td>
+
+        <td class="kindle-cn-table-dg">以“参数1”“参数2”……的形式返回每个参数</td>
+      </tr>
+
+      <tr class="calibre13">
+        <td class="kindle-cn-table-dg1a">$$</td>
+
+        <td class="kindle-cn-table-dg">返回本程序的进程ID（PID）</td>
+      </tr>
+    </table>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例3-9</span>】演示常用系统变量的使用方法。在本例中通过Shell系统变量来获取不同的信息，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter3/ex3-9.sh------------------
+02   #! /bin/bash
+03
+04   # 输出脚本的参数个数
+05   echo "the number of parameters is $#"
+06   # 输出上一个命令的退出状态码
+07   echo "the return code of last command is $?"
+08   # 输出当前脚本名称
+09   echo "the script name is $0"
+10   # 输出所有的参数
+11   echo "the parameters are $*"
+12   # 输出其中的几个参数
+13   echo "\$1=$1;\$2=$2;\$11=$11"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第5行使用变量$#获取当前脚本的参数个数，第7行使用变量$?获取上一个脚本或者命令的返回状态码，第9行通过变量$0获取当前脚本的名称，第11行通过变量$*以一个字符串的形式返回所有的参数值，第13行通过变量$n输出其中几个参数的值。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter3]# ./ex3-9.sh a b c d e f g h i j k l m n</span>
+the number of parameters is 14
+the return code of last command is 0
+the script name is ./ex3-9.sh
+the parameters are a b c d e f g h i j k l m n
+$1=a;$2=b;$11=a1
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在执行ex3-9.sh脚本文件时，为该程序提供了14个参数，所以代码第5行的输出结果为14。同时由于代码第5行的echo语句执行成功，所以代码第7行的输出结果为0。代码第9行的echo语句输出了当前脚本文件的名称为ex3-9.sh。第11行通过变量$*返回所有的参数的值。第13行分别通过变量$1、$2和$11获取第1个、第2个和第11个参数的值。从上面的执行结果可以得知，第1个和第2个参数的值都已经正确获取，但是第11个参数的值却输出了“a1”，而非希望得到的k。为什么会得到这种错误的结果呢？</p>
+
+    <p class="kindle-cn-para-left">原来在Shell语言中，使用$n的形式获取位置参数时，Shell通常的变量名只是一位数字，即1～9。因此，在上面的程序中，使用变量$11获取第11个参数的值时，Shell会将“$1”作为变量名，导致了获取结果实际上是第1个参数的值。而最后的“1”则是变量名$11中的第2个“1”。这个数字会直接与前面的字符串连接在一起。</p>
+
+    <p class="kindle-cn-para-left">为了能够使Shell正确地知道哪些部分是变量名，用户可以使用大括号来界定变量名。下面将变量名$11中的数字11用大括号括起来，如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">echo "\$1=$1;\$2=$2;\$11=${11}"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">此时再次执行【例3-9】的脚本文件，就可以得到正确的结果，如下所示。</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter3]# ./ex3-9.sh a b c d e f g h i j k l m n</span>
+the number of parameters is 14
+the return code of last command is 0
+the script name is ./ex3-9.sh
+the parameters are a b c d e f g h i j k l m n
+$1=a;$2=b;$11=k
+</pre>
+</div>
+
+<p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">【例3-9】中的反斜线“\”称为转义字符，用于将一些Shell中的特殊字符转换为普通字符，例如“$”或者“’”等。</span></p>
+
+    <h3 class="kindle-cn-heading2" id="sub44"><a href="part0004.html#toc44" class="calibre8">3.1.8　环境变量</a></h3>
+
+    <p class="kindle-cn-para-left">Shell的环境变量是所有Shell程序都可以使用的变量。Shell程序在运行时，都会接收一组变量，这组变量就是环境变量。环境变量会影响到所有脚本的执行结果。表3-2列出了常用的Shell变量。</p>
+
+<p class="kindle-cn-caption"><span class="kindle-cn-bold">表3-2　常用的Shell环境变量</span></p>
+<table cellspacing="0" class="kindle-cn-table-body">
+      <tr class="calibre13">
+        <td class="kindle-cn-table-th">变量</td>
+
+        <td class="kindle-cn-table-th1">说　明</td>
+      </tr>
+
+      <tr class="calibre13">
+        <td class="kindle-cn-table-dg1a">PATH</td>
+
+        <td class="kindle-cn-table-dg">命令搜索路径，以冒号为分隔符。注意与Windows下不同的是，当前目录不在系统路径里</td>
+      </tr>
+
+      <tr class="calibre13">
+        <td class="kindle-cn-table-dg1a">HOME</td>
+
+        <td class="kindle-cn-table-dg">用户主目录的路径名，是cd命令的默认参数</td>
+      </tr>
+
+      <tr class="calibre13">
+        <td class="kindle-cn-table-dg1a">COLUMNS</td>
+
+        <td class="kindle-cn-table-dg">定义了命令编辑模式下可使用命令行的长度</td>
+      </tr>
+
+      <tr class="calibre13">
+        <td class="kindle-cn-table-dg1a">HISTFILE</td>
+
+        <td class="kindle-cn-table-dg">命令历史文件</td>
+      </tr>
+
+      <tr class="calibre13">
+        <td class="kindle-cn-table-dg1a">HISTSIZE</td>
+
+        <td class="kindle-cn-table-dg">命令历史文件中最多可包含的命令条数</td>
+      </tr>
+
+      <tr class="calibre13">
+        <td class="kindle-cn-table-dg1a">HISTFILESIZE</td>
+
+        <td class="kindle-cn-table-dg">命令历史文件中包含的最大行数</td>
+      </tr>
+
+      <tr class="calibre13">
+        <td class="kindle-cn-table-dg1a">IFS</td>
+
+        <td class="kindle-cn-table-dg">定义Shell使用的分隔符</td>
+      </tr>
+
+      <tr class="calibre13">
+        <td class="kindle-cn-table-dg1a">LOGNAME</td>
+
+        <td class="kindle-cn-table-dg">当前的登录名</td>
+      </tr>
+
+      <tr class="calibre13">
+        <td class="kindle-cn-table-dg1a">SHELL</td>
+
+        <td class="kindle-cn-table-dg">Shell的全路径名</td>
+      </tr>
+
+      <tr class="calibre13">
+        <td class="kindle-cn-table-dg1a">TERM</td>
+
+        <td class="kindle-cn-table-dg">终端类型</td>
+      </tr>
+
+      <tr class="calibre13">
+        <td class="kindle-cn-table-dg1a">TMOUT</td>
+
+        <td class="kindle-cn-table-dg">Shell自动退出的时间，单位为秒，若设为0则禁止Shell自动退出</td>
+      </tr>
+
+      <tr class="calibre13">
+        <td class="kindle-cn-table-dg1a">PWD</td>
+
+        <td class="kindle-cn-table-dg">当前工作目录</td>
+      </tr>
+    </table>
+
+    <p class="kindle-cn-para-left">除了表3-2列出的一些环境变量之外，用户还可以使用set命令列出所有的环境变量，如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter3]# set | more</span>
+BASH=/bin/bash
+BASHOPTS=checkwinsize:cmdhist:expand_aliases:extquote:force_fignore:hos
+tcomplete:interactive_comments:login_shell:progcomp:promptvars:sourcepa
+th
+BASH_ALIASES=()
+BASH_ARGC=()
+BASH_ARGV=()
+BASH_CMDS=()
+BASH_LINENO=()
+BASH_SOURCE=()
+BASH_VERSINFO=([0]="4" [1]="1" [2]="2" [3]="1" [4]="release" [5]=
+"x86_64-redhat-linux-gnu")
+BASH_VERSION='4.1.2(1)-release'
+COLORS=/etc/DIR_COLORS
+COLUMNS=235
+CVS_RSH=ssh
+DIRSTACK=()
+EUID=0
+GROUPS=()
+G_BROKEN_FILENAMES=1
+HISTCONTROL=ignoredups
+HISTFILE=/root/.bash_history
+HISTFILESIZE=1000
+HISTSIZE=1000
+HOME=/root
+HOSTNAME=linux
+…
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">用户如果想要使用环境变量，则可以通过相应的变量名来获取。</p>
+
+<p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例3-10</span>】演示通过环境变量来获取与当前Shell有关的一些环境变量的值，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter3/ex3-10.sh------------------
+02   #! /bin/bash
+03
+04   # 输出命令搜索路径
+05   echo "commands path is $PATH"
+06   # 输出当前的登录名
+07   echo "current login name is $LOGNAME"
+08   # 输出当前用户的主目录
+09   echo "current user's home is $HOME"
+10   # 输出当前的 Shell
+11   echo "current shell is $SHELL"
+12   # 输出当前工作目录
+13   echo "current path is $PWD"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第5行输出当前用户所设置的命令搜索路径，第7行输出当前用户的登录名，第9行输出当前用户的主目录，第11行输出当前Shell的全路径，第13行输出当前的工作路径。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter3]# ./ex3-10.sh</span>
+commands path is /usr/lib64/qt-3.3/bin:/usr/local/sbin:/usr/local/
+bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin:/usr/pgsql-9.2/bin
+current login name is root
+current user's home is /root
+current shell is /bin/bash
+current path is /root/chapter3
+</pre>
+</div>
+
+          <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">按照惯例，Shell中的环境变量全部使用大写字母表示。</span></p>
+
+    <h2 class="kindle-cn-heading1" id="sub45"><a href="part0004.html#toc45" class="calibre8">3.2　变量赋值和清空</a></h2>
+
+<p class="kindle-cn-para-left">在了解了变量的基础知识之后，接下来再介绍一下Shell语言中变量的赋值和变量的销毁。</p>
+
+    <h3 class="kindle-cn-heading2" id="sub46"><a href="part0004.html#toc46" class="calibre8">3.2.1　变量赋值</a></h3>
+
+<p class="kindle-cn-para-left">在Shell语言中，通常情况下变量并不需要专门的定义和初始化语言。一个没有初始化的Shell变量被认为是一个空字符串。用户可以通过变量的赋值操作来完成变量的声明并赋予一个特定的值。并且可以通过赋值语句为一个变量多次赋值，以改变其值。</p>
+
+    <p class="kindle-cn-para-left">在Shell中，变量的赋值使用以下语法：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">variable_name=value
+</pre>
+</div>
+
+<p class="kindle-cn-para-left">其中，varibale_name表示变量名，关于变量名的命名规则，前面已经介绍过了，不再重复说明。value表示将要赋给变量的值。一般情况下，Shell中将所有普通变量的值都看做字符串。如果value中包含空格、制表符和换行符，则必须用单引号或者双引号将其引起来。双引号内允许变量替换，而单引号则不可以。</p>
+
+<p class="kindle-cn-para-left">中间的等于号“=”称为赋值符号，赋值符号的左右两边不能直接跟空格，否则Shell会将其视为命令。</p>
+
+    <p class="kindle-cn-para-left">例如，下面都是一些正确的赋值语句：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">v1=Linux
+v2='RedHat Linux'
+v3="RedHat Linux $HOSTTYPE"
+v4=12345
+</pre>
+</div>
+
+<p class="kindle-cn-para-left">此外，Shell允许只包含数字的变量值参与数值运算，例如上面的v4。另外，在上面的v3变量值中，包含一个特殊符号“$”，这个符号的作用是取某个变量的值，将在后面的变量替换中介绍。</p>
+
+    <h3 class="kindle-cn-heading2" id="sub47"><a href="part0004.html#toc47" class="calibre8">3.2.2　引用变量的值</a></h3>
+
+<p class="kindle-cn-para-left">当变量赋值完成之后，就需要使用变量的值。在Shell中，用户可以通过在变量名前面加上“$”来获取该变量的值。实际上，在前面的许多例子中，我们已经多次使用了这个符号来获取变量的值，为了使用户更加清楚Shell中变量值的引用方法，在此进行详细介绍。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例3-11</span>】演示Shell变量的引用方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter3/ex3-11.sh------------------
+02   #!/bin/bash
+03
+04   v1=Linux
+05   v2='RedHat Linux'
+06   v3="RedHat Linux $HOSTTYPE"
+07   v4=12345
+08
+09   # 输出变量 v1 的值
+10   echo "$v1"
+11   # 输出变量
+12   echo "$v2"
+13   # 输出变量 v3 的值
+14   echo "$v3"
+15   # 输出变量 v4 的值
+16   echo "$v4"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第4行～第7行分别定义了4个变量，并且分别各自赋予了不同的初始值。第10行～第16分别输出变量v1～v4的值。该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter3]# ./ex3-11.sh</span>
+Linux
+RedHat Linux
+RedHat Linux x86_64
+12345
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">可以得知，上面的程序分别输出了4个变量的值。其中，v3中的环境变量$HOSTTYPE被具体的值取代。</p>
+
+<p class="kindle-cn-para-left">另外，在Shell中，字符串是可以直接连接在一起的，如果对【例3-11】进行修改，将最后的变量v4的输出语句，即代码的第13行改成以下代码：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">echo "$v4abc"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">则程序在执行时会出现错误，如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter3]# ./ex3-11.sh</span>
+Linux
+RedHat Linux
+RedHat Linux x86_64
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">从上面的执行结果可以得知，ex3-11.sh脚本文件只正确输出了前3个变量的值，而最后一个变量的值变成了空字符串。</p>
+
+<p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">在上面的执行结果中，变量v4的值也输出了，只是变成了空字符串，并非没有输出。</span></p>
+
+    <p class="kindle-cn-para-left">出现这种情况的原因在于，Shell在进行解释代码时，遇到“$v4abc”这个字符串之后，并不知道具体的变量名到底是什么，因此，它会将整个字符串作为一个变量名来使用。在本程序中，变量v4abc当然是没有定义的了。所以导致ex3-11.sh在最后只输出了一个空行。</p>
+
+<p class="kindle-cn-para-left">为了能够使Shell正确地界定变量名，避免混淆，用户在引用变量时可以使用大括号将变量名括起来，如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">echo "${v4}abc"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">那么以上程序就会得到正确的结果，如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter3]# ./ex3-11.sh</span>
+Linux
+RedHat Linux
+RedHat Linux x86_64
+12345abc
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">实际上，本书非常建议用户使用大括号来将变量名进行明确地界定，因为这是一种非常正式的、完整的书写方法，而用户通常使用省略大括号的形式只是一种简写。</p>
+
+    <h3 class="kindle-cn-heading2" id="sub48"><a href="part0004.html#toc48" class="calibre8">3.2.3　清除变量</a></h3>
+
+<p class="kindle-cn-para-left">当某个Shell变量不再需要时，可以将其清除。当变量被清除后，其所代表的值也会消失。清除变量使用unset语句，其基本语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">unset variable_name
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">其中，参数varibale_name表示要清除的变量的名称。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例3-12</span>】演示Shell变量清除方法，并且观察在清除前后变量值的变化，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter3/ex3-12.sh------------------
+02   #! /bin/bash
+03
+04   # 定义变量 v1
+05   v1="Hello world"
+06   # 输出 v1 的值
+07   echo "$v1"
+08   # 清除变量
+09   unset v1
+10   echo "the value of v1 has been reset"
+11   # 再次输出变量的值
+12   echo "$v1"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第5行定义了一个名称为v1的变量，第7行输出该变量的值。第9行使用unset语句将该变量清除，然后在第12行再次输出该变量的值。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter3]# ./ex3-12.sh</span>
+Hello world
+the value of v1 has been reset
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">从上面的执行结果可以得知，在执行第9行的unset语句之后，变量v1已经被清除掉了，因此，第12行的echo语句仅仅输出了空值。</p>
+
+    <h2 class="kindle-cn-heading1" id="sub49"><a href="part0004.html#toc49" class="calibre8">3.3　引用和替换</a></h2>
+
+<p class="kindle-cn-para-left">通常对于弱类型的程序设计语言来说，变量的功能都相对比较单薄。但是对于Shell来说，变量的功能却非常强大。为了加强变量的功能，Shell对变量的使用方法进行了极大地扩展。本节将介绍其中的引用和替换。</p>
+
+    <h3 class="kindle-cn-heading2" id="sub50"><a href="part0004.html#toc50" class="calibre8">3.3.1　引用</a></h3>
+
+<p class="kindle-cn-para-left">所谓引用，是指将字符串用引用符号包括起来，以防止其中的特殊字符被Shell解释为其他涵义。特殊字符是指除了字面意思之外还可以解释为其他意思的字符。例如，在Shell中“$”符号的本身涵义是美元符号，其ASCII码值为十进制36。除了这个涵义之外，前面已经讲过，“$”符号还可以用了获取某个变量的值，即变量替换。星号“*”也是一个特殊的字符，星号可以用来作为通配符使用。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例3-13</span>】演示星号通配符的使用方法，命令如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter3]# ll ex*</span>
+-rwxr-xr-x  1   root        root    179      Jan  7 11:51        ex3-10.sh
+-rwxr-xr-x  1   root        root    114      Jan  7 15:49        ex3-11.sh
+-rwxr-xr-x  1   root        root    100      Jan  7 16:15        ex3-12.sh
+…
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的ll命令中，参数ex*表示列出以ex开头的所有的文件。但是，如果使用双引号将其引用起来，则其涵义会发生变化，如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter3]# ll "ex*"</span>
+ls: cannot access ex*: No such file or directory
+</pre>
+</div>
+
+<p class="kindle-cn-para-left">从上面的执行结果可以得知，当参数ex*被双引号引用起来之后，ll命令会将其作为一个普通的文件名来对待。但是当前目录中并不存在名称为ex*的文件，所以，会给出没有该文件或者目录的提示信息。</p>
+
+    <p class="kindle-cn-para-left">对比这两次的执行结果，可以发现，其中起作用的是双引号，正是它改变了星号的意义。而这正是引用的目的。</p>
+
+    <p class="kindle-cn-para-left">在Shell中，一共有4种引用符号，如表3-3所示。</p>
+
+<p class="kindle-cn-caption"><span class="kindle-cn-bold">表3-3　常用引用符号</span></p>
+<table cellspacing="0" class="kindle-cn-table-body">
+      <tr class="calibre13">
+        <td class="kindle-cn-table-th">引用符号</td>
+
+        <td class="kindle-cn-table-th1">说　明</td>
+      </tr>
+
+      <tr class="calibre13">
+        <td class="kindle-cn-table-dg1a">双引号</td>
+
+        <td class="kindle-cn-table-dg">除美元符号、单引号、反引号和反斜线之外，其他所有的字符都将保持字面意义</td>
+      </tr>
+
+      <tr class="calibre13">
+        <td class="kindle-cn-table-dg1a">单引号</td>
+
+        <td class="kindle-cn-table-dg">所有的字符都将保持字面意义</td>
+      </tr>
+
+      <tr class="calibre13">
+        <td class="kindle-cn-table-dg1a">反引号</td>
+
+        <td class="kindle-cn-table-dg">反引号中的字符串将被解释为Shell命令</td>
+      </tr>
+
+      <tr class="calibre13">
+        <td class="kindle-cn-table-dg1a">反斜线</td>
+
+        <td class="kindle-cn-table-dg">转义字符，屏蔽后的字符的特殊意义</td>
+      </tr>
+    </table>
+
+          <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">在Linux中，ll命令是ls-l命令的别名。</span></p>
+
+    <h3 class="kindle-cn-heading2" id="sub51"><a href="part0004.html#toc51" class="calibre8">3.3.2　全引用</a></h3>
+
+<p class="kindle-cn-para-left">在Shell语句中，当一个字符串被单引号引用起来之后，其中所有的字符，除单引号本身之外，都将被解释为字面意义，即字符本身的涵义。这意味着被单引号引用起来的所有字符都将被解释为普通的字符，因此，这种引用方式称为全引用。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例3-14</span>】演示全引用的使用方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter3/ex3-14.sh------------------
+02   #! /bin/bash
+03
+04   # 定义变量 v1
+05   v1="chunxiao"
+06   # 输出含有变量名的字符串
+07   echo 'Hello, $v1'
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第5行定义了一个字符串变量v1，第7行使用echo语句输出一个含有变量名v1的用单引号引用起来的字符串。前面已经讲过，单引号表示全引用，因此第7行会原封不动地输出单引号中的字符串。该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter3]# ./ex3-14.sh</span>
+Hello, $v1
+</pre>
+</div>
+
+    <h3 class="kindle-cn-heading2" id="sub52"><a href="part0004.html#toc52" class="calibre8">3.3.3　部分引用</a></h3>
+
+    <p class="kindle-cn-para-left">对于单引号来说，被其引用起来的所有的字符都将被解释为字面意义。而对于双引号来说，情况会有所不同。如果用户使用双引号将字符串引用起来，则其中所包含的字符除美元符号（$）、反引号（`），以及反斜线（\）之外的所有其他的字符，都将被解释为字面意义，这称为部分引用。也就是说，在部分引用中，“$”、“`”和“\”仍然拥有特殊的涵义。例如，“$”符号仍然可以用来引用变量的值。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例3-15</span>】演示部分引用的使用方法，本例将【例3-14】中的单引号改为双引号，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter3/ex3-15.sh------------------
+02   #! /bin/bash
+03
+04   # 定义变量
+05   v1="chunxiao"
+06   # 输出变量的值
+07   echo "Hello, $v1"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">以上代码的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter3]# ./ex3-15.sh</span>
+Hello, chunxiao
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">从上面的执行结果可以得知，echo语句中的变量名已经被变量的值取代。</p>
+
+    <h3 class="kindle-cn-heading2" id="sub53"><a href="part0004.html#toc53" class="calibre8">3.3.4　命令替换</a></h3>
+
+    <p class="kindle-cn-para-left">所谓命令替换，是指在Shell程序中，将某个Shell命令的执行结果赋给某个变量。在bash中，有两种语法可以进行命令替换，分别使用反引号和圆括号，如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">'shell_command'
+$(shell_command)
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">以上两种语法是等价的，用户可以根据自己的习惯来选择使用。</p>
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例3-16</span>】演示反引号的使用方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter3/ex3-16.sh------------------
+02   #! /bin/bash
+03
+04   # 变量替换
+05   v1='pwd'
+06   # 输出变量的值
+07   echo "current working directory is $v1"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第5行将Shell命令pwd的执行结果赋给变量v1，然后在第7行输出该变量的值。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter3]# ./ex3-16.sh</span>
+current working directory is /root/chapter3
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">从上面的执行结果可以得知，命令pwd的执行结果已经成功地替换了变量名v1。</p>
+
+          <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">Shell会将反引号中的字符串当做Shell命令，如果输入了错误的命令，则会出现“command not found”的错误提示。</span></p>
+
+    <p class="kindle-cn-para-left">在上面的代码中，使用了反引号，如果使用圆括号，则对代码进行相应的修改，如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #! /bin/bash
+02
+03   v1=$(pwd)
+04   echo "current working directory is $v1"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">以上代码的执行结果与例【3-15】完全相同。</p>
+
+    <h3 class="kindle-cn-heading2" id="sub53a"><a href="part0004.html#toc53a" class="calibre8">3.3.5　转义</a></h3>
+
+<p class="kindle-cn-para-left">顾名思义，转义的作用是转换某些特殊字符的意义。转义使用反斜线表示，当反斜线后面的一个字符具有特殊的意义时，反斜线将屏蔽该字符的特殊意义，使得Shell按照该字符的字面意义来解释。</p>
+
+    <p class="kindle-cn-para-left">例如，我们已经知道，$符号是一个特殊的符号，通常加在变量名的前面，用来获取变量的值。在下面的两个命令中，第一个命令可以获得变量的值，而第二个命令则直接输出了变量名，如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter3]# echo $SHELL</span>
+/bin/bash
+<span class="kindle-cn-bold">[root@linux chapter3]# echo \$SHELL</span>
+$SHELL
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">为什么会得到这样的结果呢？这是因为在第二个命令的$符号前面使用了转义字符“\”，从而使得紧跟在后面的$符号失去了其特殊的作用，变成了一个普通的字符，即仅仅表示$符号本身而已。</p>
+
+    <h2 class="kindle-cn-heading1" id="sub54"><a href="part0004.html#toc54" class="calibre8">3.4　小结</a></h2>
+
+<p class="kindle-cn-para-left">本章详细介绍了Shell语言中的变量和引用的相关知识，主要内容包括变量涵义、变量的命名规则、变量的定义、变量的作用域、系统变量和环境变量、变量赋值和清除、全引用和部分引用、命令替换，以及转义等。重点在于掌握好变量的定义方法、变量的作用域、常用的系统变量和环境变量的使用方法，以及全引用和部分引用。在下一章中，将介绍条件测试和判断语句。</p>
+  </div>
+
+
+  </div>
+
+  
+  <div class="calibreToc">
+    <h2><a href="../../pARZf2.html"> Table of contents</a></h2>
+     <div>
+  <ul>
+    <li>
+      <a href="part0001.html#UGI0-55ac501d2b9f4bebb0296c8a16b339b4">内容简介</a>
+    </li>
+    <li>
+      <a href="part0003.html#2RHM0-55ac501d2b9f4bebb0296c8a16b339b4">前言</a>
+    </li>
+    <li>
+      <a href="part0004.html#3Q280-55ac501d2b9f4bebb0296c8a16b339b4">目录</a>
+    </li>
+    <li>
+      <a href="part0005.html#chapter2">第1篇　认识Shell编程</a>
+      <ul>
+        <li>
+          <a href="part0006.html#chapter3">第1章　Shell入门基础</a>
+          <ul>
+            <li>
+              <a href="part0006.html#sub4">1.1　为什么学习和使用Shell编程</a>
+            </li>
+            <li>
+              <a href="part0006.html#sub5">1.2　什么是Shell</a>
+              <ul>
+                <li>
+                  <a href="part0006.html#sub6">1.2.1　Shell的起源</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub7">1.2.2　Shell的功能</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub8">1.2.3　Shell的分类</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0006.html#sub9">1.3　作为程序设计语言的Shell</a>
+              <ul>
+                <li>
+                  <a href="part0006.html#sub10">1.3.1　交互式程序</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub11">1.3.2　创建脚本</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub12">1.3.3　把脚本设置为可执行</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0006.html#sub13">1.4　向脚本传递参数</a>
+              <ul>
+                <li>
+                  <a href="part0006.html#sub14">1.4.1　Shell脚本的参数</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub15">1.4.2　参数扩展</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0006.html#sub16">1.5　第一个Shell程序：Hello，Bash Shell！</a>
+              <ul>
+                <li>
+                  <a href="part0006.html#sub17">1.5.1　Shell脚本的基本元素</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub18">1.5.2　指定命令解读器</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub19">1.5.3　Shell脚本中的注释和风格</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub20">1.5.4　如何执行Shell程序</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub21">1.5.5　Shell程序的退出状态</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0006.html#sub22">1.6　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0007.html#chapter23">第2章　Shell编程环境的搭建</a>
+          <ul>
+            <li>
+              <a href="part0007.html#sub24">2.1　在不同的操作系统上搭建Shell编程环境</a>
+              <ul>
+                <li>
+                  <a href="part0007.html#sub25">2.1.1　在Windows上搭建Shell编程环境</a>
+                </li>
+                <li>
+                  <a href="part0007.html#sub26">2.1.2　在Linux上搭建Shell编程环境</a>
+                </li>
+                <li>
+                  <a href="part0007.html#sub27">2.1.3　在FreeBSD上搭建Shell编程环境</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0007.html#sub28">2.2　编辑器的选择</a>
+              <ul>
+                <li>
+                  <a href="part0007.html#sub29">2.2.1　图形化编辑器</a>
+                </li>
+                <li>
+                  <a href="part0007.html#sub30">2.2.2　vi（vim）编辑器</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0007.html#sub31">2.3　系统环境的搭建</a>
+              <ul>
+                <li>
+                  <a href="part0007.html#sub32">2.3.1　Shell配置文件</a>
+                </li>
+                <li>
+                  <a href="part0007.html#sub33">2.3.2　命令别名</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0007.html#sub34">2.4　小结</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0008.html#chapter35">第2篇　Shell编程基础</a>
+      <ul>
+        <li>
+          <a href="part0009.html#chapter36">第3章　变量和引用</a>
+          <ul>
+            <li>
+              <a href="part0009.html#sub37">3.1　深入认识变量</a>
+              <ul>
+                <li>
+                  <a href="part0009.html#sub38">3.1.1　什么是变量</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub39">3.1.2　变量的命名</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub40">3.1.3　变量的类型</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub41">3.1.4　变量的定义</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub42">3.1.5　变量和引号</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub43">3.1.6　变量的作用域</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub43a">3.1.7　系统变量</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub44">3.1.8　环境变量</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0009.html#sub45">3.2　变量赋值和清空</a>
+              <ul>
+                <li>
+                  <a href="part0009.html#sub46">3.2.1　变量赋值</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub47">3.2.2　引用变量的值</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub48">3.2.3　清除变量</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0009.html#sub49">3.3　引用和替换</a>
+              <ul>
+                <li>
+                  <a href="part0009.html#sub50">3.3.1　引用</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub51">3.3.2　全引用</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub52">3.3.3　部分引用</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub53">3.3.4　命令替换</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub53a">3.3.5　转义</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0009.html#sub54">3.4　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0010.html#chapter55">第4章　条件测试和判断语句</a>
+          <ul>
+            <li>
+              <a href="part0010.html#sub56">4.1　条 件 测 试</a>
+              <ul>
+                <li>
+                  <a href="part0010.html#sub57">4.1.1　条件测试的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub58">4.1.2　字符串测试</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub59">4.1.3　整数测试</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub60">4.1.4　文件测试</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub61">4.1.5　逻辑操作符</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0010.html#sub62">4.2　条件判断语句</a>
+              <ul>
+                <li>
+                  <a href="part0010.html#sub63">4.2.1　使用简单的if语句进行条件判断</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub64">4.2.2　使用if else语句进行流程控制</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub65">4.2.3　使用if elif语句进行多条件判断</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub66">4.2.4　使用exit语句退出程序</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0010.html#sub67">4.3　多条件判断语句case</a>
+              <ul>
+                <li>
+                  <a href="part0010.html#sub68">4.3.1　多条件判断语句case的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub69">4.3.2　利用case语句处理选项参数</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub70">4.3.3　利用case语句处理用户输入</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0010.html#sub71">4.4　运 算 符</a>
+              <ul>
+                <li>
+                  <a href="part0010.html#sub72">4.4.1　算术运算符</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub73">4.4.2　位运算符</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub74">4.4.3　自增/自减运算符</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub75">4.4.4　数字常量的进制</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0010.html#sub76">4.5　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0011.html#chapter77">第5章　循 环 结 构</a>
+          <ul>
+            <li>
+              <a href="part0011.html#sub78">5.1　步进循环语句for</a>
+              <ul>
+                <li>
+                  <a href="part0011.html#sub79_1">5.1.1　带列表的for循环语句</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub79">5.1.2　不带列表的for循环语句</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub80">5.1.3　类C风格的for循环语句</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub81">5.1.4　使用for循环语句处理数组</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0011.html#sub82">5.2　until循环语句</a>
+              <ul>
+                <li>
+                  <a href="part0011.html#sub83">5.2.1　until语句的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub84">5.2.2　利用until语句批量增加用户</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0011.html#sub85">5.3　while循环语句</a>
+              <ul>
+                <li>
+                  <a href="part0011.html#sub86">5.3.1　while语句的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub87">5.3.2　通过计数器控制while循环结构</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub88">5.3.3　通过结束标记控制while循环结构</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub89">5.3.4　理解while语句与until语句的区别</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0011.html#sub90">5.4　嵌 套 循 环</a>
+            </li>
+            <li>
+              <a href="part0011.html#sub91">5.5　利用break和continue语句控制循环</a>
+              <ul>
+                <li>
+                  <a href="part0011.html#sub92">5.5.1　利用break语句控制循环</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub93">5.5.2　利用continue语句控制循环</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub94">5.5.3　分析break语句和continue语句的区别</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0011.html#sub95">5.6　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0012.html#chapter96">第6章　函数</a>
+          <ul>
+            <li>
+              <a href="part0012.html#sub97">6.1　函数</a>
+              <ul>
+                <li>
+                  <a href="part0012.html#sub98">6.1.1　什么是函数</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub99">6.1.2　函数的定义</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub100">6.1.3　函数的调用</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub101">6.1.4　函数链接</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub102">6.1.5　函数的返回值</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub103">6.1.6　函数和别名</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub104">6.1.7　再议全局变量和局部变量</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0012.html#sub105">6.2　函 数 参 数</a>
+              <ul>
+                <li>
+                  <a href="part0012.html#sub106">6.2.1　含有参数的函数的调用方法</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub107">6.2.2　获取函数参数的个数</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub108">6.2.3　通过位置变量接收参数值</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub109">6.2.4　移动位置参数</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub110">6.2.5　通过getopts接收函数参数</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub111">6.2.6　间接参数传递</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub112">6.2.7　通过全局变量传递数据</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub113">6.2.8　传递数组参数</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0012.html#sub114">6.3　函数库文件</a>
+              <ul>
+                <li>
+                  <a href="part0012.html#sub115">6.3.1　函数库文件的定义</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub116">6.3.2　函数库文件的调用</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0012.html#sub117">6.4　递 归 函 数</a>
+            </li>
+            <li>
+              <a href="part0012.html#sub118">6.5　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0013.html#chapter119">第7章　数组</a>
+          <ul>
+            <li>
+              <a href="part0013.html#sub120">7.1　定 义 数 组</a>
+              <ul>
+                <li>
+                  <a href="part0013.html#sub121">7.1.1　通过指定元素值来定义数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub122">7.1.2　通过declare语句定义数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub123">7.1.3　通过元素值集合定义数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub124">7.1.4　通过键值对定义数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub125">7.1.5　数组和普通变量</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0013.html#sub126">7.2　数组的赋值</a>
+              <ul>
+                <li>
+                  <a href="part0013.html#sub127">7.2.1　按索引为元素赋值</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub128">7.2.2　通过集合为数组赋值</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub129">7.2.3　在数组末尾追加新元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub130">7.2.4　通过循环为数组元素赋值</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0013.html#sub131">7.3　访 问 数 组</a>
+              <ul>
+                <li>
+                  <a href="part0013.html#sub132">7.3.1　访问第1个数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub133">7.3.2　通过下标访问数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub134">7.3.3　计算数组的长度</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub135">7.3.4　通过循环遍历数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub136">7.3.5　引用所有的数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub137">7.3.6　以切片方式获取部分数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub138">7.3.7　数组元素的替换</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0013.html#sub139">7.4　删 除 数 组</a>
+              <ul>
+                <li>
+                  <a href="part0013.html#sub140">7.4.1　删除指定数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub141">7.4.2　删除整个数组</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0013.html#sub142">7.5　数组的其他操作</a>
+              <ul>
+                <li>
+                  <a href="part0013.html#sub143">7.5.1　复制数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub144">7.5.2　连接数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub145">7.5.3　加载文件内容到数组</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0013.html#sub146">7.6　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0014.html#chapter147">第8章　正则表达式</a>
+          <ul>
+            <li>
+              <a href="part0014.html#sub148">8.1　什么是正则表达式</a>
+              <ul>
+                <li>
+                  <a href="part0014.html#sub149">8.1.1　为什么使用正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub150">8.1.2　如何学习正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub150a">8.1.3　如何实践正则表达式</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0014.html#sub151">8.2　正则表达式基础</a>
+              <ul>
+                <li>
+                  <a href="part0014.html#sub152">8.2.1　正则表达式的原理</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub153">8.2.2　基本正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub154">8.2.3　扩展正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub155">8.2.4　Perl正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub156">8.2.5　正则表达式字符集</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0014.html#sub157">8.3　正则表达式应用</a>
+              <ul>
+                <li>
+                  <a href="part0014.html#sub158">8.3.1　匹配单个字符</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub159">8.3.2　匹配多个字符</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub160">8.3.3　匹配字符串的开头或者结尾</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub161">8.3.4　运算符优先级</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub162">8.3.5　子表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub163">8.3.6　通配符</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0014.html#sub164">8.4　grep命令</a>
+              <ul>
+                <li>
+                  <a href="part0014.html#sub165">8.4.1　grep命令的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub166">8.4.2　grep命令族简介</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0014.html#sub167">8.5　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0015.html#chapter168">第9章　基本文本处理</a>
+          <ul>
+            <li>
+              <a href="part0015.html#sub169">9.1　使用echo命令输出文本</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub170">9.1.1　显示普通字符串</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub171">9.1.2　显示转义字符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub172">9.1.3　显示变量</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub173">9.1.4　换行和不换行</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub174">9.1.5　显示命令执行结果</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub175">9.1.6　echo命令执行结果的重定向</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub176">9.2　文本的格式化输出</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub177">9.2.1　使用UNIX制表符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub178">9.2.2　使用fold命令格式化行</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub179">9.2.3　使用fmt命令格式化段落</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub180">9.2.4　使用rev命令反转字符顺序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub181">9.2.5　使用pr命令格式化文本页</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub182">9.3　使用sort命令对文本排序</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub183">9.3.1　sort命令的基本用法</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub184">9.3.2　使用单个关键字排序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub185">9.3.3　根据指定的列排序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub186">9.3.4　根据关键字降序排序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub187">9.3.5　数值列的排序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub188">9.3.6　自定义列分隔符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub189">9.3.7　删除重复的行</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub190">9.3.8　根据多个关键字排序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub191">9.3.9　使用sort命令合并文件</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub192">9.4　文本的统计</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub193">9.4.1　输出含有行号的文本行</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub194">9.4.2　统计行数</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub195">9.4.3　统计单词数和字符数</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub196">9.5　使用cut命令选取文本列</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub197">9.5.1　cut命令及其语法</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub198">9.5.2　选择指定的文本列</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub199">9.5.3　选择指定数量的字符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub200">9.5.4　排除不包含列分隔符的行</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub201">9.6　使用paste命令拼接文本列</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub202">9.6.1　paste命令及其语法</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub203">9.6.2　自定义列分隔符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub204">9.6.3　拼接指定的文本列</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub205">9.7　使用join命令联接文本列</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub206">9.7.1　join命令及其语法</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub207">9.7.2　指定联接关键字列</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub208">9.7.3　内联接文本文件</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub209">9.7.4　左联接文本文件</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub210">9.7.5　右联接文本文件</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub211">9.7.6　全联接文本文件</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub212">9.7.7　自定义输出列</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub213">9.8　使用tr命令替换文件内容</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub214">9.8.1　tr命令及其语法</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub215">9.8.2　去除重复出现的字符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub216">9.8.3　删除空行</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub216a">9.8.4　大小写转换</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub216b">9.8.5　删除指定字符</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub217">9.9　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0016.html#chapter218">第10章　流 编 辑</a>
+          <ul>
+            <li>
+              <a href="part0016.html#sub219">10.1　sed命令及其语法</a>
+              <ul>
+                <li>
+                  <a href="part0016.html#sub220">10.1.1　sed命令以及语法</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub221">10.1.2　sed命令的工作方式</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub222">10.1.3　使用行号定位文本行</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub223">10.1.4　使用正则表达式定位文本行</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0016.html#sub224">10.2　sed命令的常用操作</a>
+              <ul>
+                <li>
+                  <a href="part0016.html#sub225">10.2.1　sed编辑命令基本语法</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub226">10.2.2　选择文本</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub227">10.2.3　替换文本</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub228">10.2.4　删除文本</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub229">10.2.5　追加文本</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub230">10.2.6　插入文本</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0016.html#sub231">10.3　组 合 命 令</a>
+              <ul>
+                <li>
+                  <a href="part0016.html#sub232">10.3.1　使用-e选项执行多个子命令</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub233">10.3.2　使用分号执行多个子命令</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub234">10.3.3　对一个地址使用多个子命令</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub235">10.3.4　sed脚本文件</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0016.html#sub236">10.4　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0017.html#chapter237">第11章　文本处理利器awk命令</a>
+          <ul>
+            <li>
+              <a href="part0017.html#sub238">11.1　awk入门</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub239">11.1.1　awk的功能</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub240">11.1.2　awk命令的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub241">11.1.3　awk的工作流程</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub242">11.1.4　执行awk程序的几种方式</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub246">11.2　awk的模式匹配</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub247">11.2.1　关系表达式</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub248">11.2.2　正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub249">11.2.3　混合模式</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub250">11.2.4　区间模式</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub243">11.2.5　BEGIN模式</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub251">11.2.6　END模式</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub252">11.3　变量</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub253">11.3.1　变量的定义和引用</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub254">11.3.2　系统内置变量</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub255">11.3.3　记录分隔符和字段分隔符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub256">11.3.4　记录和字段的引用</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub257">11.4　运算符和表达式</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub258">11.4.1　算术运算符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub259">11.4.2　赋值运算符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub260">11.4.3　条件运算符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub261">11.4.4　逻辑运算符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub262">11.4.5　关系运算符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub263">11.4.6　其他运算符</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub264">11.5　函数</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub265">11.5.1　字符串函数</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub266">11.5.2　算术函数</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub267">11.6　数组</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub268">11.6.1　数组的定义和赋值</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub269">11.6.2　遍历数组</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub270">11.7　流 程 控 制</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub271">11.7.1　if语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub272">11.7.2　while语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub273">11.7.3　do…while语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub274">11.7.4　for语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub275">11.7.5　break语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub276">11.7.6　continue语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub277">11.7.7　next语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub278">11.7.8　exit语句</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub279">11.8　awk程序的格式化输出</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub280">11.8.1　基本print语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub281">11.8.2　格式化输出printf语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub282">11.8.3　使用sprintf()函数生成格式化字符串</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub283">11.9　awk的程序与Shell的交互</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub284">11.9.1　通过管道实现与Shell的交换</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub285">11.9.2　通过system函数实现与Shell的交互</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub286">11.10　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0018.html#chapter287">第12章　文件的操作</a>
+          <ul>
+            <li>
+              <a href="part0018.html#sub288">12.1　文件</a>
+              <ul>
+                <li>
+                  <a href="part0018.html#sub289">12.1.1　列出文件</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub290">12.1.2　文件类型</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub291">12.1.3　文件的权限</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0018.html#sub292">12.2　查 找 文 件</a>
+              <ul>
+                <li>
+                  <a href="part0018.html#sub293">12.2.1　find命令以及语法</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub294">12.2.2　find命令：路径</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub295">12.2.3　find命令：测试</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub296">12.2.4　find命令：使用!运算符对测试求反</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub297">12.2.5　find命令：处理文件权限错误信息</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub298">12.2.6　find命令：动作</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0018.html#sub299">12.3　比 较 文 件</a>
+              <ul>
+                <li>
+                  <a href="part0018.html#sub300">12.3.1　使用comm比较文件</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub301">12.3.2　使用diff比较文件</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0018.html#sub302">12.4　文件描述符</a>
+              <ul>
+                <li>
+                  <a href="part0018.html#sub303">12.4.1　什么是文件描述符</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub304">12.4.2　标准输入、标准输出和标准错误</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0018.html#sub305">12.5　重 定 向</a>
+              <ul>
+                <li>
+                  <a href="part0018.html#sub306">12.5.1　输出重定向（覆盖）</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub307">12.5.2　输出重定向（追加）</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub308">12.5.3　输入重定向</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub309">12.5.4　当前文档</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub310">12.5.5　重定向两个文件描述符</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub311">12.5.6　使用exec命令分配文件描述符</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0018.html#sub312">12.6　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0019.html#chapter313">第13章　子Shell与进程处理</a>
+          <ul>
+            <li>
+              <a href="part0019.html#sub314">13.1　子Shell</a>
+              <ul>
+                <li>
+                  <a href="part0019.html#sub315">13.1.1　什么是子Shell</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub316">13.1.2　内部命令、保留字和外部命令</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub317">13.1.3　在子Shell中执行命令</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub318">13.1.4　把子Shell中的变量值传回父Shell</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0019.html#sub319">13.2　进 程 处 理</a>
+              <ul>
+                <li>
+                  <a href="part0019.html#sub320">13.2.1　什么是进程</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub321">13.2.2　通过脚本监控进程</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub322">13.2.3　作业控制</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub322a">13.2.4　信号与trap命令</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0019.html#sub323">13.3　小结</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0020.html#chapter324">第3篇　Shell编程实战</a>
+      <ul>
+        <li>
+          <a href="part0021.html#chapter325">第14章　Shell脚本调试技术</a>
+          <ul>
+            <li>
+              <a href="part0021.html#sub326">14.1　Shell脚本中的常见错误</a>
+              <ul>
+                <li>
+                  <a href="part0021.html#sub327">14.1.1　常见语法错误</a>
+                </li>
+                <li>
+                  <a href="part0021.html#sub328">14.1.2　常见逻辑错误</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0021.html#sub329">14.2　Shell脚本调试技术</a>
+              <ul>
+                <li>
+                  <a href="part0021.html#sub330">14.2.1　使用echo命令调试脚本</a>
+                </li>
+                <li>
+                  <a href="part0021.html#sub331">14.2.2　使用trap命令调试Shell脚本</a>
+                </li>
+                <li>
+                  <a href="part0021.html#sub332">14.2.3　使用tee命令调试Shell脚本</a>
+                </li>
+                <li>
+                  <a href="part0021.html#sub333">14.2.4　使用调试钩子调试Shell脚本</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0021.html#sub334">14.3　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0022.html#chapter335">第15章　利用Shell脚本解决实际问题</a>
+          <ul>
+            <li>
+              <a href="part0022.html#sub336">15.1　编写系统服务脚本</a>
+              <ul>
+                <li>
+                  <a href="part0022.html#sub337">15.1.1　系统启动过程</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub338">15.1.2　运行级别</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub339">15.1.3　服务脚本的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub340">15.1.4　编写MySQL服务脚本</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0022.html#sub341">15.2　通过脚本管理Apache服务器日志</a>
+              <ul>
+                <li>
+                  <a href="part0022.html#sub342">15.2.1　Apache以及日志文件简介</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub343">15.2.2　备份归档文件名生成函数</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub344">15.2.3　过期日志备份归档函数</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub345">15.2.4　过期日志删除函数</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub346">15.2.5　日志归档主程序</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub347">15.2.6　定时运行日志归档脚本</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0022.html#sub348">15.3　小结</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0023.html#chapter336">附录CD</a>
+    </li>
+  </ul>
+</div>
+
+
+  </div>
+  
+
+  <div class="calibreEbNav">
+    
+      <a href="part0008.html" class="calibreAPrev">previous page</a>
+    
+
+    <a href="../../pARZf2.html" class="calibreAHome"> start</a>
+
+    
+      <a href="part0010.html" class="calibreANext"> next page</a>
+    
+  </div>
+
+</div>
+
+</body>
+</html>

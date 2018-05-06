@@ -1,0 +1,3158 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+    <title>第11章　文本处理利器awk命令</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+
+  
+
+
+<link href="../calibreHtmlOutBasicCss.css" type="text/css" rel="stylesheet" />
+
+</head>
+<body>
+
+<div class="calibreMeta">
+  <div class="calibreMetaTitle">
+  
+  
+    
+    <h1>
+      <a href="../../pARZf2.html">Shell从入门到精通
+</a>
+    </h1>
+    
+    
+  
+  </div>
+  <div class="calibreMetaAuthor">
+    张春晓
+
+  </div>
+</div>
+
+<div class="calibreMain">
+
+  <div class="calibreEbookContent">
+    
+      <div class="calibreEbNavTop">
+        
+          <a href="part0016.html" class="calibreAPrev">previous page</a>
+        
+
+        
+          <a href="part0018.html" class="calibreANext"> next page</a>
+        
+      </div>
+    
+
+    
+    <div class="chapter">
+      <div class="calibre2"></div><h1 class="kindle-cn-heading" id="chapter237"><a href="part0004.html#toc237" class="calibre3">第11章<br class="chapter"/>文本处理利器awk命令</a>
+      </h1>
+      <p class="kindle-cn-para-left">上一章详细介绍了流编辑器sed命令。通过这个命令，用户可以非常方便地处理格式化的文本数据。与sed相比，awk的功能更为强大，甚至称它为一种程序设计语言也为不过。awk特别适合处理文本化的数据，它不仅仅是简单的字符串匹配，而是包含了变量、函数、表达式，以及流程控制等一系列的功能。因此，对于系统管理员来说，掌握好awk命令，可以更加方便地处理文本数据。本章将对awk进行详细介绍。</p>
+      <p class="kindle-cn-para-left">本章主要涉及的知识点如下所述。</p>
+      <ul class="kindle-cn-ul-square">
+        <li class="calibre5">awk入门：主要介绍awk的功能、工作方式、基本语法，以及工作流程等。</li>
+        <li class="calibre5">awk的模式匹配：主要介绍awk命令中的匹配模式，包括BEGIN模式、END模式、关系表达式、正则表达式，以及混合模式等。</li>
+<li class="calibre5">变量：主要介绍awk程序中的变量的定义方法、常用的系统变量，以及使用系统变量获取记录和字段的值。</li>
+        <li class="calibre5">运算符和表达式：主要介绍各种运算符，包括算术运算符、赋值运算符、条件运算符、逻辑运算符，以及关系运算符等。</li>
+        <li class="calibre5">函数：主要介绍awk内置的常用字符串函数和算术函数。</li>
+        <li class="calibre5">数组：主要介绍数组的定义和引用方法，以及数组的遍历等。</li>
+        <li class="calibre5">流程控制：主要介绍awk中的if、while、do…while、break、continue、next，以及exit等流程控制语句的使用方法。</li>
+        <li class="calibre5">awk程序的格式化输出：主要介绍awk程序中的输出语句，包括print及printf等。</li>
+        <li class="calibre5">awk的程序与Shell的交互：主要介绍通过管道和system函数实现awk程序与Shell的交互。</li>
+      </ul>
+      <h2 class="kindle-cn-heading1" id="sub238"><a href="part0004.html#toc238" class="calibre8">11.1　awk入门</a>
+      </h2>
+      <p class="kindle-cn-para-left">awk是一种非常强大的数据处理工具，其本身可以称为一种程序设计语言，因而具有其他程序设计语言所共同拥有的一些特征，例如变量、函数，以及表达式等。通过awk，用户可以编写一些非常实用的文本处理工具。本节将介绍awk的基础知识。</p>
+      <h3 class="kindle-cn-heading2" id="sub239"><a href="part0004.html#toc239" class="calibre8">11.1.1　awk的功能</a>
+      </h3>
+      <p class="kindle-cn-para-left">awk的名称来自于其三位开发者的名字的缩写，分别为阿尔佛雷德·艾侯（Alfred Aho）、彼得·杰·温伯格（Peter Jay Weinberger）和布莱恩·威尔森·柯林汉（Brian Wilson Kernighan）。awk大约在1977年开发完成，然后在1979年作为UNIX第7版的一部分发布。后来，awk衍生出许多版本，其中主要的有兼容POSIX标准的mawk，以及同时兼容POSIX和GNU标准的gawk。目前，在绝大部分的Linux发行版中，默认安装的是gawk，即GNU awk。</p>
+<p class="kindle-cn-para-left">awk是Linux以及UNIX环境中现有的功能最强大的数据处理工具。简单地讲，awk是一种处理文本数据的编程语言。awk的设计使得它非常适合于处理由行和列组成的文本数据。而在Linux或者UNIX环境中，这种类型的数据是非常普遍的。</p>
+      <p class="kindle-cn-para-left">除此之外，awk还是一种编程语言环境，它提供了正则表达式的匹配、流程控制、运算符、表达式、变量，以及函数等一系列的程序设计语言所具备的特性。它从C语言等中获取了一些优秀的思想。awk程序可以读取文本文件，对数据进行排序，对其中的数值执行计算已经生成报表等。</p>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">在许多Linux发行版中，/bin/awk命令是/bin/gawk命令的符号链接。</span></p>
+      <h3 class="kindle-cn-heading2" id="sub240"><a href="part0004.html#toc240" class="calibre8">11.1.2　awk命令的基本语法</a>
+      </h3>
+      <p class="kindle-cn-para-left">awk命令的基本语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">awk pattern { actions }
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的语法中，pattern表示匹配模式，actions表示要执行的操作。以上语法表示当某个文本行符合pattern指定的匹配规则时，执行actions所执行的操作。在上面的语法中， pattern和actions都是可选的，但是两者必须保证至少有一个。如果省略匹配模式pattern，则表示对所有的文本行执行actions所表示的操作；如果省略actions，则表示将匹配成功的行输出到屏幕。</p>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">actions前面的左大括号需与pattern位于同一行中。</span></p>
+      <p class="kindle-cn-para-left">awk命令的匹配模式非常灵活，可以是以下任意一种。</p>
+<ul class="kindle-cn-ul-square">
+<li class="calibre5">正则表达式：需要使用斜线将正则表达式包围起来。</li>
+<li class="calibre5">关系表达式：例如x&gt;34，判断变量x与34是否存在大于的关系。</li>
+<li class="calibre5">模式1，模式2：指定一个行的范围。该语法不能包括BEGIN和END模式。</li>
+<li class="calibre5">BEGIN：让用户指定在第1行文本被处理之前所发生的操作，通常可在这里设置全局变量。</li>
+<li class="calibre5">END：让用户在最后1行文本被读取之后发生的操作。</li>
+</ul>
+      <p class="kindle-cn-para-left">关于awk的匹配模式，将在11.2节中详细介绍。</p>
+      <p class="kindle-cn-para-left">awk命令的操作由一个或者多个命令、函数或者表达式组成，它们之间由换行符或者分号隔开，并且位于大括号内。通常情况下，有以下4种操作：</p>
+<ul class="kindle-cn-ul-square">
+<li class="calibre5">变量或者数组赋值。</li>
+<li class="calibre5">输出命令，例如printf或者print。</li>
+<li class="calibre5">内置函数。</li>
+<li class="calibre5">流程控制语句，例如if、while或者for等。</li>
+</ul>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">awk命令的语法隐含一个条件结构，即如果符合匹配规则，则执行后面的操作。</span></p>
+      <h3 class="kindle-cn-heading2" id="sub241"><a href="part0004.html#toc241" class="calibre8">11.1.3　awk的工作流程</a>
+      </h3>
+      <p class="kindle-cn-para-left">对于初学者来说，搞清楚awk的工作流程非常重要。只有在掌握了awk的工作流程之后，才有可能用awk来处理数据。在awk处理数据时，它会反复执行以下4个步骤：</p>
+      <p class="kindle-cn-para-left">（1）自动从指定的数据文件中读取行文本。</p>
+      <p class="kindle-cn-para-left">（2）自动更新awk的内置系统变量的值，例如列数变量NF、行数变量NR、行变量$0，以及各个列变量$1、$2等。</p>
+      <p class="kindle-cn-para-left">（3）依次执行程序中所有的匹配模式及其操作。</p>
+      <p class="kindle-cn-para-left">（4）当执行完程序中所有的匹配模式及其操作之后，如果数据文件中仍然有末读取的数据行，则返回到第（1）步，重复执行（1）～（4）的操作。</p>
+      <p class="kindle-cn-para-left">awk命令的工作流程如图11-1所示。</p>
+      <div class="chapter">
+        <div class="kindle-cn-image">
+          <p class="kindle-cn-para-center">
+            <img alt="alt811" src="../images/00062.jpeg" class="calibre14"/>
+          </p>
+          <p class="kindle-cn-caption">图11-1　awk工作流程</p>
+        </div>
+      </div>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">awk会自动逐行读取数据文件的所有文本行，无需用户自己来处理这个循环操作。</span></p>
+      <h3 class="kindle-cn-heading2" id="sub242"><a href="part0004.html#toc242" class="calibre8">11.1.4　执行awk程序的几种方式</a>
+      </h3>
+      <p class="kindle-cn-para-left">与上一章介绍的sed工具相似，用户也可以通过3种方式来执行awk程序，分别是命令行、awk脚本，以及可执行文件。当然，单独在命令行中使用awk命令的机会比较少，更多的是在Shell脚本中使用awk命令。</p>
+      <p class="kindle-cn-para-left">为了学习awk的使用方法，用户需要首先准备一个数据文件，其名称为scores.txt，内容如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# cat scores.txt </span>
+John         85           92           79           87
+Nancy        89           90           73           82
+Tom          81           88           92           81
+Kity         79           65           83           90
+Han          92           89           80           83
+Kon          88           76           85           97
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的内容中，第1列为学生姓名，后面4列为学生成绩。接下来，我们将以该文件为例，来介绍执行awk程序的几种方式。</p>
+      <p class="kindle-cn-para-left">
+        <span class="kindle-cn-bold">1．通过命令行执行awk程序</span>
+      </p>
+      <p class="kindle-cn-para-left">在这种情况下，用户可以像执行其他Shell命令一样来执行awk程序，其语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">awk 'program-text' datafile
+</pre>
+</div>
+<p class="kindle-cn-para-left">在上面的语法中，program-text表示要执行的awk程序语句，必须使用单引号将其引用起来，以防止Shell解释该语句。datafile表示要处理的数据文件。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例11-1</span>】演示通过命令行执行awk程序的方法，具体命令如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# awk '{ print }' scores.txt</span>
+John         85           92           79           87
+Nancy        89           90           73           82
+Tom          81           88           92           81
+Kity         79           65           83           90
+Han          92           89           80           83
+Kon          88           76           85           97
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的命令中，awk的程序语句非常简单，在大括号中只有一条print语句，表示输出scores.txt文件中所有的文本行。</p>
+      <p class="kindle-cn-para-left">尽管这样非常方便，但是如果程序语句比较多的话，在命令行中直接输入是一件非常头疼的事情。因此，如果需要执行较长的awk语句，可以使用下面介绍的awk脚本。</p>
+      <p class="kindle-cn-para-left">
+        <span class="kindle-cn-bold">2．执行awk脚本</span>
+      </p>
+      <p class="kindle-cn-para-left">在awk程序语句比较多的情况下，用户可以将所有的语句写在一个脚本文件中，然后通过awk命令来解释并执行其中的语句。awk调用脚本的语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">awk -f program-file file ..
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的语法中，-f选项表示从脚本文件中读取awk程序语句，program-file表示awk脚本文件名称，file表示要处理的数据文件。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例11-2</span>】演示编写并执行awk程序的方法，其中awk脚本代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter11/ex11-2.awk------------------
+02   # 输出所有的行
+03   { print }
+</pre>
+</div>
+      <p class="kindle-cn-para-left">上面的代码实际上是将【例11-1】中放在命令行中的程序写入到一个专门的脚本文件中。然后，用户就可以通过以下命令执行该脚本：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# awk -f ex11-2.awk scores.txt</span>
+John         85           92           79           87
+Nancy        89           90           73           82
+Tom          81           88           92           81
+Kity         79           65           83           90
+Han          92           89           80           83
+Kon          88           76           85           97
+</pre>
+</div>
+      <p class="kindle-cn-para-left">可以发现，【例11-2】的执行结果与【例11-1】完全相同。</p>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">awk脚本中不能含有除awk语句之外的其他命令或者语句，例如Shell命令等。</span></p>
+      <p class="kindle-cn-para-left">
+        <span class="kindle-cn-bold">3．可执行脚本文件</span>
+      </p>
+      <p class="kindle-cn-para-left">在上面介绍的两种方式中，用户都需要输入awk命令才能执行程序。除此之外，用户还可以通过类似于Shell脚本的方式来执行awk程序。在这种方式中，需要在awk程序中指定命令解释器，并且赋予脚本文件的可执行权限。其中指定命令解释器的语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">#!/bin/awk -f
+</pre>
+</div>
+      <p class="kindle-cn-para-left">以上语句必须位于脚本文件的第一行。然后用户就可以通过以下命令执行awk程序：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">awk-script file
+</pre>
+</div>
+      <p class="kindle-cn-para-left">其中，awk-script为awk脚本文件名称，file为要处理的文本数据文件。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例11-3</span>】演示以可执行脚本文件的方式执行awk程序的方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #----------------------------/chapter11/ex11-3.sh------------------
+02   #! /bin/awk -f
+03
+04   # 输出所有的行
+05   { print }
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第2行指定解释器为/bin/awk，第5行为awk程序语句。</p>
+      <p class="kindle-cn-para-left">以上代码的执行结果如下；</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# chmod +x ex11-3.sh
+[root@linux chapter11]# ./ex11-3.sh scores.txt</span>
+John         85           92           79           87
+Nancy        89           90           73           82
+Tom          81           88           92           81
+Kity         79           65           83           90
+Han          92           89           80           83
+Kon          88           76           85           97
+</pre>
+</div>
+<p class="kindle-cn-para-left">在上面的命令中，第1个命令将执行权限赋予ex11-3.sh，第2个命令执行ex11-3.sh脚本文件。可以发现，【例11-3】的执行结果与前面两个例子完全相同。</p>
+      <h2 class="kindle-cn-heading1" id="sub246"><a href="part0004.html#toc246" class="calibre8">11.2　awk的模式匹配</a>
+      </h2>
+      <p class="kindle-cn-para-left">在awk中，匹配模式处于非常重要的地位，它决定着匹配模式后面的操作会影响到哪些文本行。awk中的匹配模式主要包括关系表达式、正则表达式、混合模式，BEGIN模式，以及END模式等，本节将对这些模式匹配进行详细地介绍。</p>
+      <h3 class="kindle-cn-heading2" id="sub247"><a href="part0004.html#toc247" class="calibre8">11.2.1　关系表达式</a>
+      </h3>
+      <p class="kindle-cn-para-left">awk提供了许多关系运算符，例如大于＞、小于＜或者等于==等，关于关系运算符的详细使用方法，将在11.4节中详细介绍。awk允许用户使用关系表达式作为匹配模式，当某个文本行满足关系表达式时，将会执行相应的操作。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例11-4</span>】演示如何使用关系表达式作为awk命令的匹配模式，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter11/ex11-4.sh------------------
+02   #! /bin/bash
+03
+04   # 打印第 2 列的成绩超过 80 的行
+05   result='awk '$2 &gt; 80 { print }' scores.txt'
+06
+07   echo "$result"
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第5行的awk语句中$2&gt;80为关系表达式，表示第2列的成绩超过80分，其中变量$2为列变量，表示第2列的值。大括号中的print语句表示打印匹配成功的行。</p>
+      <p class="kindle-cn-para-left">该例的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# ./ex11-4.sh</span>
+John         85           92           79           87
+Nancy        89           90           73           82
+Tom          81           88           92           81
+Han          92           89           80           83
+Kon          88           76           85           97
+</pre>
+</div>
+      <p class="kindle-cn-para-left">从上面的执行结果可以得知，第2列的值为79的文本行已经被过滤掉。</p>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">变量$2为列变量，表示引用第2列的值。关于列变量的使用方法，将在11.3节中详细介绍。print为awk语句中的操作，表示将符合条件的行输出到屏幕。</span></p>
+      <h3 class="kindle-cn-heading2" id="sub248"><a href="part0004.html#toc248" class="calibre8">11.2.2　正则表达式</a>
+      </h3>
+      <p class="kindle-cn-para-left">awk支持以正则表达式作为匹配模式，与sed一样，用户需要将正则表达式放在两条斜线之间，其基本语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">/regular_expression/
+</pre>
+</div>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例11-5</span>】演示使用正则表达式作为匹配模式的方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #----------------------------/chapter11/ex11-5.sh------------------
+02   #! /bin/bash
+03
+04   # 输出以字符 T 开头的行
+05   result='awk '/^T/ { print }' scores.txt'
+06
+07   echo "$result"
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第5行的awk语句中的正则表达式为/^T/，表示筛选以字符T开头的文本行。</p>
+      <p class="kindle-cn-para-left">以上代码的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# ./ex11-5.sh</span>
+Tom          81           88           92           81
+</pre>
+</div>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例11-6</span>】使用更为复杂的正则表达式来充当匹配模式，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #----------------------------/chapter11/ex11-6.sh------------------
+02   #! /bin/bash
+03
+04   # 输出以 Tom 或者 Kon 开头的行
+05   result='awk '/^(Tom|Kon)/ { print }' scores.txt'
+06
+07   echo "$result"
+</pre>
+</div>
+      <p class="kindle-cn-para-left">其中，第5行的awk语句中的正则表达式为/^(Tom|Kon)/，表示匹配所有以Tom或者Kon开头的文本行。</p>
+      <p class="kindle-cn-para-left">以上代码的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# ./ex11-6.sh</span>
+Tom          81           88           92           81
+Kon          88           76           85           97
+</pre>
+</div>
+      <h3 class="kindle-cn-heading2" id="sub249"><a href="part0004.html#toc249" class="calibre8">11.2.3　混合模式</a>
+      </h3>
+      <p class="kindle-cn-para-left">awk不仅支持单个的关系表达式或者正则表达式作为模式，还支持使用逻辑运算符&amp;&amp;、||或者!将多个表达式组合起来作为一个模式。其中，&amp;&amp;表示逻辑与，||表示逻辑或，!表示逻辑非，关于这3个运算符的详细用法，将在11.4节中介绍。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例11-7</span>】演示awk命令中混合模式的使用方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #----------------------------/chapter11/ex11-7.sh------------------
+02   #! /bin/bash
+03
+04 #混合模式
+05 result='awk '/^K/ &amp;&amp; $2 &gt; 80 { print }' scores.txt'
+06
+07 echo "$result"
+</pre>
+</div>
+<p class="kindle-cn-para-left">在上面的代码中，第5行的模式由一个正则表达式和一个关系表达式通过&amp;&amp;运算符连接起来，表示同时匹配以字符K开头以及第2列的值大于80的行。</p>
+      <p class="kindle-cn-para-left">以上代码的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# ./ex11-7.sh</span>
+Kon          88           76           85           97
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在scores.txt文件中，以字符K开头的一共有两行，其中一个文本行的第2列的值为79，而另外一行的第2列的值为88。通过上面的执行结果，可以发现，【例11-7】只输出了第2列的值为88的一行，这意味着代码第5行中的混合模式已经生效。</p>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">awk的混合模式可以将正则表达式和关系表达式混合在一起使用，而不仅仅是单纯使用正则表达式或者关系表达式。</span></p>
+      <h3 class="kindle-cn-heading2" id="sub250"><a href="part0004.html#toc250" class="calibre8">11.2.4　区间模式</a>
+      </h3>
+      <p class="kindle-cn-para-left">awk还支持一种区间模式，也就是说通过模式可以匹配一段连续的文本行。区间模式的语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">pattern1, pattern2
+</pre>
+</div>
+      <p class="kindle-cn-para-left">其中，pattern1和pattern2都是前面所讲的匹配模式，可以是关系表达式，也可以是正则表达式等。当然，也可以是这些模式的混合形式。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例11-8</span>】在awk命令中使用区间模式匹配一段连续的文本行，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #----------------------------/chapter11/ex11-8.sh------------------
+02   #! /bin/bash
+03
+04   # 区间模式
+05   result='awk '/^Nancy/, $2==92 { print }' scores.txt'
+06
+07   echo "$result"
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第5行的awk语句中使用了区间模式来匹配文本行，其中第1个模式为正则表达式，表示匹配以Nancy开头的文本行。第2个模式为关系表达式，表示第2列的值为92的文本行。因此，上面的代码输出包含匹配前后两个模式在内的文本行之间的所有的行。</p>
+      <p class="kindle-cn-para-left">以上代码的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# ./ex11-8.sh</span>
+Nancy        89           90           73           82
+Tom          81           88           92           81
+Kity         79           65           83           90
+Han          92           89           80           83
+</pre>
+</div>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">在使用区间模式时，一定要注意前后的边界。如果有多个行符合匹配模式，则awk会匹配第一次符合要求的行。</span></p>
+      <h3 class="kindle-cn-heading2" id="sub243"><a href="part0004.html#toc243" class="calibre8">11.2.5　BEGIN模式</a>
+      </h3>
+      <p class="kindle-cn-para-left">BEGIN模式是一种特殊的内置模式，其成立的时机为awk程序刚开始执行，但是又尚未读取任何数据之前。因此，该模式所对应的操作仅仅被执行一次，当awk读取数据之后， BEGIN模式便不再成立。所以，用户可以将与数据文件无关，而且在整个程序的生命周期中，只需执行一次的代码放在BEGIN模式对应的操作中。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例11-9</span>】演示awk命令中BEGIN模式的使用方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #----------------------------/chapter11/ex11-9.sh------------------
+02   #! /bin/awk -f
+03
+04   # 通过 BEGIN 模式输出字符串
+05   BEGIN { print "Hello! World." }
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第2行指定命令解释器为awk，第5行指定模式为BEGIN，其所对应的操作为print语句。</p>
+      <p class="kindle-cn-para-left">以上代码的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# ./ex11-9.sh</span>
+Hello! World.
+</pre>
+</div>
+      <p class="kindle-cn-para-left">对于【例11-9】，有几点需要特别指出。首先，【例11-9】是通过可执行脚本文件执行awk程序的；其次，awk程序中只包含BEGIN模式，在这种情况下，awk不需要读取任何数据行，因此，我们并没有指定数据文件。</p>
+<p class="kindle-cn-para-left">通常情况下，用户可以将一些初始化的操作放在BEGIN模式的操作中，例如自定义列分隔符、行分隔符，以及初始化变量等，如下面的例子所示。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例11-10</span>】在BEGIN模式中进行变量的初始化操作。代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter11/ex11-10.sh------------------
+02   #! /bin/awk -f
+03
+04   # 通过 BEGIN 模式初始化变量
+05   BEGIN {
+06      FS="[\t:]"
+07      RS="\n"
+08      count=30
+09      print "The report is about students's scores."
+10   }
+</pre>
+</div>
+<p class="kindle-cn-para-left">在上面的代码中，第5行是BEGIN模式的开始，在大括号里面是一系列的操作，其中第6行指定列分隔符为制表符，第7行指定行分隔符为换行符，第8行定义了一个名称为count的变量，第9行输出一条信息。</p>
+      <p class="kindle-cn-para-left">以上代码的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# ./ex11-10.sh</span>
+The report is about students's scores.
+</pre>
+</div>
+      <p class="kindle-cn-para-left">由于【例11-10】只有一条输出语句，所以只输出一行信息。</p>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">对于只包含BEGIN模式的awk程序，awk不会打开任何数据文件。</span></p>
+      <h3 class="kindle-cn-heading2" id="sub251"><a href="part0004.html#toc251" class="calibre8">11.2.6　END模式</a>
+      </h3>
+      <p class="kindle-cn-para-left">END模式是awk的另外一种特殊模式，该模式成立的时机与BEGIN模式恰好相反，它是在awk命令处理完所有的数据，即将退出程序时成立，在此之前，END模式并不成立。无论数据文件中包含多少行数据，在整个程序的生命周期中，该模式所对应的操作只被执行一次。因此，一般情况下，用户可以将许多善后工作放在END模式对应的操作中。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例11-11</span>】演示awk程序中END模式的使用方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter11/ex11-11.sh------------------
+02   #! /bin/awk -f
+03
+04   # 输出报表头
+05   BEGIN {
+06      print "scores report"
+07      print "================================="
+08   }
+09
+10   # 输出数据
+11   { print }
+12
+13   # 报表完成
+14   END {
+15      print "================================"
+16      print "printing is over"
+17   }
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第5～8行是BEGIN模式以及操作，用于数报表的头部。第11行输出报表数据。第14～17行是END模式及其操作，用于输出提示信息。</p>
+      <p class="kindle-cn-para-left">以上代码的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# ./ex11-11.sh scores.txt</span>
+scores report
+=================================
+John         85           92           79           87
+Nancy        89           90           73           82
+Tom          81           88           92           81
+Kity         79           65           83           90
+Han          92           89           80           83
+Kon          88           76           85           97
+================================
+printing is over
+</pre>
+</div>
+      <h2 class="kindle-cn-heading1" id="sub252"><a href="part0004.html#toc252" class="calibre8">11.3　变量</a>
+      </h2>
+      <p class="kindle-cn-para-left">与其他程序设计语言一样，awk本身支持变量的相关操作，包括变量的定义和引用，以及参与相关的运算等。此外，还包含了许多内置的系统变量。本节将介绍awk中的变量的相关知识。</p>
+      <h3 class="kindle-cn-heading3" id="sub253"><a href="part0004.html#toc253" class="calibre3">11.3.1　变量的定义和引用</a>
+      </h3>
+      <p class="kindle-cn-para-left">变量是用来存储数据。变量由变量名和值两部分组成，其中变量名是用来实现变量值的引用的途径，而变量值则是内存空间中存储的用户数据。</p>
+<p class="kindle-cn-para-left">awk的变量名只能包括字母、数字和下划线，并且不能以数字开头。例如abc、a_、_z及a123都是合法的变量名，而123abc则是非法的变量名。另外，awk的变量名是区分大小写的，因此，X和x分别表示不同的变量。</p>
+      <p class="kindle-cn-para-left">在awk中定义变量的方法非常简单，只要给出一个变量名并且赋予适当的值即可。awk中的变量类型分为两种，分别为字符串和数值。但是在定义awk变量时，无需指定变量类型，awk会根据变量所处的环境自动判断。如果没有指定值，数值类型的变量的默认值为0，字符串类型的变量的默认值为空串。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例11-12</span>】演示awk变量的定义、赋值，以及引用的方法。为了避免指定数据文件，本例的变量定义和赋值都在BEGIN模式中。代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter11/ex11-12.sh------------------
+02   #! /bin/awk -f
+03
+04   BEGIN {
+05      # 定义变量 x
+06      x=3
+07      # 定义变量 message
+08      message="Hello " "world"
+09      # 输出变量
+10      print x
+11      print message
+12   }
+</pre>
+</div>
+<p class="kindle-cn-para-left">在上面的代码中，第6行定义了变量x，并将数值3赋给变量x。第8行定义变量message，并将两个字符串连接后的结果赋给变量message。第10和第11行分别输出这两个变量的值。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# ./ex11-12.sh</span>
+3
+Hello world
+</pre>
+</div>
+      <h3 class="kindle-cn-heading2" id="sub254"><a href="part0004.html#toc254" class="calibre8">11.3.2　系统内置变量</a>
+      </h3>
+      <p class="kindle-cn-para-left">akw提供了许多非常实用的系统变量，例如字段变量、字段数变量，以及记录数变量等。表11-1列出了常用的系统变量。</p>
+<p class="kindle-cn-caption"><span class="kindle-cn-bold">表11-1　常用的awk系统变量</span></p>
+<table cellspacing="0" class="kindle-cn-table-body">
+        <tr class="calibre13">
+          <td class="kindle-cn-table-th">变　量</td>
+          <td class="kindle-cn-table-th1">说　明</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">$0</td>
+          <td class="kindle-cn-table-dg">记录变量，表示当前正在处理的记录</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">$n</td>
+          <td class="kindle-cn-table-dg">字段变量，其中n为整数，且n大于1。表示第n个字段的值</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">NF</td>
+          <td class="kindle-cn-table-dg">整数值，表示当前记录（变量$0所代表的记录）的字段数</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">NR</td>
+          <td class="kindle-cn-table-dg">整数值，表示awk已经读入的记录数</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">FILENAM</td>
+          <td class="kindle-cn-table-dg">表示正在处理的数据文件的名称</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">FS</td>
+          <td class="kindle-cn-table-dg">字段分隔字符，默认值是空格或者制表符</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">RS</td>
+          <td class="kindle-cn-table-dg">记录分隔符，默认值是换行符</td>
+        </tr>
+      </table>
+      <p class="kindle-cn-para-left">与关系型数据库相对应，awk所要处理的文件也是由许多记录（record）组成。所谓记录，是用来描述某个具体事物的各个方面的。而记录是由多个字段（field）组成，每个字段描述某个事物的一个具体的方面。在本章中，我们引入了记录和字段的概念，其主要原因在于尽管awk是逐行读取数据的，但是在处理数据时却是以记录为单位的，而且在某些情况下，记录可以跨越多行。因此，读者应该搞清楚文本行、记录，以及字段等概念的区别。</p>
+      <p class="kindle-cn-para-left">在表11-1中，变量$0表示awk正在处理的记录，该变量将整个记录作为一个字符串来处理。变量$n所表示的是当前记录的第n个字段的值，例如$1表示第1个字段的值，$2表示第2个字段的值，依此类推。</p>
+      <p class="kindle-cn-para-left">NF代表当前记录的字段数（number of field），在某些特殊情况下，数据文件的各条记录的字段数并不一定完全相同，所以对于所有的记录来说，该变量的值也不一定相同。NR代表awk已经读取的记录的数量。</p>
+<p class="kindle-cn-para-left">FS是一个比较常用的变量，用来表示字段分隔符（field seperator）。其默认值为空格或者制表符，这也是最常见的分隔字段的方式。但是在某些情况下，例如在/etc/passwd文件中，字段的分隔符是冒号。为了处理这种情况，用户可以使用FS变量自定义当前数据文件的字段分隔符，awk会在处理数据文件之前参考该变量的值来分隔记录中的各个字段。</p>
+      <p class="kindle-cn-para-left">记录分隔符（record seperator）变量RS用来自定义数据文件中记录的分隔符。在默认情况下，awk会将换行符\n作为记录分隔符，因此，绝大部分的数据文件都是一行包含一条记录。但是，如果某些文件中的一条记录跨越多行，则不能使用默认的分隔符。此时，用户可以使用RS变量自定义记录分隔符。例如，可以将记录分隔符指定为空行。</p>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">awk会在读取数据行之前通过FS及RS确定记录和字段的分隔符，然后进行记录和字段的分隔。每读取一条记录之后，变量$0以及$1、$2等变量都会自动更新。</span></p>
+      <h3 class="kindle-cn-heading2" id="sub255"><a href="part0004.html#toc255" class="calibre8">11.3.3　记录分隔符和字段分隔符</a>
+      </h3>
+      <p class="kindle-cn-para-left">对于文本形式的数据来说，记录和字段的分隔非常重要。因此，在本节中对于这两个分隔符专门进行介绍。</p>
+<p class="kindle-cn-para-left">记录分隔符使用系统变量RS来指定，如果没有指定，则默认为换行符\n。在大多数的情况下，这种方式都是有效的，因为awk每次都是从数据文件中只读取一行数据进行处理。所以正常情况下，一行数据就代表一条记录。但是，这并不意味着总是这样，有些数据文件中用多行文本来描述一条记录，如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">Xiong, Yi
+Can live xPlane imaging of the in-plane view...?
+Pentacyclic hemiacetal sterol with antifouling...
+
+Song Lin
+Incidence of brain injuries in premature infants...
+Identification of Ichthyotoxic Microalgae Species...
+Rifampicin and Parkinson's disease
+
+Li, Zhaohui
+Frequency-locked multicarrier generator based...
+Behavioral Stress Fails to Accelerate the Onset...
+…
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的文件中，每条记录由作者及其发表的论文组成，首先是作者姓名，然后依次是所发表的论文的标题，每个字段都是独占一行。记录之间用空行隔开。</p>
+      <p class="kindle-cn-para-left">对于上面文件，如果使用默认的记录分隔符，则会将一条完整的记录拆分开来，如下面的例子所示。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例11-13</span>】使用默认的记录分隔符处理数据，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter11/ex11-13.sh------------------
+02   #! /bin/awk -f
+03
+04   {
+05      # 输出每行数据
+06      print
+07      print "=========================================="
+08    }
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第6行的作用是输出awk读取的数据行，第7行打印一行横线作为屏幕上记录之间的分隔线。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# ./ex11-13.sh articles.txt</span>
+Xiong, Yi
+==========================================
+Can live xPlane imaging of the in-plane view...?
+==========================================
+Pentacyclic hemiacetal sterol with antifouling...
+==========================================
+==========================================
+Song Lin
+==========================================
+Incidence of brain injuries in premature infants...
+==========================================
+Identification of Ichthyotoxic Microalgae Species...
+==========================================
+Rifampicin and Parkinson's disease
+==========================================
+…
+</pre>
+</div>
+      <p class="kindle-cn-para-left">从上面的执行结果可以得知，【例11-13】将一条完整的记录拆分成了多条记录，即原本是字段的数据现在也作为记录来显示了，显然，这种结果并不是用户所希望看到的。</p>
+      <p class="kindle-cn-para-left">为了解决这个问题，用户可以根据数据文件的实际情况指定记录分隔符。在articles.txt文件中，记录分隔符为空行。下面的例子就通过指定记录分隔符，避免了记录分隔错误的问题。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例11-14</span>】本例通过自定义记录分隔符解决了【例11-13】中出现的问题，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter11/ex11-14.sh------------------
+02   #! /bin/awk -f
+03
+04   BEGIN {
+05      # 定义记录分隔符
+06      RS=""
+07   }
+08
+09   {
+10      print
+11      print "=========================================="
+12   }
+</pre>
+</div>
+<p class="kindle-cn-para-left">在上面的代码中，第6行定义记录分隔符为空串，此时，awk会将空白行作为记录分隔符。前面已经讲过，awk会在读取数据之前执行BEGIN模式所对应的操作，因此，把RS变量的定义放在BEGIN模式的操作中是最为恰当的。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# ./ex11-14.sh articles.txt</span>
+Xiong, Yi
+Can live xPlane imaging of the in-plane view...?
+Pentacyclic hemiacetal sterol with antifouling...
+==========================================
+Song Lin
+Incidence of brain injuries in premature infants...
+Identification of Ichthyotoxic Microalgae Species...
+Rifampicin and Parkinson's disease
+==========================================
+Li, Zhaohui
+Frequency-locked multicarrier generator based...
+Behavioral Stress Fails to Accelerate the Onset...
+==========================================
+</pre>
+</div>
+      <p class="kindle-cn-para-left">从上面的执行结果可以得知，在指定列分隔符之后，程序已经正确处理文件中的记录了。</p>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">当将记录分隔符指定为空字符串时，awk会将多个连续的空白行看做一个单一的记录分隔符，也就是说，awk不会再将空白行作为一条空白记录。另外，awk也会忽略文件开头和末尾处的空白行。</span></p>
+      <p class="kindle-cn-para-left">接下来再讨论一下字段分隔符。在默认情况下，awk会将空格或者制表符作为字段分隔符。但是，在某些情况下，例如在上面的articles.txt文件中，每一行为一个字段。因此，在处理这种类型的数据时，必须自己来指定字段分隔符。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例11-15</span>】演示如何通过自定义记录分隔符和字段分隔符来处理articles.txt文件，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter11/ex11-15.sh------------------
+02   #! /bin/awk -f
+03
+04   BEGIN {
+05      # 定义记录分隔符
+06      RS=""
+07      # 定义字段分隔符
+08      FS="\n"
+09   }
+10   # 输出第 1 个字段
+11   { print $1 }
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第6行指定记录分隔符为空字符串，第8行指定字段分隔符为换行符。第11行输出每条举例的第1个字段的值。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# ./ex11-15.sh articles.txt</span>
+Xiong, Yi
+Song Lin
+Li, Zhaohui
+</pre>
+</div>
+      <p class="kindle-cn-para-left">从上面的执行结果可以得知，程序已经正确输出了第1列的值。</p>
+      <h3 class="kindle-cn-heading2" id="sub256"><a href="part0004.html#toc256" class="calibre8">11.3.4　记录和字段的引用</a>
+      </h3>
+      <p class="kindle-cn-para-left">在awk中，用户可以使用系统变量来引用数据文件中的记录和字段。与关系型数据库不同，awk每次只是读取一行文本，因此，在awk程序中记录和字段的引用都是针对当前记录来说的。</p>
+      <p class="kindle-cn-para-left">变量$0表示正在读取的当前的记录，该变量将整个记录作为一个字符串来处理。因此，如果在程序中输出该变量的值。用户可以通过下面的例子来得到验证。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例11-16</span>】在awk脚本中引用当前记录，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter11/ex11-16.sh------------------
+02   #! /bin/awk -f
+03
+04   # 通过 $0 引用整个记录
+05   { print $0 }
+</pre>
+</div>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# ./ex11-16.sh scores.txt</span>
+John         85           92           79           87
+Nancy        89           90           73           82
+Tom          81           88           92           81
+Kity         79           65           83           90
+Han          92           89           80           83
+Kon          88           76           85           97
+</pre>
+</div>
+      <p class="kindle-cn-para-left">从上面的执行结果可以得知，变量$0的值正是当前的记录。</p>
+      <p class="kindle-cn-para-left">如果想单独引用某个具体的字段，可以使用系统变量$n来实现，如下面的例子所示。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例11-17</span>】演示如何通过系统变量来输出具体的字段，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter11/ex11-17.sh------------------
+02   #! /bin/awk -f
+03
+04   {
+05      # 输出第 1 个字段以及第 2~5 个字段的和
+06      print $1, $2+$3+$4+$5
+07   }
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第6行输出第1个字段，以及第2～5个字段的和。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# ./ex11-17.sh scores.txt</span>
+John 343
+Nancy 334
+Tom 342
+Kity 317
+Han 344
+Kon 346
+</pre>
+</div>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">对于用户来说，变量$0并不是只读的，用户可以自己把数据存储到$0变量中， awk仍然会自动分隔成多个字段。</span></p>
+      <h2 class="kindle-cn-heading1" id="sub257"><a href="part0004.html#toc257" class="calibre8">11.4　运算符和表达式</a>
+      </h2>
+      <p class="kindle-cn-para-left">awk是一种编程语言环境，因此，它也支持常用的运算符及表达式，例如算术运算、逻辑运算，以及关系运算等。本节将对awk所支持的常用的运算符及表达式进行介绍。</p>
+      <h3 class="kindle-cn-heading2" id="sub258"><a href="part0004.html#toc258" class="calibre8">11.4.1　算术运算符</a>
+      </h3>
+      <p class="kindle-cn-para-left">awk支持常用的算术运算，这一点与其他程序设计语言基本相同。如表11-2所示，列出了awk所支持的算术运算符。</p>
+<p class="kindle-cn-caption"><span class="kindle-cn-bold">表11-2　awk支持的算术运算符</span></p>
+<table cellspacing="0" class="kindle-cn-table-body">
+        <tr class="calibre13">
+          <td class="kindle-cn-table-th">运　算　符</td>
+          <td class="kindle-cn-table-th1">说　明</td>
+          <td class="kindle-cn-table-th1">举　例</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">+</td>
+          <td class="kindle-cn-table-dg">加法运算</td>
+          <td class="kindle-cn-table-dg">1+2表示计算1和2的和</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">-</td>
+          <td class="kindle-cn-table-dg">减法运算</td>
+          <td class="kindle-cn-table-dg">82-2表示计算82和2的差</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">*</td>
+          <td class="kindle-cn-table-dg">乘法运算</td>
+          <td class="kindle-cn-table-dg">2*5表示计算2和5的积</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">/</td>
+          <td class="kindle-cn-table-dg">除法运算</td>
+          <td class="kindle-cn-table-dg">6/3表示计算6和2的商</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">%</td>
+          <td class="kindle-cn-table-dg">求模运算</td>
+          <td class="kindle-cn-table-dg">5/2表示计算5除以2的余数</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">^</td>
+          <td class="kindle-cn-table-dg">指数运算</td>
+          <td class="kindle-cn-table-dg">2^3表示计算2的3次方</td>
+        </tr>
+      </table>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例11-18</span>】演示awk各种算术运算的操作，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter11/ex11-18.sh------------------
+02   #! /bin/awk -f
+03
+04   BEGIN {
+05      # 除法运算
+06      x=5/2
+07      print x
+08      # 求模运算
+09      x=5%2
+10      print x
+11      # 指数运算
+12      x=2^3
+13      print x
+14   }
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第6行计算表达式5除以2的商，第9行计算表达式5除以2的余数，第12行计算2的3次方。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# ./ex11-18.sh</span>
+2.5
+1
+8
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的执行结果中，第1行是5除以2的商，可以得知，awk支持浮点数。第2行是5除以2的余数，其值为1。第3行是2的3次方，其值为8。</p>
+      <h3 class="kindle-cn-heading2" id="sub259"><a href="part0004.html#toc259" class="calibre8">11.4.2　赋值运算符</a>
+      </h3>
+      <p class="kindle-cn-para-left">如表11-3所示，列出了awk中常用的赋值运算符。</p>
+<p class="kindle-cn-caption"><span class="kindle-cn-bold">表11-3　awk支持的赋值运算符</span></p>
+<table cellspacing="0" class="kindle-cn-table-body">
+        <tr class="calibre13">
+          <td class="kindle-cn-table-th">运　算　符</td>
+          <td class="kindle-cn-table-th1">说　明</td>
+          <td class="kindle-cn-table-th1">举　例</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">=</td>
+          <td class="kindle-cn-table-dg">赋值运算</td>
+          <td class="kindle-cn-table-dg">x=5表示将数值5赋给变量x</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">+=</td>
+          <td class="kindle-cn-table-dg">复合赋值运算，表示将前后两个数值相加后的和赋给前面的变量</td>
+          <td class="kindle-cn-table-dg">x+=5表示先将x的值与5相加，然后将和赋给变量x，等价于表达式x=x+5</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">-=</td>
+          <td class="kindle-cn-table-dg">复合赋值运算，表示将前后两个数值相减后的查赋给前面的变量</td>
+          <td class="kindle-cn-table-dg">x-=5表示先将变量x的值减去5，然后将得到的差赋给变量x，等价于表达式x=x-5</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">*=</td>
+          <td class="kindle-cn-table-dg">复合赋值运算，表示前后两个数值的乘积赋给前面的变量</td>
+          <td class="kindle-cn-table-dg">x*=5表示先将变量x的值乘以5，然后将得到的乘积赋给变量x</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">/=</td>
+          <td class="kindle-cn-table-dg">复合赋值运算，表示将前后两个数值的商赋给前面的变量</td>
+          <td class="kindle-cn-table-dg">x/=5表示先将变量x除以5，然后将得到的商赋给变量x</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">%=</td>
+          <td class="kindle-cn-table-dg">复合赋值运算，表示将前面的数值除以后面的数值所得的余数赋给前面的变量</td>
+          <td class="kindle-cn-table-dg">x%=5表示将变量x与5相除后的余数赋给变量x</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">^=</td>
+          <td class="kindle-cn-table-dg">复合运算符，表示将前面的数值的后面数值次方赋给前面的变量</td>
+          <td class="kindle-cn-table-dg">x^=3表示将变量x的3次方赋给变量x</td>
+        </tr>
+      </table>
+      <p class="kindle-cn-para-left">在表11-3中，除了赋值运算符=之外，其他的都是复合赋值运算符，也就是先执行某个运算，然后将运算结果赋给前面的变量。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例11-19</span>】演示赋值运算符的使用方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter11/ex11-19.sh------------------
+02   #! /bin/awk -f
+03
+04   BEGIN {
+05      # 简单赋值
+06      x=4
+07      print x
+08      # 求和赋值
+09      x+=10
+10      print x
+11      # 乘积赋值
+12      x*=2
+13      print x
+14      # 幂运算赋值
+15      x^=2
+16      print x
+17   }
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第6行是简单赋值语句，将整数值4赋给变量x。第9行是加法复合赋值运算，将变量x的值先加上10，然后赋给变量x，此时变量x的值为14。第12行是乘法复合赋值运算，先将变量x的值乘以2，然后赋给变量x，此时变量x的值为28。第15行是幂赋值复合运算，先计算变量x的2次方，然后将计算结果赋给变量x，最后变量x的值为784。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# ./ex11-19.sh</span>
+4
+14
+28
+784
+</pre>
+</div>
+      <p class="kindle-cn-para-left">可以发现，上面程序的执行结果与前面分析的完全一致。</p>
+      <h3 class="kindle-cn-heading2" id="sub260"><a href="part0004.html#toc260" class="calibre8">11.4.3　条件运算符</a>
+      </h3>
+      <p class="kindle-cn-para-left">awk中的条件运算符只有一个，其语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">expression?value1:value2
+</pre>
+</div>
+      <p class="kindle-cn-para-left">这是一个三目运算符，当表达式expression的值为真时，返回值为value1；否则，返回值为value2。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例11-20</span>】演示条件运算符的使用方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter11/ex11-15.sh------------------
+02   #! /bin/awk -f
+03
+04   {
+05      # 如果大于 90 ，输出 A ，否则输出 B
+06      grade=($2&gt;90?"A":"B")
+07      print grade
+08   }
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第6行中的条件运算符表示当第2个字段的值大于90时，变量grade的值为A；否则，变量grade的值为B。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# ./ex11-20.sh scores.txt</span>
+B
+B
+B
+B
+A
+B
+</pre>
+</div>
+      <h3 class="kindle-cn-heading2" id="sub261"><a href="part0004.html#toc261" class="calibre8">11.4.4　逻辑运算符</a>
+      </h3>
+      <p class="kindle-cn-para-left">awk支持3种逻辑运算，分别为逻辑与、逻辑或和逻辑非，如表11-4所示，列出了这3种运算的运算符。</p>
+<p class="kindle-cn-caption"><span class="kindle-cn-bold">表11-4　awk支持的逻辑运算符</span></p>
+<table cellspacing="0" class="kindle-cn-table-body">
+        <tr class="calibre13">
+          <td class="kindle-cn-table-th">运　算　符</td>
+          <td class="kindle-cn-table-th1">说　明</td>
+          <td class="kindle-cn-table-th1">举　例</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">&amp;&amp;</td>
+          <td class="kindle-cn-table-dg">逻辑与，当前后两个表达式的值全部为真时，其运算结果才为真，反之则为假</td>
+          <td class="kindle-cn-table-dg">1&gt;2&amp;&amp;3&gt;2的值为假</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">||</td>
+          <td class="kindle-cn-table-dg">逻辑或，前后两个表达式只要有一个为真，则其运算结果为真。当两个表达式的值都为假时，其运算结果才为假</td>
+          <td class="kindle-cn-table-dg">•1&gt;2||3&gt;2的值为真</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">!</td>
+          <td class="kindle-cn-table-dg">逻辑非，当表达式的值为真时，其运算结果为假；当表达式的值为假时，其运算结果为真</td>
+          <td class="kindle-cn-table-dg">!(1&gt;2)的值为真</td>
+        </tr>
+      </table>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例11-21</span>】演示&amp;&amp;运算符的使用方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter11/ex11-21.sh------------------
+02   #! /bin/awk -f
+03
+04   # 输出所有的字段的值都大于 80 的记录
+05 $2 &gt; 80 &amp;&amp; $3 &gt; 80 &amp;&amp; $4 &gt; 80 &amp;&amp; $5 &gt;80 {
+06      print
+07   }
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第5行的匹配模式为第2～5个字段的值都大于80。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# ./ex11-21.sh scores.txt</span>
+Tom          81           88           92           81
+</pre>
+</div>
+      <h3 class="kindle-cn-heading2" id="sub262"><a href="part0004.html#toc262" class="calibre8">11.4.5　关系运算符</a>
+      </h3>
+      <p class="kindle-cn-para-left">awk支持常用的关系运算符，例如大于、小于，以及等于等，如表11-5所示，列出了awk中常用的关系运算符。</p>
+<p class="kindle-cn-caption"><span class="kindle-cn-bold">表11-5　awk中的关系运算符</span></p>
+<table cellspacing="0" class="kindle-cn-table-body">
+        <tr class="calibre13">
+          <td class="kindle-cn-table-th">运算符</td>
+          <td class="kindle-cn-table-th1">说　明</td>
+          <td class="kindle-cn-table-th1">举　例</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">&gt;</td>
+          <td class="kindle-cn-table-dg">大于</td>
+          <td class="kindle-cn-table-dg">5&gt;2的值为真</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">&gt;=</td>
+          <td class="kindle-cn-table-dg">大于或者等于</td>
+          <td class="kindle-cn-table-dg">8&gt;=8的值为真</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">&lt;</td>
+          <td class="kindle-cn-table-dg">小于</td>
+          <td class="kindle-cn-table-dg">8&lt;12的值为假</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">&lt;=</td>
+          <td class="kindle-cn-table-dg">小于或者等于</td>
+          <td class="kindle-cn-table-dg">4&lt;=7的值为真</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">==</td>
+          <td class="kindle-cn-table-dg">等于</td>
+          <td class="kindle-cn-table-dg">8==8的值为真</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">!=</td>
+          <td class="kindle-cn-table-dg">不等于</td>
+          <td class="kindle-cn-table-dg">1!=3的值为真</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">～</td>
+          <td class="kindle-cn-table-dg">匹配运算符</td>
+          <td class="kindle-cn-table-dg">$1～/^T/表示匹配第1个字段以字符T开头的记录</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">!～</td>
+          <td class="kindle-cn-table-dg">不匹配运算符</td>
+          <td class="kindle-cn-table-dg">$1 !～/a/表示匹配第1个字段不含有字符a的记录</td>
+        </tr>
+      </table>
+      <p class="kindle-cn-para-left">在表11-5中，匹配运算符～和不匹配运算符!～是awk所特有的关系运算符，其语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">A ~ B
+</pre>
+</div>
+      <p class="kindle-cn-para-left">和</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">A !~ B
+</pre>
+</div>
+<p class="kindle-cn-para-left">在上面的语法中，A表示一个字符串，B表示一个正则表达式。匹配运算符表示判断字符串A中是否含有符合正则表达式B所表达的子字符串；不匹配运算符表示字符串A中是否不含有符合正则表达式B所表达的子字符串。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例11-22</span>】演示匹配运算符的使用方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter11/ex11-22.sh------------------
+02   #! /bin/awk -f
+03
+04   # 匹配第 1 个字段以字符 K 开头的记录
+05   $1 ~ /^K/ { print }
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第5行的匹配模式为$1～/^K/，表示第1个字段是以字符K开头的记录。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# ./ex11-22.sh scores.txt</span>
+Kity         79           65           83           90
+Kon          88           76           85           97
+</pre>
+</div>
+      <h3 class="kindle-cn-heading2" id="sub263"><a href="part0004.html#toc263" class="calibre8">11.4.6　其他运算符</a>
+      </h3>
+      <p class="kindle-cn-para-left">除了前面介绍的运算符之外，awk还支持其他的一些运算符，例如正号+、负号-、自增++，以及自减--等。这些运算符的使用方法与其他语言的使用方法完全相同，不再举例说明。</p>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">在awk中，各运算符的优先级与其他的程序设计语言相同，不再详细说明。</span></p>
+      <h2 class="kindle-cn-heading1" id="sub264"><a href="part0004.html#toc264" class="calibre8">11.5　函数</a>
+      </h2>
+      <p class="kindle-cn-para-left">awk提供函数的支持。awk本身提供了许多系统函数，例如字符串函数以及算术函数。另外，用户还可以自定义函数。由于自定义函数使用非常少，所以本节主要介绍awk提供的系统函数。</p>
+      <h3 class="kindle-cn-heading2" id="sub265"><a href="part0004.html#toc265" class="calibre8">11.5.1　字符串函数</a>
+      </h3>
+<p class="kindle-cn-para-left">字符串是awk中的两大类型之一，awk提供了一些常见的字符串处理函数，例如index()、length()，以及match()等，如表11-6所示，列出了常用的字符串函数。</p>
+<p class="kindle-cn-caption"><span class="kindle-cn-bold">表11-6　awk常用的字符串函数</span></p>
+<table cellspacing="0" class="kindle-cn-table-body">
+        <tr class="calibre13">
+          <td class="kindle-cn-table-th">函数</td>
+          <td class="kindle-cn-table-th1">说　明</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">index(string1, string2)</td>
+          <td class="kindle-cn-table-dg">返回string2在string1中的位置。如果string2在string1中出现多次，则返回第1次出现的位置；如果string1不包含string2，则该函数返回0</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">length(string)</td>
+          <td class="kindle-cn-table-dg">返回字符串string的长度</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">match(string, regexp)</td>
+          <td class="kindle-cn-table-dg">在字符串string中搜索符合正则表达式regexp的子字符串。如果有多个匹配的字符串，则以第1个匹配的字符串为准。该函数的返回值体现在系统变量RSTART和RLENGTH中</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">split(string,array,seperator)</td>
+          <td class="kindle-cn-table-dg">根据指定的分隔符seperator，将字符串string分隔成多个字段，并存储到数组array中</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">sub(regexp,replacement,string)</td>
+          <td class="kindle-cn-table-dg">将字符串string中的第1个符合正则表达式regexp的子字符串替换为replacement</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">gsub(regexp,replacement,string)</td>
+          <td class="kindle-cn-table-dg">将字符串string中所有符合正则表达式regexp的子字符串全部替换为replacement</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">substr(string,start,[length])</td>
+          <td class="kindle-cn-table-dg">从字符串string中截取指定的子串，起始位置为start，长度为length。如果省略length，则表示从start开始一直截取到字符串结束</td>
+        </tr>
+      </table>
+      <p class="kindle-cn-para-left">下面分别对表11-6列出的函数进行详细介绍。</p>
+ <p class="kindle-cn-para-left">
+        <span class="kindle-cn-bold">1. index(string1, string2)</span></p>
+<p class="kindle-cn-para-left">该函数用来定位字符串string2在字符串string1中出现的位置。如果出现多次，则返回第1次出现的位置；如果string1不包含string2，则该函数返回0。该函数区分字母的大小写，用户在使用时一定要注意。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例11-23</span>】演示index()函数的使用方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter11/ex11-23.sh------------------
+02   #! /bin/awk -f
+03
+04   BEGIN {
+05      # 输出子串在父串中出现的位置
+06      print index("Hello,world.","world")
+07   }
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第6行的index()函数搜索字符串world在字符串Hello,world中出现的位置。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# ./ex11-23.sh</span>
+7
+</pre>
+</div>
+<p class="kindle-cn-para-left">
+        <span class="kindle-cn-bold">2. length(string)</span></p>
+      <p class="kindle-cn-para-left">该函数的返回值为整数，表示字符串string的长度。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例11-24</span>】演示length()函数的使用方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter11/ex11-24.sh------------------
+02   #! /bin/awk -f
+03
+04   BEGIN {
+05      # 输出字符串的长度
+06      print length("Hello, world.")
+07   }
+</pre>
+</div>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# ./ex11-24.sh</span>
+13
+</pre>
+</div>
+<p class="kindle-cn-para-left">
+        <span class="kindle-cn-bold">3. match(string, regexp)</span></p>
+<p class="kindle-cn-para-left">该函数的第1个参数为字符串，第2个参数为正则表达式，其功能是在字符串string中搜索匹配正则表达式的子串。用户可以通过系统变量RSTART和RLENGTH来获取相关的返回值。其中，RSTART用来返回正则表达式匹配的子串在父串中出现的位置，如果匹配不成功，则返回0。RLENGTH用来返回正则表达式匹配的子串的长度，如果匹配不成功，则返回-1。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例11-25</span>】演示match()函数的使用方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter11/ex11-25.sh------------------
+02   #! /bin/awk -f
+03
+04   BEGIN {
+05      # 通过正则表达式搜索子串
+06      match("Hello, world.",/o/)
+07      print RSTART, RLENGTH
+08   }
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第6行的match()函数中的正则表达式为/o/，表示匹配字符o。第7行分别输出变量RSTART和RLENGTH的值。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下；</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# ./ex11-25.sh</span>
+5 1
+</pre>
+</div>
+      <p class="kindle-cn-para-left">其中，第1个数字5表示正则表达式/o/匹配的子串在字符串Hello, world中第1次出现的位置为5。第2个数字1表示正则表达式所匹配的子串的长度为1。</p>
+<p class="kindle-cn-para-left">
+        <span class="kindle-cn-bold">4. split(string, array, seperator)</span></p>
+      <p class="kindle-cn-para-left">该函数的功能是将一个字符串根据指定的分隔符拆分成一个数组。其中第1个参数为要拆分的字符串，第2个参数是用来存储拆分结果的数组，第3个参数用来指定分隔符，分隔符可以使用正则表达式来表达。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例11-26</span>】演示split()函数的使用方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter11/ex11-26.sh------------------
+02   #! /bin/awk -f
+03
+04   BEGIN {
+05      string="5P12p89"
+06      # 使用分隔符 P 或者 p 分隔字符串
+07      split(string,arr,/[Pp]/)
+08      # 输出第 1~3 个数组元素
+09      print arr[1]
+10      print arr[2]
+11      print arr[3]
+12   }
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第7行的split()函数中的分隔符为正则表达式/[Pp]/，表示使用大写字母P或者小写字母p来分隔字符串。同时，将分隔后的各个子串存储到数组arr中。第9～11行依次输出数组arr的各个元素的值。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# ./ex11-26.sh</span>
+5
+12
+89
+</pre>
+</div>
+      <p class="kindle-cn-para-left">从上面的执行结果可以得知，作为分隔符的字符并不出现在拆分结果中。</p>
+<p class="kindle-cn-para-left">
+        <span class="kindle-cn-bold">5. sub(regexp, replacement, string)和gsub(regexp, replacement, string)</span></p>
+      <p class="kindle-cn-para-left">这2个函数的作用都是替换字符串中的子串，其区别在于前者只替换第1次出现的子串，而后者则替换所有出现的子串。这两个函数的参数完全相同，第1个参数为正则表达式，表示匹配规则。第2个参数为用来替换的字符串，第3个参数是将要被处理的字符串。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例11-27</span>】演示sub()函数以及gsub()函数的使用方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter11/ex11-27.sh------------------
+02   #! /bin/awk -f
+03
+04   BEGIN {
+05      # 定义字符串
+06      string="abcd6b12abcabc212@123465"
+07      # 将第 1 个符合正则表达式 /(abc)+[0-9]*/ 的子串用括号括起来
+08      sub(/(abc)+[0-9]*/,"(&amp;)",string)
+09      print string
+10
+11      # 将所有符合正则表达式 /(abc)+[0-9]*/ 的子串用括号括起来
+12      gsub(/(abc)+[0-9]*/,"(&amp;)",string)
+13      print string
+14   }
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第6行定义了一个由各种字符组成的字符串。第8行的sub()函数的第1个参数为正则表达式/(abc)+[0-9]*/，表示匹配1个或者多个字符串abc，后面紧跟着0个或者多个数字的字符串；第2个参数为(&amp;)，其中的圆括号是普通字符，&amp;符号表示引用前面匹配的子串，这个符号的作用在介绍正则表达式时已经详细介绍过了。</p>
+      <p class="kindle-cn-para-left">第12行的作用与第8行大致相同，不过使用的是gsub()函数，因此第8行替换的是第1次出现的子串，而第12行替换的所有出现的子串。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# ./ex11-27.sh</span>
+(abc)d6b12abcabc212@123465
+((abc))d6b12(abcabc212)@123465
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的执行结果中，第1行字符串是sub()函数的替换结果，可以发现，sub()函数只替换了最开始的abc这3个字符。而第2行字符串是gsub()函数的替换结果，可以发现， gsub()函数进行了两处替换。</p>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">【例11-27】执行结果中的第2行字符串的最开始3个字符由两层圆括号包围，这是因为前面已经使用sub()函数替换过1次。另外，如果sub()函数和gsub()函数的第2个参数为空串，则表示将符合匹配规则的子串删除。</span></p>
+      <p class="kindle-cn-para-left"><span class="kindle-cn-bold">6．substr(string,start,[length])</span></p>
+      <p class="kindle-cn-para-left">该函数的功能是截取指定长度的子串。第1个参数为父串，第2个参数表示子串开始截取的位置，第3个参数表示要截取的长度。其中，第3个参数可以省略，如果省略了该参数，则表示从start参数指定的位置开始，一直截取到父串的末尾。</p>
+      <p class="kindle-cn-para-left">通过match()函数和substr()函数，用户可以将父串中所有符合规则的子串提取出来。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例11-28</span>】演示使用substr()函数截取子串的方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter11/ex11-28.sh------------------
+02   #! /bin/awk -f
+03
+04   BEGIN {
+05      # 定义字符串变量
+06      pages="p12-P34 P56-p78"
+07      # 通过循环依次匹配字符串中的数字
+08      while(match(pages,/[0-9]+/)&gt;0) {
+09         # 截取并输出匹配的子串
+10         print substr(pages,RSTART,RLENGTH)
+11         # 删除匹配的子串
+12         sub(/[0-9]+/,"",pages)
+13      }
+14   }
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第6行定义了一个包含字母、数字，以及连字符的字符串。第8～13行是while循环结构，关于while循环结构，将在11.7节中介绍。第8行中while循环语句的执行条件为match(pages,/[0-9]+/)&gt;0，表示当字符串变量pages中含有一个或者多个连续的数字时执行循环结构。第10行使用substr()函数截取匹配的子串，第1个参数就是pages变量，第2个参数为系统变量RSTART，表示匹配的子串在父串中出现的位置。第3个参数为系统变量RLENGTH，表示匹配的子串的长度。后面的这2个参数都来自match()函数的匹配结果。第12行使用sub()函数将已经匹配过的子串删除。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# ./ex11-28.sh</span>
+12
+34
+56
+78
+</pre>
+</div>
+      <p class="kindle-cn-para-left">从上面的执行结果可以得知，字符串中的所有的连续的数字都被提取出来了。</p>
+      <h3 class="kindle-cn-heading2" id="sub266"><a href="part0004.html#toc266" class="calibre8">11.5.2　算术函数</a>
+      </h3>
+      <p class="kindle-cn-para-left">awk提供了基本的执行算术运算的函数，如表11-7所示。</p>
+<p class="kindle-cn-caption"><span class="kindle-cn-bold">表11-7　awk中的算术函数</span></p>
+<table cellspacing="0" class="kindle-cn-table-body">
+        <tr class="calibre13">
+          <td class="kindle-cn-table-th">函数</td>
+          <td class="kindle-cn-table-th1">说　明</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">int(x)</td>
+          <td class="kindle-cn-table-dg">返回数值x的整数部分</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">sqrt(x)</td>
+          <td class="kindle-cn-table-dg">返回数值x的平方根</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">exp(x)</td>
+          <td class="kindle-cn-table-dg">返回e的x次方</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">log(x)</td>
+          <td class="kindle-cn-table-dg">返回以e为底的对数值</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">sin(x)</td>
+          <td class="kindle-cn-table-dg">返回x的正弦值，其中x为弧度值</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">cos(x)</td>
+          <td class="kindle-cn-table-dg">返回x的余弦值，x为弧度值</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">rand()</td>
+          <td class="kindle-cn-table-dg">返回介于0与1之间的随机数</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">srand([x])</td>
+          <td class="kindle-cn-table-dg">以x为种子返回一个随机数</td>
+        </tr>
+      </table>
+      <p class="kindle-cn-para-left">关于算术函数的使用方法与其他程序设计语言基本相同，不再详细说明。</p>
+      <h2 class="kindle-cn-heading1" id="sub267"><a href="part0004.html#toc267" class="calibre8">11.6　数组</a>
+      </h2>
+      <p class="kindle-cn-para-left">用户可以在awk编程环境中使用数组。这种特性使用户在存储结构化的数据时变得非常方便。与其他程序设计语言相比，awk中的数组有许多特殊的使用方法，本节将对这些使用方法进行详细介绍。</p>
+      <h3 class="kindle-cn-heading2" id="sub268"><a href="part0004.html#toc268" class="calibre8">11.6.1　数组的定义和赋值</a>
+      </h3>
+      <p class="kindle-cn-para-left">数组是用来存储一组相互关联的数据的结构体。在awk中，用户可以自定义数组，并且在定义数组时，无需指定其类型和大小。实际上，awk并没有提供数组定义的语句，当用户为数组第1个元素赋值时，awk便会自动创建该数组。此时，数组中只有1个元素。当为数组中的第2个元素赋值时，数组中便会包含2个元素，依此类推。</p>
+      <p class="kindle-cn-para-left">awk数组的命名规则与变量名基本相同，也是由字母、数字和下划线组成。另外，awk的数组名也是区分大小写的，例如array和Array是不同的数组名，初学者务必注意这一点。awk数组的下标从1开始计算，即数组的第1个元素的下标为1，第2个元素的下标为2，依此类推。另外，awk也支持关联数组，这与Shell是相同的。所谓关联数组，是指以字符串作为下标的数组。</p>
+      <p class="kindle-cn-para-left">在定义数组时，用户并不需要指定数组的数据类型。实际上，awk数组可以存储任何简单类型的数据，例如字符串、整数，以及浮点类型的数据。甚至在同一个数组，各个元素的类型也可以是不同的。</p>
+      <p class="kindle-cn-para-left">数组元素赋值的语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">array[n]=value
+</pre>
+</div>
+      <p class="kindle-cn-para-left">其中，array表示数组名称，n表示数组元素的下标，等号为赋值运算符，value为要赋给数组元素的数值。</p>
+      <p class="kindle-cn-para-left">用户可以使用以下语法引用数组元素的值：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">array[n]
+</pre>
+</div>
+      <p class="kindle-cn-para-left">其中，array表示数组名称，n为数组元素的下标。</p>
+<p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例11-29</span>】演示awk脚本中数组的定义、数组元素的赋值，以及引用数组元素的方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter11/ex11-29.sh------------------
+02   #! /bin/awk -f
+03
+04   BEGIN {
+05      # 为数组元素赋值
+06      arr[1]="Tim"
+07      arr["a"]=12
+08      arr[3]=3.1415
+09      arr[4]=5
+10      # 输出数组元素的值
+11      print arr[1],arr[2],arr["a"]*arr[3],arr[4]
+12   }
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第6行创建了一个名称为arr的数组，并且为下标为1的元素赋值为一个字符串Tim；第7行为下标为a的数组元素赋值为一个整数12；第8行为下标为3的数组元素赋值为浮点数3.1415；第10行为下标为4的数组元素赋值为5。第11行通过print语句依次输出下标为1和2的元素的值、下标为a和3的元素的乘积，以及下标为4的元素的值。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# ./ex11-29.sh</span>
+Tim John 37.698 5
+</pre>
+</div>
+      <p class="kindle-cn-para-left">从上面的执行结果可以得知，在同一个数组中，可以混合使用整数下标和字符串下标。另外，也可以将字符串、整数，以及浮点数的数据赋给同一个数组的不同元素。数组的元素可以参与相关的运算。</p>
+      <h3 class="kindle-cn-heading2" id="sub269"><a href="part0004.html#toc269" class="calibre8">11.6.2　遍历数组</a>
+      </h3>
+<p class="kindle-cn-para-left">所谓数组的遍历，是指将数组中的每个元素的值依次输出。当然，用户可以通过循环结构来实现数组的遍历。在使用正常的循环结构来遍历数组时，必须首先知道数组的长度，这样的话才能确定循环终止的条件。在awk中，数组的长度可以使用length()函数获得，该函数以数组名作为参数，返回数组的长度。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例11-30</span>】演示通过正常的for循环结构来遍历数组，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter11/ex11-30.sh------------------
+02   #! /bin/awk -f
+03
+04   BEGIN {
+05      # 定义数组
+06      stu[1]="200200110"
+07      stu[2]="200200164"
+08      stu[3]="200200167"
+09      stu[4]="200200168"
+10      stu[5]="200200172"
+11
+12      # 计算数组的长度
+13      len=length(stu)
+14
+15      # 通过循环遍历数组
+16       for(i=1;i&lt;=len;i++)
+17      {
+18          print i,stu[i]
+19      }
+20   }
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第6～10行定义了一个名称为stu的数组，包含5个元素。第13行通过length()函数获取数组的长度。第16～19行通过for循环结构遍历数组。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# ./ex11-30.sh</span>
+1 200200110
+2 200200164
+3 200200167
+4 200200168
+5 200200172
+</pre>
+</div>
+      <p class="kindle-cn-para-left">使用上面的方法遍历数组有一个前提条件，即数组元素的下标必须是连续的，并且是整数值作为下标。如果数组的下标是非连续的或者在字符串，那么使用上面的方法不能实现数组的遍历。接下来介绍awk提供的另外一种遍历数组的方法。</p>
+      <p class="kindle-cn-para-left">awk提供一种更为便捷的机制来遍历数组元素，其语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">for (n in array) {
+   print array[n]
+}
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的语法中，n表示数组元素的下标，array表示数组的名称。当使用以上语法遍历数组时，awk会将数组array中的每个现有的下标依次赋给变量n，每次赋值之后都执行一次循环体中的代码。可以发现，这是一种非常方便的方式，但是在这种方式中，数组元素的下标默认是无序的。所以导致通过以上语句得到的数组元素也是无序的。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例11-31</span>】演示使用for结构来遍历数组的方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter11/ex11-31.sh------------------
+02   #! /bin/awk -f
+03
+04   BEGIN {
+05      # 定义数组
+06      arr[1]="Tim"
+07      arr[2]="John"
+08      arr["a"]=12
+09      arr[3]=3.1415
+10      arr[4]=5
+11      arr[99]=23
+12
+13      # 遍历数组
+14      for(n in arr)
+15      {
+16         print arr[n]
+17      }
+18   }
+</pre>
+</div>
+<p class="kindle-cn-para-left">在上面的代码中，第6～11行定义了一个名称为arr的数组，其下标包括整数和字符串，另外数组的下标是不连续的。第14～17行通过for循环来遍历数组。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下；</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# ./ex11-31.sh</span>
+5
+12
+23
+Tim
+John
+3.1415
+</pre>
+</div>
+      <p class="kindle-cn-para-left">从上面的执行结果可以得知，for循环并没有按照定义的顺序来输出数组元素。为了更加清楚地显示for循环遍历的顺序，下面将代码第16行的print语句改为以下形式：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">print n
+</pre>
+</div>
+      <p class="kindle-cn-para-left">即直接输出下标。修改以后的【例11-31】的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# ./ex11-31.sh</span>
+4
+a
+99
+1
+2
+3
+</pre>
+</div>
+<p class="kindle-cn-para-left">在上面的输出结果中，下标并没有表现出任何的顺序。另外，在for循环中，所输出的下标是用户定义时使用的下标，并没有转换为整数。</p>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">要按照顺序遍历数组，必须使用下标来引用数组元素。</span></p>
+      <p class="kindle-cn-para-left">除了上面所介绍的内容之外，awk还提供了关于数组的其他的一些操作，例如可以使用delete语句来删除数组的某个元素，使用in运算符来判断数组中是否包含某个元素等。关于这些内容，用户可以参考相关的书籍，不再详细介绍。</p>
+      <h3 class="kindle-cn-heading2" id="sub270"><a href="part0004.html#toc270" class="calibre8">11.7　流程控制</a>
+      </h3>
+      <p class="kindle-cn-para-left">作为一种程序设计语言，awk支持程序的流程控制，例如条件判断、循环，以及其他的一些流程控制语句，例如continue、break，以及exit等。掌握这些基本的流程控制语句，对于编写出结构良好的程序非常重要。本节将介绍awk流程控制语句的使用方法。</p>
+      <h2 class="kindle-cn-heading1" id="sub271"><a href="part0004.html#toc271" class="calibre8">11.7.1　if语句</a>
+      </h2>
+      <p class="kindle-cn-para-left">if语句的功能是根据用户指定的条件来决定执行程序的哪个分支，其语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">if (expression)
+{
+   statement1
+   statement2
+}
+else
+{
+   statement3
+   statement4
+}
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的语法中，当表达式expression的值为真时，执行语句statement1和statement2；否则，执行语句statement3和statement4。如果if以及else后面的语句只有1条，则可以省略大括号，变成以下形式：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">if (expression)
+   statement1
+else
+   statement2
+</pre>
+</div>
+      <p class="kindle-cn-para-left">但是，为了提高程序的可读性，某些开发者可能更喜欢无论是否是多条语句，都使用大括号将其括起来。</p>
+<p class="kindle-cn-para-left">如果用户只想处理表达式expression的值为真的情况，而忽略为假的情况，则可以省略else语句，只保留if语句，如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">if (expression)
+{
+   statement1
+   statement2
+}
+</pre>
+</div>
+      <p class="kindle-cn-para-left">除此之外，if和else语句还可以嵌套，从而实现更为复杂的条件分支结构。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例11-32</span>】演示多层嵌套if语句的使用方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter11/ex11-32.sh------------------
+02   #! /bin/awk -f
+03
+04   {
+05      #90 分以上为 A
+06      if ($2 &gt;= 90) {
+07          print $1,"A"
+08      }
+09      else {
+10         #80 分以上为 B
+11         if($2 &gt;= 80 &amp;&amp; $2 &lt; 90)
+12         {
+13            print $1,"B"
+14         }
+15         # 其余为 C
+16         else
+17         {
+18            print $1,"C"
+19         }
+20      }
+21   }
+</pre>
+</div>
+<p class="kindle-cn-para-left">该例的功能是根据输入文件中的第2个字段的值来将其分级，90以上输出A，80分以上、90以下输出B，其余分数输出C。其中，本例所使用的数据文件就是前面所创建的scores.txt文件。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# ./ex11-32.sh scores.txt</span>
+John B
+Nancy B
+Tom B
+Kity C
+Han A
+Kon B
+</pre>
+</div>
+      <h3 class="kindle-cn-heading2" id="sub272"><a href="part0004.html#toc272" class="calibre8">11.7.2　while语句</a>
+      </h3>
+      <p class="kindle-cn-para-left">while语句是另外一种常用的循环结构，其语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">while (expression)
+{
+   statement1
+   statement2
+   ...
+}
+</pre>
+</div>
+      <p class="kindle-cn-para-left">当表达式expression的值为真时，执行循环体中的statement1以及statement2等语句。如果循环体中只包含一条语句，则可以省略大括号。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例11-33</span>】演示while循环语句的使用方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter11/ex11-33.sh------------------
+02   #! /bin/awk -f
+03
+04   BEGIN {
+05      # 定义循环变量
+06      i=0
+07      #while 循环开始
+08      while (++i &lt;= 9)
+09      {
+10         # 输出循环变量 i 的平方
+11         print i^2
+12      }
+13   }
+</pre>
+</div>
+<p class="kindle-cn-para-left">在上面的代码中，第6行定义循环变量i，并且赋初值为0。第8行是while循环结构的开始，其中i&lt;=9作为循环条件，++i是一个前置自增表达式。第11行输出循环变量的平方。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# ./ex11-33.sh</span>
+1
+4
+9
+16
+25
+36
+49
+64
+81
+</pre>
+</div>
+      <p class="kindle-cn-para-left">从上面的执行结果可以得知，该例实际上是输出了1～9这9个数字的平方。</p>
+      <h3 class="kindle-cn-heading2" id="sub273"><a href="part0004.html#toc273" class="calibre8">11.7.3　do…while语句</a>
+      </h3>
+      <p class="kindle-cn-para-left">awk还支持另外一种while循环语句，其语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">do {
+   statement1
+   statement2
+   ...
+}while (expression)
+</pre>
+</div>
+      <p class="kindle-cn-para-left">同样，当表达式expression的值为真时，执行循环体中的语句。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例11-34</span>】使用do…while循环结构实现了输出1～9的平方，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter11/ex11-34.sh------------------
+02   #! /bin/awk -f
+03
+04   BEGIN {
+05      # 定义循环变量
+06      i=1
+07      do
+08      {
+09         # 输出循环变量的平方
+10         print i^2
+11      }while (++i&lt;=9)
+12   }
+</pre>
+</div>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# ./ex11-34.sh</span>
+1
+4
+9
+16
+25
+36
+49
+64
+81
+</pre>
+</div>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">while语句与do…while语句的区别在于后者会首先执行循环体中的语句，然后判断是否继续执行，因此do…while循环体中的语句至少执行一次。而while则首先判断表达式的值是否为真，然后才决定是否执行循环体。</span></p>
+      <h3 class="kindle-cn-heading2" id="sub274"><a href="part0004.html#toc274" class="calibre8">11.7.4　for语句</a>
+      </h3>
+      <p class="kindle-cn-para-left">for循环语句通常用在循环次数已知的场合中，其语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">for(expression1; expression2; expression3)
+{
+   statement1
+   statement2
+   ...
+}
+</pre>
+</div>
+<p class="kindle-cn-para-left">在上面的语法中，表达式expression1通常用来初始化循环变量，表达式expression2通常用来指定循环执行的条件，表达式expression3通常用来改变循环变量的值。当表达式expression2的值为真时，执行循环体中的语句。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例11-35</span>】通过两层for循环实现了九九乘法表的打印输出，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter11/ex11-35.sh------------------
+02   #! /bin/awk -f
+03
+04   BEGIN {
+05      # 外层循环
+06      for(i=1;i&lt;=9;i++)
+07      {
+08         # 内层循环
+09         for(j=1;j&lt;=i;j++)
+10         {
+11            # 将每一行的数值连接成一个字符串
+12            if(i*j&lt;10)
+13            {
+14               row=row"   "i*j
+15            }
+16            else
+17            {
+18               row=row"  "i*j
+19            }
+20         }
+21         # 输出每一行数值
+22         print row
+23         row=""
+24      }
+25   }
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第6～23行是外层for循环，该循环从1开始，当循环变量i的值增加到9时终止。第9～20行是内层for循环，该循环从1开始，当循环变量j的值增加到外层循环的循环变量i时终止。为了能够使得外侧循环一次中所得到的乘积在同一行中输出，所以使用了一个名称为row的变量将同一次外层循环中的所有的乘积连接成一个字符串。</p>
+<p class="kindle-cn-para-left">为了的使格式更加整齐，当乘积小于10时，乘积之间用3个空格隔开；当乘积大于等于10时，乘积之间用两个空格隔开。第22行通过print语句将变量row的值输出。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# ./ex11-35.sh</span>
+   1
+   2   4
+   3   6   9
+   4   8  12  16
+   5  10  15  20  25
+   6  12  18  24  30  36
+   7  14  21  28  35  42  49
+   8  16  24  32  40  48  56  64
+   9  18  27  36  45  54  63  72  81
+</pre>
+</div>
+<p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">除了上面介绍的for循环之外，还有一种专门用来遍历数组的for循环结构，在介绍数组的时候已经讲过，不再重复说明。</span></p>
+      <h3 class="kindle-cn-heading2" id="sub275"><a href="part0004.html#toc275" class="calibre8">11.7.5　break语句</a>
+      </h3>
+      <p class="kindle-cn-para-left">用户可以通过使用break语句在适当的时机退出for，以及while等循环结构，而不必等到循环结构自己退出。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例11-36</span>】演示在awk程序中通过while循环读取数据文件，当第1列的值为Kity时，退出while循环，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter11/ex11-36.sh------------------
+02   #! /bin/awk -f
+03
+04   BEGIN {
+05      # 循环读取数据
+06      while( getline &lt; "scores.txt" &gt; 0)
+07      {
+08         # 当第 1 个字段的额值为 Kity 时退出
+09         if($1=="Kity")
+10            break
+11         else
+12            print $1,$2,$3,$4,$5
+13      }
+14   }
+</pre>
+</div>
+<p class="kindle-cn-para-left">在上面的代码中，第6行的getline读取数据文件，该数据来自文件的输入重定向。getline是awk中用于输入重定向的一个函数，它可以从标准输入、管道或者文件读取输入数据，而不只是从当前被处理的文件来读取。getline函数读取一行数据之后，会自动更新NF、NR，以及FNR等系统变量。如果成功读取一条记录，则getline函数返回1；如果到了文件末尾，则返回0。因此，在上面的代码中，使用getline函数的返回值大于0作为while循环执行的条件。</p>
+      <p class="kindle-cn-para-left">第9行判断第1个字段的值是否等于Kity。如果等于Kity，则退出循环；否则输出第1～5个字段的值。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# ./ex11-36.sh</span>
+John        85      92      79      87
+Nancy       89      90      73      82
+Tom          81      88      92      81
+</pre>
+</div>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">break语句不仅可以用在while循环结构中，还可以用在for及do…while循环结构中，包括嵌套循环结构，用户可以自己去练习。</span></p>
+      <h3 class="kindle-cn-heading2" id="sub276"><a href="part0004.html#toc276" class="calibre8">11.7.6　continue语句</a>
+      </h3>
+      <p class="kindle-cn-para-left">continue语句的主要功能是跳过循环结构中该语句后面的尚未执行的语句。break语句与continue语句的功能有着明显的区别，前者是直接退出循环结构，而后者是跳过循环体中尚未执行的语句，重新执行下一次循环。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例11-37</span>】演示continue语句的使用方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter11/ex11-37.sh------------------
+02   #! /bin/awk -f
+03
+04   BEGIN {
+05      # 通过循环读取数据
+06      while( getline &lt; "scores.txt" &gt; 0)
+07      {
+08         # 当第 1 个字段含有字符串 Nancy 时跳过后面的语句
+09         if($1 == "Kity")
+10            continue
+11         print $1,$2,$3,$4,$5
+12      }
+13   }
+</pre>
+</div>
+      <p class="kindle-cn-para-left">实际上，该例的代码只是将【例11-36】的代码中的第10行换成了continue语句，其他代码完全相同。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# ./ex11-37.sh</span>
+John        85      92      79      87
+Nancy       89      90      73      82
+Tom          81      88      92      81
+Han          92      89      80      83
+Kon          88      76      85      97
+</pre>
+</div>
+      <p class="kindle-cn-para-left">对比【例11-36】和【例11-37】的输出结果，可以发现【例11-36】只输出了3行，其中包含第1个字段为Kity的行在内的后面3行并没有被输出。这说明当第1列的值为Kity时，break语句导致while循环直接退出。而【例11-37】的输出结果只缺少第1列为Kity的那一行，该行后面的其他行仍然被输出了，这说明continue语句仅仅导致当第1列的值为Kity时，该语句后面的print语句被跳过，但是并没有退出循环结构。</p>
+      <h3 class="kindle-cn-heading2" id="sub277"><a href="part0004.html#toc277" class="calibre8">11.7.7　next语句</a>
+      </h3>
+      <p class="kindle-cn-para-left">next语句的功能与continue语句非常相似，但是next语句并不是用在循环结构中，而是用在整个akw程序中。当awk执行程序时，如果遇到next语句，则该语句后面的所有的程序语句都被忽略，包括其他的模式，以及对应的操作。awk会继续读取下一行数据，并且从第一个模式及其操作开始执行。</p>
+      <p class="kindle-cn-para-left">假设存在一个包含许多空行的文件，如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# cat scores3.txt</span>
+John         85           92           79           87
+Nancy        89           90           73           82
+Tom          81           88           92           81
+Kity         79           65           83           90
+Han          92           89           80           83
+Kon          88           76           85           97
+</pre>
+</div>
+      <p class="kindle-cn-para-left">现在用户需要输出这些数据，并且忽略其中的空行。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例11-38</span>】使用next语句可以解决这个问题，条件代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter11/ex11-35.sh------------------
+02   #! /bin/awk -f
+03
+04   # 当读取的行为空行时跳过后面的语句
+05   /^[\t]*$/ {
+06      next
+07   }
+08
+09   # 输出各个字段
+10   {
+11      print $1,$2,$3,$4,$5
+12   }
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第5行的模式为正则表达式/^[\t]*$/，表示匹配只含有0个或者多个制表符的行。当匹配成功时，执行第6行的next语句。第10～12行的print语句只有非空行时才会被执行到。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# ./ex11-38.sh scores3.txt</span>
+John        85      92      79      87
+Nancy       89      90      73      82
+Tom          81      88      92      81
+Kity        79      65      83      90
+Han          92      89      80      83
+Kon          88      76      85      97
+</pre>
+</div>
+      <p class="kindle-cn-para-left">从上面的执行结果可以得知，所有的空白行都被忽略，没有出现在输出结果中。next语句还可以用在其他场合中，读者可以深入理解next语句的功能，在此基础上达到灵活运用的目的。</p>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">从执行效果上看，next语句和continue语句非常相似，都是跳过后面的部分语句，但是这两者的应用场合有所不同。</span></p>
+      <h3 class="kindle-cn-heading2" id="sub278"><a href="part0004.html#toc278" class="calibre8">11.7.8　exit语句</a>
+      </h3>
+      <p class="kindle-cn-para-left">exit语句的功能是终止awk程序的执行。该语句的使用方法与其他语句基本相同，在此不再举例说明。</p>
+      <h2 class="kindle-cn-heading1" id="sub279"><a href="part0004.html#toc279" class="calibre8">11.8　awk程序的格式化输出</a>
+      </h2>
+      <p class="kindle-cn-para-left">对于程序来说，输出是一项非常重要的功能，而绝大部分用户对于数据输出都有一定的格式要求，awk提供了基本的格式化输出功能。本节将介绍awk中与输出有关的函数。</p>
+      <h3 class="kindle-cn-heading2" id="sub280"><a href="part0004.html#toc280" class="calibre8">11.8.1　基本print语句</a>
+      </h3>
+      <p class="kindle-cn-para-left">print语句提供了基本的输出功能。我们在前面许多例子中，已经使用该语句来输出各种数据。print语句的基本语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">print string1,string2,...
+</pre>
+</div>
+<p class="kindle-cn-para-left">在上面的语法中，参数string1及string2等都是要输出的数据，各个参数之间使用逗号隔开。在输出的时候，print语句会自动使用空格将各个参数值隔开。</p>
+      <p class="kindle-cn-para-left">关于print语句，在此不再详细举例说明，读者可以参考前面的例子以了解其使用方法。</p>
+      <h3 class="kindle-cn-heading2" id="sub281"><a href="part0004.html#toc281" class="calibre8">11.8.2　格式化输出printf语句</a>
+      </h3>
+<p class="kindle-cn-para-left">虽然大多数情况下awk的print语句可以完成任务，但有时我们还需要对格式做更多的控制。awk提供了printf()函数来实现字符串的格式化。这个函数的功能和语法与C语言中的printf()函数基本相同，如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">printf(format, [arguments])
+</pre>
+</div>
+      <p class="kindle-cn-para-left">其中圆括号是可选的，第1个参数format是一个用来描述输出格式的字符串，通常以引号括起来的字符串常量的形式提供。arguments为一个参数列表，表示用来显示的数据，可以是变量名等，多个参数之间用逗号隔开。参数列表的项是有顺序的，与前面的格式化字符串中的格式说明相对应。</p>
+      <p class="kindle-cn-para-left">格式化字符串的语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">%format
+</pre>
+</div>
+<p class="kindle-cn-para-left">在每个格式描述符前面都要使用一个百分号%，awk中常用的格式化描述符如表11-8所示。</p>
+<p class="kindle-cn-caption"><span class="kindle-cn-bold">表11-8　常用的格式化描述符</span></p>
+<table cellspacing="0" class="kindle-cn-table-body">
+        <tr class="calibre13">
+          <td class="kindle-cn-table-th">描　述　符</td>
+          <td class="kindle-cn-table-th1">说　明</td>
+          <td class="kindle-cn-table-th1">描　述　符</td>
+          <td class="kindle-cn-table-th1">说　明</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">c</td>
+          <td class="kindle-cn-table-dg">ASCII字符</td>
+          <td class="kindle-cn-table-dg">s</td>
+          <td class="kindle-cn-table-dg">字符串</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">d</td>
+          <td class="kindle-cn-table-dg">十进制整数</td>
+          <td class="kindle-cn-table-dg">%</td>
+          <td class="kindle-cn-table-dg">百分号本身</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">e</td>
+          <td class="kindle-cn-table-dg">浮点格式</td>
+          <td class="kindle-cn-table-dg">
+          </td>
+          <td class="kindle-cn-table-dg">
+          </td>
+        </tr>
+      </table>
+      <p class="kindle-cn-para-left">在表11-8中，最常用的格式描述符为d和s，其中d表示以十进制整数的形式显示相应的参数，s表示以字符串的形式显示相应的参数。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例11-39</span>】演示printf函数的使用方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter11/ex11-39.sh------------------
+02   #! /bin/awk -f
+03
+04   # 格式化输出各个字段
+05   {
+06     printf ("%s\t%d\t%d\t%d\t%d\t%d\n",$1,$2,$3,$4,$5,($2 + $3 + $4 +
+$5))
+07   }
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第6行使用printf语句输出一个成绩报表，各个列分别为姓名、各项成绩，以及总成绩。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# ./ex11-39.sh scores.txt</span>
+John         85       92       79       87       343
+Nancy        89       90       73       82       334
+…
+</pre>
+</div>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">与print函数不同，printf函数不会自动在输出的末尾追加一个换行符，因此，用户需要在格式化字符串的最后追加一个\n字符。</span></p>
+      <h3 class="kindle-cn-heading2" id="sub282"><a href="part0004.html#toc282" class="calibre8">11.8.3　使用sprintf()函数生成格式化字符串</a>
+      </h3>
+<p class="kindle-cn-para-left">上面介绍的printf()函数会将格式化结果输出到标准输出设备。sprintf()函数的功能与printf()函数的功能大致相同，但是该函数只是以字符串的形式返回格式化结果，并不输出到标准输出设备。用户可以将格式化的结果进行其他处理或者使用print()和printf()函数输出到标准输出。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例11-40</span>】演示awk工具的简单报表功能，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter11/ex11-40.sh------------------
+02   #! /bin/awk -f
+03
+04   BEGIN {
+05      # 输出报表头
+06      print "Scores list"
+07   }
+08
+09   {
+10      # 逐行输出学生成绩
+11      printf ("%s\t%d\t%d\t%d\t%d\t%d\n",$1,$2,$3,$4,$5,($2 + $3 + $4 +
+$5))
+12      # 计算总成绩
+13      total+=$2 + $3 + $4 + $5
+14   }
+15
+16   END {
+17      # 计算平均分
+18      average=total/NR
+19      # 格式化统计结果
+20      sum=sprintf("Total: %d students, average: %.2f",NR,average)
+21      print sum
+22   }
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第4～7行是BEGIN模式，用来输出报表头部。第9～14行匹配所有的记录，依次输出各条记录，其中第13行计算总成绩。第16～22行是END模式，其功能是输出统计信息。其中第20行使用sprintf函数格式化统计结果。格式化字符%.2f表示以浮点形式显示对应的参数，并且保留2位小数。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# ./ex11-40.sh scores.txt</span>
+Scores list
+John         85           92           79           87           343
+Nancy        89           90           73           82           334
+Tom          81           88           92           81           342
+Kity         79           65           83           90           317
+Han          92           89           80           83           344
+Kon          88           76           85           97           346
+Total: 6 students, average: 337.67
+</pre>
+</div>
+      <h2 class="kindle-cn-heading1" id="sub283"><a href="part0004.html#toc283" class="calibre8">11.9　awk的程序与Shell的交互</a>
+      </h2>
+      <p class="kindle-cn-para-left">awk提供了与Shell命令交互的能力，从而可以使用户在awk程序中使用系统资源。awk主要通过两种机制来实现这种交互功能，分别为管道和sytem函数。本节将对这两种交互机制进行详细介绍。</p>
+      <h3 class="kindle-cn-heading2" id="sub284"><a href="part0004.html#toc284" class="calibre8">11.9.1　通过管道实现与Shell的交换</a>
+      </h3>
+      <p class="kindle-cn-para-left">用户可以很容易地在awk程序中使用操作系统资源，包括在程序中调用Shell命令处理程序中的数据；或者在awk程序中获取Shell命令的执行结果。awk提供了管道来实现这种数据的双向交互。awk的管道与UNIX或者Linux中的管道非常相似，但是特性有些不同。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例11-41</span>】使用管道调用Shell命令来获取当前在线的用户数，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter11/ex11-41.sh------------------
+02   #! /bin/awk -f
+03
+04   BEGIN {
+05      # 通过管道获取 who 命令的执行结果
+06      while("who" | getline) n++
+07      printf("There %d online users.\n",n)
+08   }
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第6行是一个while循环结果，其循环条件为"who" | getline。在执行的时候，awk会首先调用Shell命令who，该命令会列出当前系统中已经登录的用户，每一行描述一个用户的信息。然后将who命令的执行结果通过管道传递给getline函数，该函数依次读取每一行数据，在逐行读取数据的过程中，实现变量n的自增。其中变量n的最后值就代表当前在线的人数。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# ./ex11-41.sh</span>
+There 1 online users.
+</pre>
+</div>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">awk的管道与UNIX或者Linux的管道虽然名称相同，但不是同一个概念。</span></p>
+      <h3 class="kindle-cn-heading2" id="sub285"><a href="part0004.html#toc285" class="calibre8">11.9.2　通过system函数实现与Shell的交互</a>
+      </h3>
+      <p class="kindle-cn-para-left">awk提供另一个调用Shell命令的方法，即使用awk函数，其语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">system(command)
+</pre>
+</div>
+      <p class="kindle-cn-para-left">其中参数command表示要执行的Shell命令。与管道相比，system函数有许多据局限，例如不能在awk程序中直接获取Shell命令的执行结果，另外，也不能直接将awk程序中的数据传递给Shell命令来处理。要实现这种数据传递，必须借助其他的手段。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例11-42</span>】通过awk工具的system函数执行Shell中的ls命令，并且将得到的文件列表在程序中打印出来，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #---------------------------/chapter11/ex11-42.sh------------------
+02   #! /bin/awk -f
+03
+04   BEGIN {
+05      # 使用 system 函数调用 Shell 命令
+06      system("ls &gt; filelist")
+07      # 通过 getline 函数获取数据
+08      while(getline &lt; "filelist" &gt; 0)
+09      {
+10         print $1
+11      }
+12   }
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第6行使用system函数执行ls命令，由于system不支持数据的传递，所以需要借助一个临时文件作为数据传递的桥梁。即将ls命令的执行结果重定向到名称为filelist的文件中。第8行使用getline函数从数据文件中读取数据，然后在第10行输出到屏幕。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter11]# ./ex11-42.sh</span>
+articles.txt
+8   ex11-10.sh
+9   ex11-11.sh
+10  ex11-12.sh
+11  ex11-13.sh
+…
+</pre>
+</div>
+      <h2 class="kindle-cn-heading1" id="sub286"><a href="part0004.html#toc286" class="calibre8">11.10　小结</a>
+      </h2>
+<p class="kindle-cn-para-left">本章系统地介绍了awk程序的设计方法，主要内容包括awk的基础知识、awk的模式匹配、变量、运算符和表达式、函数、数组、流程控制、格式化输出，以及与Shell的交互等。重点在于掌握awk命令的基本语法，理解awk的匹配模式、流程控制，以及常用的函数等。在下一章中，将介绍Shell程序中的文件操作。</p>
+    </div>
+  
+
+  </div>
+
+  
+  <div class="calibreToc">
+    <h2><a href="../../pARZf2.html"> Table of contents</a></h2>
+     <div>
+  <ul>
+    <li>
+      <a href="part0001.html#UGI0-55ac501d2b9f4bebb0296c8a16b339b4">内容简介</a>
+    </li>
+    <li>
+      <a href="part0003.html#2RHM0-55ac501d2b9f4bebb0296c8a16b339b4">前言</a>
+    </li>
+    <li>
+      <a href="part0004.html#3Q280-55ac501d2b9f4bebb0296c8a16b339b4">目录</a>
+    </li>
+    <li>
+      <a href="part0005.html#chapter2">第1篇　认识Shell编程</a>
+      <ul>
+        <li>
+          <a href="part0006.html#chapter3">第1章　Shell入门基础</a>
+          <ul>
+            <li>
+              <a href="part0006.html#sub4">1.1　为什么学习和使用Shell编程</a>
+            </li>
+            <li>
+              <a href="part0006.html#sub5">1.2　什么是Shell</a>
+              <ul>
+                <li>
+                  <a href="part0006.html#sub6">1.2.1　Shell的起源</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub7">1.2.2　Shell的功能</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub8">1.2.3　Shell的分类</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0006.html#sub9">1.3　作为程序设计语言的Shell</a>
+              <ul>
+                <li>
+                  <a href="part0006.html#sub10">1.3.1　交互式程序</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub11">1.3.2　创建脚本</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub12">1.3.3　把脚本设置为可执行</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0006.html#sub13">1.4　向脚本传递参数</a>
+              <ul>
+                <li>
+                  <a href="part0006.html#sub14">1.4.1　Shell脚本的参数</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub15">1.4.2　参数扩展</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0006.html#sub16">1.5　第一个Shell程序：Hello，Bash Shell！</a>
+              <ul>
+                <li>
+                  <a href="part0006.html#sub17">1.5.1　Shell脚本的基本元素</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub18">1.5.2　指定命令解读器</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub19">1.5.3　Shell脚本中的注释和风格</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub20">1.5.4　如何执行Shell程序</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub21">1.5.5　Shell程序的退出状态</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0006.html#sub22">1.6　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0007.html#chapter23">第2章　Shell编程环境的搭建</a>
+          <ul>
+            <li>
+              <a href="part0007.html#sub24">2.1　在不同的操作系统上搭建Shell编程环境</a>
+              <ul>
+                <li>
+                  <a href="part0007.html#sub25">2.1.1　在Windows上搭建Shell编程环境</a>
+                </li>
+                <li>
+                  <a href="part0007.html#sub26">2.1.2　在Linux上搭建Shell编程环境</a>
+                </li>
+                <li>
+                  <a href="part0007.html#sub27">2.1.3　在FreeBSD上搭建Shell编程环境</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0007.html#sub28">2.2　编辑器的选择</a>
+              <ul>
+                <li>
+                  <a href="part0007.html#sub29">2.2.1　图形化编辑器</a>
+                </li>
+                <li>
+                  <a href="part0007.html#sub30">2.2.2　vi（vim）编辑器</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0007.html#sub31">2.3　系统环境的搭建</a>
+              <ul>
+                <li>
+                  <a href="part0007.html#sub32">2.3.1　Shell配置文件</a>
+                </li>
+                <li>
+                  <a href="part0007.html#sub33">2.3.2　命令别名</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0007.html#sub34">2.4　小结</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0008.html#chapter35">第2篇　Shell编程基础</a>
+      <ul>
+        <li>
+          <a href="part0009.html#chapter36">第3章　变量和引用</a>
+          <ul>
+            <li>
+              <a href="part0009.html#sub37">3.1　深入认识变量</a>
+              <ul>
+                <li>
+                  <a href="part0009.html#sub38">3.1.1　什么是变量</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub39">3.1.2　变量的命名</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub40">3.1.3　变量的类型</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub41">3.1.4　变量的定义</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub42">3.1.5　变量和引号</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub43">3.1.6　变量的作用域</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub43a">3.1.7　系统变量</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub44">3.1.8　环境变量</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0009.html#sub45">3.2　变量赋值和清空</a>
+              <ul>
+                <li>
+                  <a href="part0009.html#sub46">3.2.1　变量赋值</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub47">3.2.2　引用变量的值</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub48">3.2.3　清除变量</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0009.html#sub49">3.3　引用和替换</a>
+              <ul>
+                <li>
+                  <a href="part0009.html#sub50">3.3.1　引用</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub51">3.3.2　全引用</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub52">3.3.3　部分引用</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub53">3.3.4　命令替换</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub53a">3.3.5　转义</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0009.html#sub54">3.4　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0010.html#chapter55">第4章　条件测试和判断语句</a>
+          <ul>
+            <li>
+              <a href="part0010.html#sub56">4.1　条 件 测 试</a>
+              <ul>
+                <li>
+                  <a href="part0010.html#sub57">4.1.1　条件测试的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub58">4.1.2　字符串测试</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub59">4.1.3　整数测试</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub60">4.1.4　文件测试</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub61">4.1.5　逻辑操作符</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0010.html#sub62">4.2　条件判断语句</a>
+              <ul>
+                <li>
+                  <a href="part0010.html#sub63">4.2.1　使用简单的if语句进行条件判断</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub64">4.2.2　使用if else语句进行流程控制</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub65">4.2.3　使用if elif语句进行多条件判断</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub66">4.2.4　使用exit语句退出程序</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0010.html#sub67">4.3　多条件判断语句case</a>
+              <ul>
+                <li>
+                  <a href="part0010.html#sub68">4.3.1　多条件判断语句case的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub69">4.3.2　利用case语句处理选项参数</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub70">4.3.3　利用case语句处理用户输入</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0010.html#sub71">4.4　运 算 符</a>
+              <ul>
+                <li>
+                  <a href="part0010.html#sub72">4.4.1　算术运算符</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub73">4.4.2　位运算符</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub74">4.4.3　自增/自减运算符</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub75">4.4.4　数字常量的进制</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0010.html#sub76">4.5　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0011.html#chapter77">第5章　循 环 结 构</a>
+          <ul>
+            <li>
+              <a href="part0011.html#sub78">5.1　步进循环语句for</a>
+              <ul>
+                <li>
+                  <a href="part0011.html#sub79_1">5.1.1　带列表的for循环语句</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub79">5.1.2　不带列表的for循环语句</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub80">5.1.3　类C风格的for循环语句</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub81">5.1.4　使用for循环语句处理数组</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0011.html#sub82">5.2　until循环语句</a>
+              <ul>
+                <li>
+                  <a href="part0011.html#sub83">5.2.1　until语句的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub84">5.2.2　利用until语句批量增加用户</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0011.html#sub85">5.3　while循环语句</a>
+              <ul>
+                <li>
+                  <a href="part0011.html#sub86">5.3.1　while语句的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub87">5.3.2　通过计数器控制while循环结构</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub88">5.3.3　通过结束标记控制while循环结构</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub89">5.3.4　理解while语句与until语句的区别</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0011.html#sub90">5.4　嵌 套 循 环</a>
+            </li>
+            <li>
+              <a href="part0011.html#sub91">5.5　利用break和continue语句控制循环</a>
+              <ul>
+                <li>
+                  <a href="part0011.html#sub92">5.5.1　利用break语句控制循环</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub93">5.5.2　利用continue语句控制循环</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub94">5.5.3　分析break语句和continue语句的区别</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0011.html#sub95">5.6　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0012.html#chapter96">第6章　函数</a>
+          <ul>
+            <li>
+              <a href="part0012.html#sub97">6.1　函数</a>
+              <ul>
+                <li>
+                  <a href="part0012.html#sub98">6.1.1　什么是函数</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub99">6.1.2　函数的定义</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub100">6.1.3　函数的调用</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub101">6.1.4　函数链接</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub102">6.1.5　函数的返回值</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub103">6.1.6　函数和别名</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub104">6.1.7　再议全局变量和局部变量</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0012.html#sub105">6.2　函 数 参 数</a>
+              <ul>
+                <li>
+                  <a href="part0012.html#sub106">6.2.1　含有参数的函数的调用方法</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub107">6.2.2　获取函数参数的个数</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub108">6.2.3　通过位置变量接收参数值</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub109">6.2.4　移动位置参数</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub110">6.2.5　通过getopts接收函数参数</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub111">6.2.6　间接参数传递</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub112">6.2.7　通过全局变量传递数据</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub113">6.2.8　传递数组参数</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0012.html#sub114">6.3　函数库文件</a>
+              <ul>
+                <li>
+                  <a href="part0012.html#sub115">6.3.1　函数库文件的定义</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub116">6.3.2　函数库文件的调用</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0012.html#sub117">6.4　递 归 函 数</a>
+            </li>
+            <li>
+              <a href="part0012.html#sub118">6.5　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0013.html#chapter119">第7章　数组</a>
+          <ul>
+            <li>
+              <a href="part0013.html#sub120">7.1　定 义 数 组</a>
+              <ul>
+                <li>
+                  <a href="part0013.html#sub121">7.1.1　通过指定元素值来定义数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub122">7.1.2　通过declare语句定义数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub123">7.1.3　通过元素值集合定义数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub124">7.1.4　通过键值对定义数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub125">7.1.5　数组和普通变量</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0013.html#sub126">7.2　数组的赋值</a>
+              <ul>
+                <li>
+                  <a href="part0013.html#sub127">7.2.1　按索引为元素赋值</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub128">7.2.2　通过集合为数组赋值</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub129">7.2.3　在数组末尾追加新元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub130">7.2.4　通过循环为数组元素赋值</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0013.html#sub131">7.3　访 问 数 组</a>
+              <ul>
+                <li>
+                  <a href="part0013.html#sub132">7.3.1　访问第1个数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub133">7.3.2　通过下标访问数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub134">7.3.3　计算数组的长度</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub135">7.3.4　通过循环遍历数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub136">7.3.5　引用所有的数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub137">7.3.6　以切片方式获取部分数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub138">7.3.7　数组元素的替换</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0013.html#sub139">7.4　删 除 数 组</a>
+              <ul>
+                <li>
+                  <a href="part0013.html#sub140">7.4.1　删除指定数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub141">7.4.2　删除整个数组</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0013.html#sub142">7.5　数组的其他操作</a>
+              <ul>
+                <li>
+                  <a href="part0013.html#sub143">7.5.1　复制数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub144">7.5.2　连接数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub145">7.5.3　加载文件内容到数组</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0013.html#sub146">7.6　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0014.html#chapter147">第8章　正则表达式</a>
+          <ul>
+            <li>
+              <a href="part0014.html#sub148">8.1　什么是正则表达式</a>
+              <ul>
+                <li>
+                  <a href="part0014.html#sub149">8.1.1　为什么使用正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub150">8.1.2　如何学习正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub150a">8.1.3　如何实践正则表达式</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0014.html#sub151">8.2　正则表达式基础</a>
+              <ul>
+                <li>
+                  <a href="part0014.html#sub152">8.2.1　正则表达式的原理</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub153">8.2.2　基本正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub154">8.2.3　扩展正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub155">8.2.4　Perl正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub156">8.2.5　正则表达式字符集</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0014.html#sub157">8.3　正则表达式应用</a>
+              <ul>
+                <li>
+                  <a href="part0014.html#sub158">8.3.1　匹配单个字符</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub159">8.3.2　匹配多个字符</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub160">8.3.3　匹配字符串的开头或者结尾</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub161">8.3.4　运算符优先级</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub162">8.3.5　子表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub163">8.3.6　通配符</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0014.html#sub164">8.4　grep命令</a>
+              <ul>
+                <li>
+                  <a href="part0014.html#sub165">8.4.1　grep命令的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub166">8.4.2　grep命令族简介</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0014.html#sub167">8.5　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0015.html#chapter168">第9章　基本文本处理</a>
+          <ul>
+            <li>
+              <a href="part0015.html#sub169">9.1　使用echo命令输出文本</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub170">9.1.1　显示普通字符串</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub171">9.1.2　显示转义字符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub172">9.1.3　显示变量</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub173">9.1.4　换行和不换行</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub174">9.1.5　显示命令执行结果</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub175">9.1.6　echo命令执行结果的重定向</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub176">9.2　文本的格式化输出</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub177">9.2.1　使用UNIX制表符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub178">9.2.2　使用fold命令格式化行</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub179">9.2.3　使用fmt命令格式化段落</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub180">9.2.4　使用rev命令反转字符顺序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub181">9.2.5　使用pr命令格式化文本页</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub182">9.3　使用sort命令对文本排序</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub183">9.3.1　sort命令的基本用法</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub184">9.3.2　使用单个关键字排序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub185">9.3.3　根据指定的列排序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub186">9.3.4　根据关键字降序排序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub187">9.3.5　数值列的排序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub188">9.3.6　自定义列分隔符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub189">9.3.7　删除重复的行</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub190">9.3.8　根据多个关键字排序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub191">9.3.9　使用sort命令合并文件</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub192">9.4　文本的统计</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub193">9.4.1　输出含有行号的文本行</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub194">9.4.2　统计行数</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub195">9.4.3　统计单词数和字符数</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub196">9.5　使用cut命令选取文本列</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub197">9.5.1　cut命令及其语法</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub198">9.5.2　选择指定的文本列</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub199">9.5.3　选择指定数量的字符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub200">9.5.4　排除不包含列分隔符的行</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub201">9.6　使用paste命令拼接文本列</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub202">9.6.1　paste命令及其语法</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub203">9.6.2　自定义列分隔符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub204">9.6.3　拼接指定的文本列</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub205">9.7　使用join命令联接文本列</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub206">9.7.1　join命令及其语法</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub207">9.7.2　指定联接关键字列</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub208">9.7.3　内联接文本文件</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub209">9.7.4　左联接文本文件</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub210">9.7.5　右联接文本文件</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub211">9.7.6　全联接文本文件</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub212">9.7.7　自定义输出列</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub213">9.8　使用tr命令替换文件内容</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub214">9.8.1　tr命令及其语法</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub215">9.8.2　去除重复出现的字符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub216">9.8.3　删除空行</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub216a">9.8.4　大小写转换</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub216b">9.8.5　删除指定字符</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub217">9.9　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0016.html#chapter218">第10章　流 编 辑</a>
+          <ul>
+            <li>
+              <a href="part0016.html#sub219">10.1　sed命令及其语法</a>
+              <ul>
+                <li>
+                  <a href="part0016.html#sub220">10.1.1　sed命令以及语法</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub221">10.1.2　sed命令的工作方式</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub222">10.1.3　使用行号定位文本行</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub223">10.1.4　使用正则表达式定位文本行</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0016.html#sub224">10.2　sed命令的常用操作</a>
+              <ul>
+                <li>
+                  <a href="part0016.html#sub225">10.2.1　sed编辑命令基本语法</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub226">10.2.2　选择文本</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub227">10.2.3　替换文本</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub228">10.2.4　删除文本</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub229">10.2.5　追加文本</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub230">10.2.6　插入文本</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0016.html#sub231">10.3　组 合 命 令</a>
+              <ul>
+                <li>
+                  <a href="part0016.html#sub232">10.3.1　使用-e选项执行多个子命令</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub233">10.3.2　使用分号执行多个子命令</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub234">10.3.3　对一个地址使用多个子命令</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub235">10.3.4　sed脚本文件</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0016.html#sub236">10.4　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0017.html#chapter237">第11章　文本处理利器awk命令</a>
+          <ul>
+            <li>
+              <a href="part0017.html#sub238">11.1　awk入门</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub239">11.1.1　awk的功能</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub240">11.1.2　awk命令的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub241">11.1.3　awk的工作流程</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub242">11.1.4　执行awk程序的几种方式</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub246">11.2　awk的模式匹配</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub247">11.2.1　关系表达式</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub248">11.2.2　正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub249">11.2.3　混合模式</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub250">11.2.4　区间模式</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub243">11.2.5　BEGIN模式</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub251">11.2.6　END模式</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub252">11.3　变量</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub253">11.3.1　变量的定义和引用</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub254">11.3.2　系统内置变量</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub255">11.3.3　记录分隔符和字段分隔符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub256">11.3.4　记录和字段的引用</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub257">11.4　运算符和表达式</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub258">11.4.1　算术运算符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub259">11.4.2　赋值运算符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub260">11.4.3　条件运算符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub261">11.4.4　逻辑运算符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub262">11.4.5　关系运算符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub263">11.4.6　其他运算符</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub264">11.5　函数</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub265">11.5.1　字符串函数</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub266">11.5.2　算术函数</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub267">11.6　数组</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub268">11.6.1　数组的定义和赋值</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub269">11.6.2　遍历数组</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub270">11.7　流 程 控 制</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub271">11.7.1　if语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub272">11.7.2　while语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub273">11.7.3　do…while语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub274">11.7.4　for语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub275">11.7.5　break语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub276">11.7.6　continue语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub277">11.7.7　next语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub278">11.7.8　exit语句</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub279">11.8　awk程序的格式化输出</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub280">11.8.1　基本print语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub281">11.8.2　格式化输出printf语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub282">11.8.3　使用sprintf()函数生成格式化字符串</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub283">11.9　awk的程序与Shell的交互</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub284">11.9.1　通过管道实现与Shell的交换</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub285">11.9.2　通过system函数实现与Shell的交互</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub286">11.10　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0018.html#chapter287">第12章　文件的操作</a>
+          <ul>
+            <li>
+              <a href="part0018.html#sub288">12.1　文件</a>
+              <ul>
+                <li>
+                  <a href="part0018.html#sub289">12.1.1　列出文件</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub290">12.1.2　文件类型</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub291">12.1.3　文件的权限</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0018.html#sub292">12.2　查 找 文 件</a>
+              <ul>
+                <li>
+                  <a href="part0018.html#sub293">12.2.1　find命令以及语法</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub294">12.2.2　find命令：路径</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub295">12.2.3　find命令：测试</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub296">12.2.4　find命令：使用!运算符对测试求反</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub297">12.2.5　find命令：处理文件权限错误信息</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub298">12.2.6　find命令：动作</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0018.html#sub299">12.3　比 较 文 件</a>
+              <ul>
+                <li>
+                  <a href="part0018.html#sub300">12.3.1　使用comm比较文件</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub301">12.3.2　使用diff比较文件</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0018.html#sub302">12.4　文件描述符</a>
+              <ul>
+                <li>
+                  <a href="part0018.html#sub303">12.4.1　什么是文件描述符</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub304">12.4.2　标准输入、标准输出和标准错误</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0018.html#sub305">12.5　重 定 向</a>
+              <ul>
+                <li>
+                  <a href="part0018.html#sub306">12.5.1　输出重定向（覆盖）</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub307">12.5.2　输出重定向（追加）</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub308">12.5.3　输入重定向</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub309">12.5.4　当前文档</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub310">12.5.5　重定向两个文件描述符</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub311">12.5.6　使用exec命令分配文件描述符</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0018.html#sub312">12.6　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0019.html#chapter313">第13章　子Shell与进程处理</a>
+          <ul>
+            <li>
+              <a href="part0019.html#sub314">13.1　子Shell</a>
+              <ul>
+                <li>
+                  <a href="part0019.html#sub315">13.1.1　什么是子Shell</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub316">13.1.2　内部命令、保留字和外部命令</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub317">13.1.3　在子Shell中执行命令</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub318">13.1.4　把子Shell中的变量值传回父Shell</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0019.html#sub319">13.2　进 程 处 理</a>
+              <ul>
+                <li>
+                  <a href="part0019.html#sub320">13.2.1　什么是进程</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub321">13.2.2　通过脚本监控进程</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub322">13.2.3　作业控制</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub322a">13.2.4　信号与trap命令</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0019.html#sub323">13.3　小结</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0020.html#chapter324">第3篇　Shell编程实战</a>
+      <ul>
+        <li>
+          <a href="part0021.html#chapter325">第14章　Shell脚本调试技术</a>
+          <ul>
+            <li>
+              <a href="part0021.html#sub326">14.1　Shell脚本中的常见错误</a>
+              <ul>
+                <li>
+                  <a href="part0021.html#sub327">14.1.1　常见语法错误</a>
+                </li>
+                <li>
+                  <a href="part0021.html#sub328">14.1.2　常见逻辑错误</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0021.html#sub329">14.2　Shell脚本调试技术</a>
+              <ul>
+                <li>
+                  <a href="part0021.html#sub330">14.2.1　使用echo命令调试脚本</a>
+                </li>
+                <li>
+                  <a href="part0021.html#sub331">14.2.2　使用trap命令调试Shell脚本</a>
+                </li>
+                <li>
+                  <a href="part0021.html#sub332">14.2.3　使用tee命令调试Shell脚本</a>
+                </li>
+                <li>
+                  <a href="part0021.html#sub333">14.2.4　使用调试钩子调试Shell脚本</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0021.html#sub334">14.3　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0022.html#chapter335">第15章　利用Shell脚本解决实际问题</a>
+          <ul>
+            <li>
+              <a href="part0022.html#sub336">15.1　编写系统服务脚本</a>
+              <ul>
+                <li>
+                  <a href="part0022.html#sub337">15.1.1　系统启动过程</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub338">15.1.2　运行级别</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub339">15.1.3　服务脚本的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub340">15.1.4　编写MySQL服务脚本</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0022.html#sub341">15.2　通过脚本管理Apache服务器日志</a>
+              <ul>
+                <li>
+                  <a href="part0022.html#sub342">15.2.1　Apache以及日志文件简介</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub343">15.2.2　备份归档文件名生成函数</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub344">15.2.3　过期日志备份归档函数</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub345">15.2.4　过期日志删除函数</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub346">15.2.5　日志归档主程序</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub347">15.2.6　定时运行日志归档脚本</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0022.html#sub348">15.3　小结</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0023.html#chapter336">附录CD</a>
+    </li>
+  </ul>
+</div>
+
+
+  </div>
+  
+
+  <div class="calibreEbNav">
+    
+      <a href="part0016.html" class="calibreAPrev">previous page</a>
+    
+
+    <a href="../../pARZf2.html" class="calibreAHome"> start</a>
+
+    
+      <a href="part0018.html" class="calibreANext"> next page</a>
+    
+  </div>
+
+</div>
+
+</body>
+</html>
