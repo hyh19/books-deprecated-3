@@ -1,0 +1,2870 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+    <title>第4章　条件测试和判断语句</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+
+  
+
+
+<link href="../calibreHtmlOutBasicCss.css" type="text/css" rel="stylesheet" />
+
+</head>
+<body>
+
+<div class="calibreMeta">
+  <div class="calibreMetaTitle">
+  
+  
+    
+    <h1>
+      <a href="../../pARZf2.html">Shell从入门到精通
+</a>
+    </h1>
+    
+    
+  
+  </div>
+  <div class="calibreMetaAuthor">
+    张春晓
+
+  </div>
+</div>
+
+<div class="calibreMain">
+
+  <div class="calibreEbookContent">
+    
+      <div class="calibreEbNavTop">
+        
+          <a href="part0009.html" class="calibreAPrev">previous page</a>
+        
+
+        
+          <a href="part0011.html" class="calibreANext"> next page</a>
+        
+      </div>
+    
+
+    
+    <div class="chapter">
+      <div class="calibre2"></div><h1 class="kindle-cn-heading" id="chapter55"><a href="part0004.html#toc55" class="calibre3">第4章<br class="chapter"/>条件测试和判断语句</a>
+      </h1>
+<p class="kindle-cn-para-left">作为一个实用的、能够解决实际问题的Shell程序，必须能够根据执行过程中的各种实际情况来做出正确的选择。实际上，这也是各种程序设计语言都必须解决的一个问题。</p>
+<p class="kindle-cn-para-left">Shell提供了一系列的条件测试来处理程序执行过程中的各种情况，并做出进一步的操作。本章将介绍各种条件测试的基本语法，以及Shell程序的基本流程控制语句判断语句的使用方法。</p>
+      <p class="kindle-cn-para-left">本章主要涉及的知识点有如下所述。</p>
+      <ul class="kindle-cn-ul-square">
+<li class="calibre5">条件测试：主要介绍Shell程序中的文件、变量、字符串数值，以及逻辑等条件测试。</li>
+        <li class="calibre5">条件判断语句：介绍基本的if、if else，以及if elif语句的使用方法。</li>
+        <li class="calibre5">多条件判断语句case：主要介绍case语句的基本语法，以及使用case语句来解决一些实际问题。</li>
+        <li class="calibre5">运算符：主要介绍Shell中常用的运算符的使用方法，例如算术运算符、位运算符，以及自增、自减运算符等。</li>
+      </ul>
+      <h2 class="kindle-cn-heading1" id="sub56"><a href="part0004.html#toc56" class="calibre8">4.1　条件测试</a>
+      </h2>
+      <p class="kindle-cn-para-left">为了能够正确处理Shell程序运行过程中遇到的各种情况，Shell提供了一组测试运算符。通过这些运算符，Shell程序能够判断某种或者几个条件是否成立。条件测试在各种流程控制语句，例如判断语句和循环语句中发挥了重要的作用，所以，了解和掌握这些条件测试是非常重要的。本节将介绍常见的条件测试。</p>
+      <h3 class="kindle-cn-heading2" id="sub57"><a href="part0004.html#toc57" class="calibre8">4.1.1　条件测试的基本语法</a>
+      </h3>
+<p class="kindle-cn-para-left">在Shell程序中，用户可以使用测试语句来测试指定的条件表达式的条件的真或者假。当指定的条件为真时，整个条件测试的返回值为0；反之，如果指定的条件为假，则条件测试语句的返回值为非0值。对于熟悉其他的程序设计语言，例如Java或者C的用户来说，这一点非常重要，因为在这些语言中，通常情况下，条件表达式的值为真时，整个表达式的值为非0值；而当条件表达式的值为假时，这个表达式的值为0。</p>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">在Shell程序中，条件测试中的指定条件为真时，条件测试的返回值为0。这主要是为了保持与Shell程序的退出状态一致。当某个Shell程序成功执行后，该进程会返回一个0值；而如果该程序执行错误，则会返回一个非0值。</span></p>
+      <p class="kindle-cn-para-left">条件测试的语法有两种，分别是test命令和[命令，下面对这两种语法进行介绍。</p>
+      <p class="kindle-cn-para-left">在绝大部分的Shell中，test都是作为一个内部命令出现的。当然，在某些Shell中，同时也提供了一个相同名称的外部命令。但是，在使用test命令进行条件测试的时候，如果没有指定绝对路径，则使用的都是内部命令。test命令的语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">test expression
+</pre>
+</div>
+<p class="kindle-cn-para-left">其中，参数expression表示需要进行测试的条件表达式，可以由字符串、整数、文件名，以及各种运算符组成。例如，下面的表达式都是有效的条件表达式：</p>
+      <ul class="kindle-cn-ul-square">
+      <li class="calibre5">1 -eq 2</li>
+      <li class="calibre5">‘string’</li>
+      <li class="calibre5">-z ‘string’</li>
+      <li class="calibre5">-e file</li>
+      </ul>
+      <p class="kindle-cn-para-left">在上面的表达式中，第1个用来测试两个整数是否相等；第2个和第3个都是用来测试字符串是否为空；第4个用来测试指定的文件是否存在。关于这些表达式的语法，将在后面的内容中详细介绍。</p>
+      <p class="kindle-cn-para-left">除了使用test命令之外，还有一个内部命令同样可以进行条件测试，该命令的名称为[，这是一个左方括号。与test命令一样，[命令的作用也是对后面的条件表达式进行测试，但是为了增加程序的可读性，Shell要求在条件表达式后面追加一个右方括号]来与前面的[命令配对。因此，[命令的语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">[ expression ]
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的语法中，[是条件测试命令，参数expression是一个条件表达式。其中expression的语法与上面的test命令中的语法完全相同。条件表达式和左右方括号之间都必须有一个空格。</p>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">作为初学者，必须弄清楚一个事实，那就是左方括号[是一个Shell命令，而非条件表达式的一部分。而命令与参数之间必须保留一个空格。正因为如此，在上面的语法中，expression与左右方括号之间也必须都保留一个空格。</span></p>
+      <h3 class="kindle-cn-heading2" id="sub58"><a href="part0004.html#toc58" class="calibre8">4.1.2　字符串测试</a>
+      </h3>
+<p class="kindle-cn-para-left">在任何程序设计语言中，字符串都是最常见的数据类型之一。通常情况下，对于字符串的操作主要包括判断字符串变量是否为空，以及两个字符串是否相等。在Shell中，用户可以通过5种运算符来对字符串进行操作，如表4-1所示。</p>
+<p class="kindle-cn-caption"><span class="kindle-cn-bold">表4-1　字符串运算符</span></p>
+<table cellspacing="0" class="kindle-cn-table-body">
+        <tr class="calibre13">
+          <td class="kindle-cn-table-th">运　算　符</td>
+          <td class="kindle-cn-table-th1">说　明</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">string</td>
+          <td class="kindle-cn-table-dg">判断指定的字符串是否为空</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">string1 = string2</td>
+          <td class="kindle-cn-table-dg">判断两个字符串string1和string2是否相等</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">string1 != string2</td>
+          <td class="kindle-cn-table-dg">判断两个字符串string1和string2是否不相等</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">-n string</td>
+          <td class="kindle-cn-table-dg">判断string是否是非空串</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">-z string</td>
+          <td class="kindle-cn-table-dg">判断string是否是空串</td>
+        </tr>
+      </table>
+      <p class="kindle-cn-para-left">对于表4-1中的第一种运算符，也就是单独给定一个字符串的形式，只能使用test命令来测试是否为空串，而不能使用方括号的方式来测试。对于其他4种运算符，都可以使用test命令或者方括号来进行测试。另外，在进行字符串比较的时候，用引号将字符串界定起来是一个非常好的习惯，即使参与测试的字符串为空串。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例4-1</span>】演示字符串测试的使用方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   # 定义字符串变量
+<span class="kindle-cn-bold">02   [root@linux chapter4]# a="abc"</span>
+03   # 使用 test 命令测试变量 $a 是否为空串
+<span class="kindle-cn-bold">04   [root@linux chapter4]# test $a</span>
+05   # 通过 echo 命令和 $? 环境变量输出测试结果
+<span class="kindle-cn-bold">06   [root@linux chapter4]# echo $?</span>
+07   # 输出结果为 0 ，表示变量 $a 的值不为空
+08   0
+09   # 使用 -n 运算符测试变量 $a 是否不为空
+<span class="kindle-cn-bold">10   [root@linux chapter4]# test -n "$a"</span>
+11   # 输出测试结果
+<span class="kindle-cn-bold">12   [root@linux chapter4]# echo $?</span>
+13   # 测试结果为 0 表示变量为非空字符串
+14   0
+15   # 使用 -z 运算符测试变量 $a 是否为空串
+<span class="kindle-cn-bold">16   [root@linux chapter4]# test -z "$a"</span>
+17   # 测试结果为 1 ，表示变量 $a 不是空串
+<span class="kindle-cn-bold">18   [root@linux chapter4]# echo $?</span>
+19   1
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的例子中，我们都是通过运算符来对一个字符串进行测试。这在后面介绍的Shell程序流程控制中，使用非常普遍。</p>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">在给变量赋值的时候，等号“=”左右两边一定不要有空格；否则，Shell会把空格前面的字符串当做Shell命令。</span></p>
+      <p class="kindle-cn-para-left">另外，对于两个字符串的测试也是很常见的，下面举例说明。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例4-2</span>】演示Shell中比较两个字符串值的方法，命令如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   # 定义变量 $a
+<span class="kindle-cn-bold">02   [root@linux chapter4]# a="hello"</span>
+03   # 定义变量 $b
+<span class="kindle-cn-bold">04   [root@linux chapter4]# b="world"</span>
+05   # 比较 2 个字符串是否相等
+<span class="kindle-cn-bold">06   [root@linux chapter4]# [ "$a" = "$b" ]</span>
+07   # 输出测试结果为 1 ，表示 $a 和 $b 不相等
+<span class="kindle-cn-bold">08   [root@linux chapter4]# echo $?</span>
+09   1
+10   # 测试 $a 和 $b 是否不相等
+<span class="kindle-cn-bold">11   [root@linux chapter4]# test "$a" != "$b"</span>
+12   # 输出测试结果为 0 ，表示 $a 和 $b 不相等
+<span class="kindle-cn-bold">13   [root@linux chapter4]# echo $?</span>
+14   0
+</pre>
+</div>
+      <p class="kindle-cn-para-left">从上面的例子可以得知，包含在双引号中的变量名在引用的时候会被变量的值取代，这称为变量的部分引用。关于变量的引用，已经在3.3节中介绍。</p>
+<p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">$?是一个系统变量，用来获取Shell命令的执行状态。如果执行成功，则返回值为0；否则，返回1。在没有学习流程控制语句之前，本书先使用$?来获取条件测试的结果。</span></p>
+      <p class="kindle-cn-para-left">接下来，再看一些比较特殊的例子。在实际的操作系统环境中，经常会遇到字符串中含有空格的情况。在Shell中，空格也是字符串本身的一部分。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例4-3</span>】说明空格对于字符串比较结果的影响，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   # 定义字符串变量 $a
+<span class="kindle-cn-bold">02   [root@linux chapter4]# a="Hello world. "</span>
+03   # 定义字符串变量 $b
+<span class="kindle-cn-bold">04   [root@linux chapter4]# b="Hello world."</span>
+05   # 测试 $a 和 $b 是否相等
+<span class="kindle-cn-bold">06   [root@linux chapter4]# [ "$a" = "$b" ]</span>
+<span class="kindle-cn-bold">07   [root@linux chapter4]# echo $?</span>
+08   1
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的例子中，字符串变量$a的末尾比$b多了一个空格。从而导致这两个字符串变量的值并不相等。在实际的编程过程中，一定要注意这种情况，避免由于空格问题导致程序错误。</p>
+      <p class="kindle-cn-para-left">另外，在Shell中，字符串中的字母也是区分大小写的，请参见下面的例子。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例4-4</span>】演示字母大小写对于字符串比较结果的影响。在下面的命令中，参与比较的两个字符串的区别仅仅在于字母h的大小写方面，如下所示。</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   # 变量 $a 的第 1 个字母为大写的 H
+<span class="kindle-cn-bold">02   [root@linux chapter4]# a="Hello world."</span>
+03   # 变量 $b 的第 1 个字母为小写的 h
+<span class="kindle-cn-bold">04   [root@linux chapter4]# b="hello world."</span>
+<span class="kindle-cn-bold">05   [root@linux chapter4]# [ "$a" = "$b" ]</span>
+06   # 变量 $a 和 $b 的值不相等
+<span class="kindle-cn-bold">07   [root@linux chapter4]# echo $?</span>
+08   1
+</pre>
+</div>
+      <p class="kindle-cn-para-left">最后，再介绍一个初学者经常遇到的问题。我们执行以下代码：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">01   [root@linux chapter4]# a="Apple"</span>
+<span class="kindle-cn-bold">02   [root@linux chapter4]# b="Orange"</span>
+<span class="kindle-cn-bold">03   [root@linux chapter4]# test "$a"="$b"</span>
+<span class="kindle-cn-bold">04   [root@linux chapter4]# echo $?</span>
+05   0
+</pre>
+</div>
+      <p class="kindle-cn-para-left">从表面上看，这个例子与前面介绍的几个例子并没有太大的区别。其中变量$a的值是“Apple”，变量$b的值是“Orange”。但是，第5行的比较结果的值为0。我们知道，0意味着这两个字符串的值相等。而在第1行和第2行中，这两个变量的值明显是不同的。那么究竟是哪个地方出现了问题呢？</p>
+      <p class="kindle-cn-para-left">实际上，问题就出在第3行中。根据Shell的要求，运算符的左右两边必须保留空格。而在上面的例子中，表达式被写成了以下形式：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">test "$a"="$b"
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在这种情况下，Shell并不认为其中的等号“=”是一个字符串运算符，而看做是一个普通的字符。所以，上面的例子实际上相当于执行以下字符串测试：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux ~]# test "Apple=Orange"</span>
+<span class="kindle-cn-bold">[root@linux ~]# echo $?</span>
+0
+</pre>
+</div>
+      <p class="kindle-cn-para-left">也就是说，实际上是测试某个字符串是否为空。上面的字符串“Apple=Orange”当然不是空串，所以，无论变量$a和$的值是什么，上面的例子的测试结果永远是0。</p>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">在测试运算符“=”、“!=”，以及“-z”等符号的左右两边，一定含有一个空格。</span></p>
+      <h3 class="kindle-cn-heading2" id="sub59"><a href="part0004.html#toc59" class="calibre8">4.1.3　整数测试</a>
+      </h3>
+<p class="kindle-cn-para-left">在程序设计中，两个整数值的比较是经常遇到的情况，也是算术运算中比较简单的运算。例如，当某个Shell程序执行结束后，会返回一个整数值，用户可以根据这个返回值是否大于0来判断程序是否执行成功。</p>
+      <p class="kindle-cn-para-left">与字符串测试类似，整数测试也有两种形式的语法：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">test number1 op number2
+</pre>
+</div>
+      <p class="kindle-cn-para-left">或者</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">[ number1 op number2 ]
+</pre>
+</div>
+      <p class="kindle-cn-para-left">其中，number1和number2分别表示参与比较的两个整数，可以是常量或者变量。op表示运算符。</p>
+      <p class="kindle-cn-para-left">通常情况下，用户会比较两个整数值是否相等或者哪个数值比较大。对于这些运算， Shell都分别提供了相应的运算符。例如，用户可以使用-eq运算符来比较两个整数值是否相等，使用-ne运算符来比较两个整数值是否不相等，使用-gt运算符来测试某个整数是否大于另外一个整数。表4-2列出了常见的整数运算符及其使用方法。</p>
+<p class="kindle-cn-caption"><span class="kindle-cn-bold">表4-2　常见整数运算符</span></p>
+<table cellspacing="0" class="kindle-cn-table-body">
+        <tr class="calibre13">
+          <td class="kindle-cn-table-th">运算符</td>
+          <td class="kindle-cn-table-th1">说　明</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">number1 -eq number2</td>
+          <td class="kindle-cn-table-dg">比较number1是否等于number2。如果相等，测试结果为0</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">number1 -ne number2</td>
+          <td class="kindle-cn-table-dg">比较number1和number2是否不相等。如果number1和number2不相等，测试结果为0</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">number1 -gt number2</td>
+          <td class="kindle-cn-table-dg">比较number1是否大于number2。如果number1大于number2，测试结果为0</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">number1 -lt number2</td>
+          <td class="kindle-cn-table-dg">测试number1是否小于number2。如果number1小于number2，测试结果为0</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">number1 -ge number2</td>
+          <td class="kindle-cn-table-dg">测试number1是否大于等于number2。如果number1大于等于number2，测试结果为0</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">number1 -le number2</td>
+          <td class="kindle-cn-table-dg">测试number1是否小于等于number2。如果number1小于等于number2，测试结果为0</td>
+        </tr>
+      </table>
+      <p class="kindle-cn-para-left">在整数测试中，最简单的方法就是直接比较两个常数的大小，如下面的例子所示。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例4-5</span>】比较两个整数是否相等，命令如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   # 比较整数 12 和 14 是否相等
+<span class="kindle-cn-bold">02   [root@linux chapter4]# [ 12 -eq 14 ]</span>
+<span class="kindle-cn-bold">03   [root@linux chapter4]# echo $?</span>
+04   1
+</pre>
+</div>
+      <p class="kindle-cn-para-left">从上面的执行结果可以得知，12并不等于14。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例4-6</span>】比较两个整数的大小，命令如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   # 比较 12 是否大于 14
+<span class="kindle-cn-bold">02   [root@linux chapter4]# test 12 -gt 14</span>
+<span class="kindle-cn-bold">03   [root@linux chapter4]# echo $?</span>
+04   1
+05   # 比较 12 是否小于 14
+<span class="kindle-cn-bold">06   [root@linux chapter4]# test 12 -lt 14</span>
+<span class="kindle-cn-bold">07   [root@linux chapter4]# echo $?</span>
+08   0
+</pre>
+</div>
+      <p class="kindle-cn-para-left">从上面第4行的输出结果中可以得知，12并不大于14，因此-gt运算的结果为1；从第8行的输出结果可以得知，12小于14，因此-lt运算的结果为0。</p>
+      <p class="kindle-cn-para-left">下面再介绍一下参与比较的一方是整数变量，而非常数的情况，请参见下面的例子。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例4-7</span>】比较变量与常数的大小，命令如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   # 定义整数变量 $x
+<span class="kindle-cn-bold">02   [root@linux chapter4]# x=365</span>
+03   # 比较变量 $x 的值是否等于 365
+<span class="kindle-cn-bold">04   [root@linux chapter4]# test "$x" -eq 365</span>
+<span class="kindle-cn-bold">05   [root@linux chapter4]# echo $?</span>
+06   0
+07   # 比较变量 $x 的值是否大于 364
+<span class="kindle-cn-bold">08   [root@linux chapter4]# test "$x" -gt 364</span>
+<span class="kindle-cn-bold">09   [root@linux chapter4]# echo $?</span>
+10   0
+</pre>
+</div>
+      <p class="kindle-cn-para-left">从第6行可以得知，变量$x的值等于365；而第10行的结果表示变量$x的值大于364。</p>
+      <p class="kindle-cn-para-left">在许多情况下，参与比较的两个操作数往往都是变量，对于这种情况，其操作方法与前面基本相同，下面的例子就演示了这种情况。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例4-8</span>】比较两个变量值的大小。在本例中，首先定义两个整数变量$x和$y，然后判断变量$x是否小于或者等于变量$y，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   # 定义变量 $x
+<span class="kindle-cn-bold">02   [root@linux chapter4]# x=123</span>
+03   # 定义变量 $y
+<span class="kindle-cn-bold">04   [root@linux chapter4]# y=36</span>
+05   # 判断 $x 是否小于或者等于 $y
+<span class="kindle-cn-bold">06   [root@linux chapter4]# [ "$x" -le "$y" ]</span>
+<span class="kindle-cn-bold">07   [root@linux chapter4]# echo $?</span>
+08   1
+</pre>
+</div>
+      <p class="kindle-cn-para-left">从上面第8行的执行结果可以得知，第6行的表达式所表示的条件为假。</p>
+<p class="kindle-cn-para-left">对于初学者来说，经常犯的一个错误就是错误地使用运算符。在进行整数比较的时候，一定要是表4.2列出的运算符。但是，由于受到其他程序设计语言的影响，初学者可能会使用字符串运算符中的“=”和“!=”来进行整数比较，下面的例子就说明了这种情况。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例4-9</span>】使用“=”比较两个整数会导致错误结果，命令如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   # 使用“ = ”运算符比较 2 个整数
+<span class="kindle-cn-bold">02   [root@linux chapter4]# [ 12 = 13 ]</span>
+<span class="kindle-cn-bold">03   [root@linux chapter4]# echo $?</span>
+04   1
+05   # 使用 -eq 运算符比较 2 个整数
+<span class="kindle-cn-bold">06   [root@linux chapter4]# [ 12 -eq 13 ]</span>
+<span class="kindle-cn-bold">07   [root@linux chapter4]# echo $?</span>
+08   1
+</pre>
+</div>
+<p class="kindle-cn-para-left">在上面的例子中，尽管两次比较的结果都是1，表示这两个值不相等。但是，这两次的比较的过程却有本质的区别。其中，第2行的比较实际上是将这两个整数作为字符串来比较的，因此，相当于以下运算：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter4]# [ "12" = "13" ]</span>
+</pre>
+</div>
+      <p class="kindle-cn-para-left">而第6行则是真正地将12和13作为整数值来比较。</p>
+      <p class="kindle-cn-para-left">另外，表4-2列出的运算符仅仅是针对整数运算的。如果使用了非整数，则会出错，如【例4-10】所示，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   # 为变量 $x 赋一个小数值
+<span class="kindle-cn-bold">02   [root@linux chapter4]# x=12.3</span>
+<span class="kindle-cn-bold">03   [root@linux chapter4]# y=12</span>
+<span class="kindle-cn-bold">04   [root@linux chapter4]# [ "$x" -gt "$y" ]</span>
+05   # 给出错误提示
+06   -bash: [: 12.3: integer expression expected
+</pre>
+</div>
+      <p class="kindle-cn-para-left">上面例子的第6行给出了错误信息，提示用户需要整数表达式。</p>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">字符串运算符和整数运算符不可以混用，初学者一定要注意。</span></p>
+      <h3 class="kindle-cn-heading2" id="sub60"><a href="part0004.html#toc60" class="calibre8">4.1.4　文件测试</a>
+      </h3>
+      <p class="kindle-cn-para-left">在任何程序设计语言中，文件的操作都是必不可少的一部分。同样，Shell也提供了许多与文件有关的操作符。通过这些操作符，用户可以对文件的状态进行检测。例如，判断文件是否存在，以及文件是否可读写等。</p>
+      <p class="kindle-cn-para-left">文件测试的语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">test op file
+</pre>
+</div>
+      <p class="kindle-cn-para-left">或者</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">[ op file ]
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的语法中，op表示操作符，常用的操作符参见表4-3，其中file表示要测试的文件名。</p>
+<p class="kindle-cn-caption"><span class="kindle-cn-bold">表4-3　常用文件操作符</span></p>
+<table cellspacing="0" class="kindle-cn-table-body">
+        <tr class="calibre13">
+          <td class="kindle-cn-table-th">操作符</td>
+          <td class="kindle-cn-table-th1">说　明</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">-a file</td>
+          <td class="kindle-cn-table-dg">文件是否存在。如果文件file存在，则结果为0</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">-b file</td>
+          <td class="kindle-cn-table-dg">文件是否存在，且为块文件。如果文件file是一个已经存在的块文件，则结果为0</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">-c file</td>
+          <td class="kindle-cn-table-dg">文件是否存在，且为字符文件。如果file是一个已经存在的字符文件，则结果为0</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">-d file</td>
+          <td class="kindle-cn-table-dg">文件是否存在，且为目录。如果文件file是一个已经存在的目录，则结果为0</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">-e file</td>
+          <td class="kindle-cn-table-dg">同-a操作符</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">-s file</td>
+          <td class="kindle-cn-table-dg">文件的长度是否大于0或者文件为非空文件。如果file是一个非空文件，则结果为0</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">-f file</td>
+          <td class="kindle-cn-table-dg">文件存在，并且为常规文件。如果file是一个已经存在的常规文件，则结果为0</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">-w file</td>
+          <td class="kindle-cn-table-dg">文件是否存在且可写。如果文件file是一个可写文件则结果为0</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">-L file</td>
+          <td class="kindle-cn-table-dg">文件是否存在，并且为符号链接。如果文件file是一个已经存在的符号链接，则结果为0</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">-u file</td>
+          <td class="kindle-cn-table-dg">文件是否设置suid位。如果文件file已经设置了suid位，则结果为0</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">-r file</td>
+          <td class="kindle-cn-table-dg">文件是否存在，并且可读。如果文件file是一个已经存在的可读文件，则结果为0</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">-x file</td>
+          <td class="kindle-cn-table-dg">文件是否存在，并且可执行。如果文件file是一个已经存在的可执行文件，则结果为0</td>
+        </tr>
+      </table>
+      <p class="kindle-cn-para-left">从表4-3中可以看出，文件操作符的功能主要有3个方面，分别是检测文件是否存在、文件的类型，以及文件的访问权限。下面分别对这3个方面的功能进行介绍。</p>
+      <p class="kindle-cn-para-left">在Shell程序中，用户可以通过操作符检测某个特定的文件是否存在。为了便于介绍，我们首先看一下当前目录的内容，如下所示。</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter4]# ll</span>
+total 12
+drwxr-xr-x  2   root        root    4096    Nov  9 14:50    dir1
+-rw-r--r--      1   root    root    12      Nov  9 14:49    file1
+-rw-r--r--      1   root    root     0      Nov  9 14:49    file2
+-rwxr-xr-x  1   root        root    30      Nov  9 15:06    hello.sh
+</pre>
+</div>
+      <p class="kindle-cn-para-left">从上面的执行结果可以得知，当前目录中包含一个目录、两个常规文件，以及一个可执行文件。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例4-11</span>】通过文件操作符来判断文件是否存在，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">01   [root@linux chapter4]# test -a file1</span>
+<span class="kindle-cn-bold">02   [root@linux chapter4]# echo $?</span>
+03   0
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第1行使用test命令配合-a操作符来判断名称为file1的文件是否存在。从第3行的结果中可以得知，这个文件是存在的。这与我们上面列出的目录内容是一致的。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例4-12</span>】判断文件是否存在。在本例中，我们指定一个不存在的文件，以验证操作符能否返回正确的值，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">01   [root@linux chapter4]# [ -a file3 ]</span>
+<span class="kindle-cn-bold">02   [root@linux chapter4]# echo $?</span>
+03   1
+</pre>
+</div>
+      <p class="kindle-cn-para-left">从上面的执行结果可以得知，由于当前目录中并不存在名称为file3的文件，所以第3行的输出结果为1。</p>
+      <p class="kindle-cn-para-left">在某些情况下，用户可能需要判断指定的文件的类型，例如，该文件是否为目录，是否为常规文件，是否为块文件，以及是否为空文件等。这些信息都可以通过操作符来获取，下面分别举例说明。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例4-13</span>】通过操作符判断各种文件类型，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   # 判断文件 dir1 是否为目录
+<span class="kindle-cn-bold">02   [root@linux chapter4]# test -d dir1</span>
+<span class="kindle-cn-bold">03   [root@linux chapter4]# echo $?</span>
+04   0
+05   # 判断文件 file1 是否为常规文件
+<span class="kindle-cn-bold">06   [root@linux chapter4]# test -f file1</span>
+<span class="kindle-cn-bold">07   [root@linux chapter4]# echo $?</span>
+08   0
+09   # 判断 file2 是否为非空文件
+<span class="kindle-cn-bold">10   [root@linux chapter4]# test -s file2</span>
+<span class="kindle-cn-bold">11   [root@linux chapter4]# echo $?</span>
+12   1
+13   # 判断 file1 是否为块文件
+<span class="kindle-cn-bold">14   [root@linux chapter4]# test -b file1</span>
+<span class="kindle-cn-bold">15   [root@linux chapter4]# echo $?</span>
+16   1
+17   # 判断 /dev/sda 是否为块文件
+<span class="kindle-cn-bold">18   [root@linux chapter4]# test -b /dev/sda</span>
+<span class="kindle-cn-bold">19   [root@linux chapter4]# echo $?</span>
+20   0
+21   # 判断 /dev/tty 是否为字符文件
+<span class="kindle-cn-bold">22   [root@linux chapter4]# test -c /dev/tty</span>
+<span class="kindle-cn-bold">23   [root@linux chapter4]# echo $?</span>
+24   0
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第2行使用-d操作符判断指定的文件是否为目录，由于dir1是一个已经存在的目录，所以该操作符的执行结果为0。第6行使用-f操作符判断指定的文件是否为常规文件，由于file1是一个普通的文件，所以该操作符的执行结果为0。第10行使用-s操作符判断指定的文件是否为非空文件，由于file2是一个0字节的文件，所以该操作符的执行结果为1。第14行使用-b操作符判断指定的文件是否为块文件，由于file1是一个常规文件，所以该操作符的执行结果为1；而第18行中的/dev/sda是一个块文件，所以该操作符的执行结果为0。第22行使用-c操作符判断指定的文件是否为字符文件，由于控制终端/dev/tty是一个字符文件，所以该操作符的执行结果为0。</p>
+      <p class="kindle-cn-para-left">通过操作符还可以判断文件的访问权限。在Linux中，文件的访问主要包括读、写、执行，以及是否设置用户ID（setuid）和组ID（setgid）标志等。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例4-14</span>】通过文件测试判断用户对文件的访问权限，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   # 判断文件 file1 是否可写
+<span class="kindle-cn-bold">02   [root@linux chapter4]# test -w file1</span>
+<span class="kindle-cn-bold">03   [root@linux chapter4]# echo $?</span>
+04   0
+05   # 判断文件 file1 是否可读
+<span class="kindle-cn-bold">06   [root@linux chapter4]# test -r file1</span>
+<span class="kindle-cn-bold">07   [root@linux chapter4]# echo $?</span>
+08   0
+09   # 判断文件 file1 是否可执行
+<span class="kindle-cn-bold">10   [root@linux chapter4]# test -x file1</span>
+<span class="kindle-cn-bold">11   [root@linux chapter4]# echo $?</span>
+12   1
+13   # 判断文件 hello.sh 是否可执行
+<span class="kindle-cn-bold">14   [root@linux chapter4]# test -x hello.sh</span>
+<span class="kindle-cn-bold">15   [root@linux chapter4]# echo $?</span>
+16   0
+</pre>
+</div>
+<p class="kindle-cn-para-left">在上面的命令中，第2行使用-w操作符判断当前用户对于指定的文件file1是否拥有写入的权限。由于文件file1的权限为-rw-r--r--，所有者拥有写入的权限，所以该操作符的执行结果为0。第6行是用-r操作符来判断当前用户是否拥有对于文件file1的读取权限，从上面的文件权限中可以得知，所有的用户都拥有读取权限，所以该操作符的执行结果为0。第10行使用-x操作符判断当前用户是否拥有文件file1的执行权限，从上面的权限中可以得知，任何用户都没有执行该文件的权限，所以该操作符的执行结果为1；而文件hello.sh的权限为-rwxr-xr-x，这意味着所有的用户都拥有执行该文件的权限，所以第14行中的-x操作符的执行结果为0。</p>
+      <p class="kindle-cn-para-left">在Linux中，文件的访问权限可以使用chmod命令来设置。关于该命令的详细使用方法，请参考有关书籍。下面举一个简单的例子来说明该命令的使用方法。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例4-15</span>】使用chmod命令为hello.sh文件设置setuid权限，这样的话，执行该文件的用户就会临时拥有该文件所有者所拥有的权限。命令如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">01   [root@linux chapter4]# chmod u+s hello.sh</span>
+<span class="kindle-cn-bold">02   [root@linux chapter4]# ll</span>
+03   total 12
+04   drwxr-xr-x  2   root    root    4096    Nov  9 14:50    dir1
+05   -rw-r--r--  1   root    root    12      Nov  9 14:49    file1
+06   -rw-r--r--  1   root    root     0       Nov  9 14:49    file2
+<span class="kindle-cn-bold">07   -rwsr-xr-x  1   root    root    30      Nov  9 15:06    hello.sh</span>
+<span class="kindle-cn-bold">08   [root@linux chapter4]# test -u hello.sh</span>
+<span class="kindle-cn-bold">09   [root@linux chapter4]# echo $?</span>
+10   0
+</pre>
+</div>
+      <p class="kindle-cn-para-left">第1行使用chmod命令的u+s选项为hello.sh文件设置了setuid权限。我们可以从第7行的文件访问权限属性中的得知，该文件的权限属性为-rwsr-xr-x。第8行使用-u操作符判断hello.sh文件是否设置了用户ID权限，从第10行的输出可以得知，-u操作符返回了正确的结果。</p>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">除了表4-3列出的文件操作符之外，还有其他一些文件操作符，例如-nt表示某个指定的文件修改时间是否比另外一个文件晚，-ot表示某个指定的文件的修改时间是否比另外一个文件早。当执行成功时，这些操作符的执行结果都是0。</span></p>
+<p class="kindle-cn-para-left">在Shell编程中，文件测试应用非常广泛。例如，当在程序中创建了一个新的文件之后，我们可以使用-a或者-e操作符来判断是否创建成功。另外，在写入文件的时候，我们也可以先通过-w操作符判断当前用户是否拥有写入该文件的权限，从而保证程序的正常执行。</p>
+      <h3 class="kindle-cn-heading2" id="sub61"><a href="part0004.html#toc61" class="calibre8">4.1.5　逻辑操作符</a>
+      </h3>
+      <p class="kindle-cn-para-left">前面介绍的字符串测试、整数测试，以及文件测试都是提供了一个测试条件。而在Shell编程中，经常遇到同时判断多个条件的情况。Shell中的逻辑操作符可以将多个不同的条件组合起来，从而构成一个复杂的条件表达式。常用的逻辑操作符如表4-4所示。</p>
+<p class="kindle-cn-caption"><span class="kindle-cn-bold">表4-4　常用的逻辑操作符</span></p>
+<table cellspacing="0" class="kindle-cn-table-body">
+        <tr class="calibre13">
+          <td class="kindle-cn-table-th">操　作　符</td>
+          <td class="kindle-cn-table-th1">说　明</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">! expression</td>
+          <td class="kindle-cn-table-dg">逻辑非，条件表达式expression的值为假，则该操作符的运算结果为真</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">expression1 -a expresion2</td>
+          <td class="kindle-cn-table-dg">逻辑与，条件表达式expression1和expression2的值都是真时，整个表达式的值才为真</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">expression1 -o expression2</td>
+          <td class="kindle-cn-table-dg">逻辑或，条件表达式expression1或者expression2的值有一个为真时，整个表达式的值就为真</td>
+        </tr>
+      </table>
+<p class="kindle-cn-para-left">在表4-4中，一共列出了3个逻辑操作符，分别为逻辑非、逻辑与和逻辑或。其中，逻辑非表示取反，使用感叹号“!”表示。逻辑非只连接一个条件表达式，其执行结果是将该条件表达式的值变成相反的值。因此，如果条件表达式expression的值为真的话，则应用“!”操作符之后，整个表达式的值就为假，反之亦然。</p>
+      <p class="kindle-cn-para-left">逻辑与使用“-a”表示，连接两个条件表达式，只有expression1和expression2的值都为真时，整个表达式的值才为真。</p>
+      <p class="kindle-cn-para-left">逻辑或使用“-o”表示，同样连接两个条件表达式，但是与逻辑与不同之处在于，只要expression1和expression2中有一个条件为真，整个表达式的值就为真。</p>
+<p class="kindle-cn-para-left">正因为逻辑与和逻辑或有上述特点，所以Shell在处理逻辑操作符时，不一定会将整个表达式中的各个条件都计算完成才会得到整个表达式的值。在逻辑与中，如果第一个表达式expression1的值为假，则无论expression2的值是否为假，整个表达式的值必定为假，因此，就无需再去计算expression2的值；在逻辑或中，如果第一个表达式expression1的值为真，则整个表达式的值必定为真，此时也无需计算expression2的值。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例4-16</span>】判断整数变量$a的值是否大于20，并且小于60，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   # 定义变量 $a
+<span class="kindle-cn-bold">02   [root@linux chapter4]# a=35</span>
+<span class="kindle-cn-bold">03   [root@linux chapter4]# test "$a" -gt 20 -a "$a" -lt 60</span>
+<span class="kindle-cn-bold">04   [root@linux chapter4]# echo $?</span>
+05   0
+</pre>
+</div>
+      <p class="kindle-cn-para-left">从第5行的输出结果中，可以得知整个表达式的值为真。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例4-17</span>】通过条件测试来判断当前用户是否拥有某个文件的写入权限，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">01   [root@linux chapter4]# [ -e file1 -a -w file1 ]</span>
+<span class="kindle-cn-bold">02   [root@linux chapter4]# echo $?</span>
+03   0
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第1行使用-e操作符和-w操作符，分别判断文件file1是否存在和可写，然后使用-a操作符将这两个条件连接起来。第3行的输出结果表示文件file1同时满足这两个条件。</p>
+      <h2 class="kindle-cn-heading1" id="sub62"><a href="part0004.html#toc62" class="calibre8">4.2　条件判断语句</a>
+      </h2>
+      <p class="kindle-cn-para-left">在程序执行的过程中，总会遇到各种各样的情况。而作为一个功能相对完善的程序来说，应该可以根据不同的情况来选择执行不同的代码。此时，我们需要用到条件判断语句。条件判断语句是一种最简单的流程控制语句，该语句使得程序根据不同的条件来执行不同的程序分支。本节将介绍Shell程序设计中的简单的条件判断语句。</p>
+      <h3 class="kindle-cn-heading2" id="sub63"><a href="part0004.html#toc63" class="calibre8">4.2.1　使用简单的if语句进行条件判断</a>
+      </h3>
+      <p class="kindle-cn-para-left">条件判断语句使用if语句来实现。最简单的if语句的语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">if expression
+then
+    statement1
+    statement2
+    ...
+fi
+</pre>
+</div>
+<p class="kindle-cn-para-left">在上面的语法中，expression通常代表一个条件表达式，但是也可以是Shell命令。因为在Shell中，每个命令都会有一个退出状态码，如果某个命令正常退出了，则其退出状态为0；如果执行错误，则其退出状态为通常为非0。这种规定与其他程序设计语言有所不同，因为在绝大部分的程序设计语言里面，0通常表示假，而非0则表示真。所以，读者在学习Shell程序设计的时候，一定要注意这点。</p>
+<p class="kindle-cn-para-left">在if语句中，只有当expression的值为真时，才执行then子句后面的语句。then子句后面可以跟随多条语句，例如statement1、statement2……。当expression的值为真时，会依次执行这些语句。由于Shell没有提供大括号{}来表示代码块，所以需要使用fi关键字来表示if结构的结束。</p>
+      <p class="kindle-cn-para-left">为了使得代码更加紧凑，在某些情况下，我们可以将if子句和then子句写在同一行中。此时，需要在expression表达式后面加上一个分号，如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">if expression; then
+    statement1
+    statement2
+fi
+</pre>
+</div>
+      <p class="kindle-cn-para-left">分号的作用是表示if子句已经结束，后面的代码是then子句。</p>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">在Shell程序中，如果想要将多条命令放在同一行中，则需要使用分号将其隔开。</span></p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例4-18</span>】通过条件测试判断文件类型，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter4/ex4-18.sh------------------
+02   #! /bin/sh
+03   # 使用条件测试判断 /bin/bash 是否是一个常规文件
+04   if [ -f /bin/bash ]
+05      then echo "/bin/bash is a file"
+06   fi
+</pre>
+</div>
+      <p class="kindle-cn-para-left">上面的例子非常简单，其中，第4行通过if语句判断/bin/bash是否是一个常规文件。如果是的话，就通过第5行的echo语句输出一行提示信息。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter4]# ./ex4-18.sh</span>
+/bin/bash is a file
+</pre>
+</div>
+<p class="kindle-cn-para-left">从上面的执行结果可以得知，/bin/bash是一个已经存在的常规文件。通常情况下，当我们在Shell程序创建一个文件的时候，需要判断该目标文件是否创建成功，然后再采取下一步的行动。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例4-19</span>】通过条件测试判断文件是否创建成功，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter4/ex4-19.sh------------------
+02   #! /bin/sh
+03   # 通过 echo 命令和重定向创建一个文件
+04   echo "hello world!" &gt; ./msg.log
+05   if [ -f ./msg.log ]; then echo "file has been created."; fi
+</pre>
+</div>
+      <p class="kindle-cn-para-left">第4行通过echo命令结合重定向操作符在当前目录中创建了一个名称为msg.log的文本文件。第5行通过条件测试来判断msg.log文件是否存在。如果文件已经存在，则表示文件创建成功；否则，表示文件创建失败。出于测试的目的，在上面的例子中，如果文件创建成功，只是简单地输出一行提示信息。</p>
+      <p class="kindle-cn-para-left">以上程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter4]# ./ex4-19.sh</span>
+file has been crreated.
+</pre>
+</div>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">在if语句中，如果使用条件测试，可以使用test命令，也可以使用方括号[]。</span></p>
+<p class="kindle-cn-para-left">当我们在Shell程序中使用代码创建或者修改某个文件的时候，首先判断一下文件是否创建成功，或者判断文件是否存在是一个非常好的习惯。它有效地避免了许多Shell程序中意想不到的问题。当然，在实际的应用场合，当检测到文件没有创建成功或者不存在的时候，会执行重新创建或者输出错误信息的有关代码，而在上面的例子中，我们只是简单地输出提示信息。</p>
+      <p class="kindle-cn-para-left">在Shell中，还有一个特殊的命令，称为空命令，其表示方法是一个冒号“:”，该命令不做任何事情，但是它的退出状态永远是0。因此，如果我们将该命令作为if语句中的条件，则会永远执行then子句，如下面的例子所示。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例4-20</span>】使用空命令作为判断条件，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter4/ex4-20.sh------------------
+02   #! /bin/sh
+03   # 使用空命令作为条件
+04   if :; then echo "always true"; fi
+</pre>
+</div>
+      <p class="kindle-cn-para-left">由于空命令“:”的退出状态永远是0，所以以上程序的输出结果永远如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter4]# ./ex4-20.sh</span>
+alway true.
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在实际的编程中，有人喜欢使用&amp;&amp;操作符来代替if语句，如下面的例子所示。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例4-21</span>】使用&amp;&amp;操作符代替if语句，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter4/ex4-21.sh------------------
+02   #! /bin/sh
+03   # 使用 &amp;&amp; 操作符代替 if 语句
+04   test "$(whoami)" != "root" &amp;&amp; (echo you are using a non-privileged
+account; exit 1)
+</pre>
+</div>
+      <p class="kindle-cn-para-left">上面代码的第4行是一个比较复杂的语句。在该语句中，首先是一个test条件测试，其测试的内容是whoami命令的执行结果是否不等于root。如果条件为真，则执行&amp;&amp;后面括号中的语句，即输出一行提示信息，然后通过exit语句退出程序。</p>
+      <p class="kindle-cn-para-left">如果以root用户的身份执行【例4-21】，则没任何输出，如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter4]# ./ex4-21.sh</span>
+</pre>
+</div>
+      <p class="kindle-cn-para-left">而当我们切换到其他用户再执行该程序时，则会输出有关提示信息，如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter4]# su - chunxiao</span>
+<span class="kindle-cn-bold">[chunxiao@linux ~]$ ./ex4-21.sh</span>
+you are using a non-privileged account
+</pre>
+</div>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">在使用if语句的时候，一定不要漏掉最后的结束标志fi。否则会出现以下错误：</span></p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter4]# ./ex4-21.sh</span>
+./ex4-21.sh: line 7: syntax error: unexpected end of file
+</pre>
+</div>
+      <h3 class="kindle-cn-heading2" id="sub64"><a href="part0004.html#toc64" class="calibre8">4.2.2　使用if else语句进行流程控制</a>
+      </h3>
+<p class="kindle-cn-para-left">尽管简单的if语句的功能已经非常强大，但是在绝大部分的情况下，我们需要面对的不止一种情况。例如，在4.2.1节的最后一个例子中，我们只是判断了文件创建成功的情况，并且当文件成功之后，会输出一行提示信息。那么当文件创建不成功的时候，则没有任何输出信息，这显然对用户是不友好的。因此，我们需要在文件没有创建成功的时候，为用户给出适当的提示信息。</p>
+      <p class="kindle-cn-para-left">if else语句的基本语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">if expression
+then
+    statement1
+    statement2
+    …
+else
+    statement3
+    statement4
+    …
+fi
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的语法中，expression表示if语句的执行条件，可以是条件表达式或者一个Shell命令。如果expression的值为真，则执行then子句中的语句statement1、statement2……。如果expression的值为假，则执行else子句中的语句，包括statement3、statement4……，最后通过fi关键字结束整个if代码块。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例4-22</span>】说明if else语句的使用方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter4/ex4-22.sh------------------
+02   #! /bin/sh
+03
+04   # 输出提示信息
+05   echo "Please enter a number:"
+06   # 从键盘读取用户输入的数字
+07   read num
+08   # 如果用户输入的数字大于 10
+09   if [ "$num" -gt 10 ]; then
+10          # 输出大于 10 的提示信息
+11      echo "The number is greater than 10."
+12   # 否则
+13   else
+14      # 输出小于或者等于 10 的提示信息
+15          echo "The number is equal to or less than 10."
+16   fi
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第5行输出要求用户输入数字的提示信息。第7行通过read语句从键盘读取用户输入的数字。第9行则通过整数条件测试来判断用户输入的数字是否大于10，如果大于10，则通过第11行输出大于1的信息；否则，通过第15行的echo语句输出用户输入的数字小于或者等于10的提示信息。</p>
+      <p class="kindle-cn-para-left">以上代码的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">01  [root@linux chapter4]# ./ex4-22.sh</span>
+02  Please enter a number:
+<span class="kindle-cn-bold">03  6</span>
+04  The number is equal to or less than 10.
+<span class="kindle-cn-bold">05  [root@linux chapter4]# ./ex4-22.sh</span>
+06  Please enter a number:
+<span class="kindle-cn-bold">07  12</span>
+08  The number is greater than 10.
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的命令执行的过程中，第3行输入数字6，第4行则输出用户输入的数字小于或者等于10的提示信息。当我们在第7行中输入数字12之后，程序则在第8行输出数字大于10的提示信息。</p>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">在【例4-22】中，我们接收了用户输入的数据之后，就直接与给定的数值进行比较了。但是在实际的生产环境中，用户可能没有输入任何东西，而是直接按回车键，或者输入其他非数字的字符。对于这些情况，我们通常可以先用一个外层的if else语句进行判断，使得只有符合要求的数据才能进入内部的if else语句进行比较。这样的话，可以提高程序的健壮性。</span></p>
+      <p class="kindle-cn-para-left">实际上，if else语句不仅可以处理比较简单的两个分支的情况，还可以通过嵌套来处理多个分支的情况，下面的例子就说明了这种情况。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例4-23</span>】演示如何通过if else语句根据学生的百分制成绩来输出五分制成绩，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter4/ex4-23.sh------------------
+02   #! /bin/sh.
+03
+04   # 输出提示信息
+05   echo "Please enter a score:"
+06   # 读取用户输入数据
+07   read score
+08   # 如果用户没有输入数据，则提示用户重新输入
+09   if [ -z "$score" ]; then
+10      echo "You enter nothing.Please enter a score:"
+11      read score
+12   else
+13      # 如果用户输入的数据不对，则重新输入
+14      if [ "$score" -lt 0 -o "$score" -gt 100 ]; then
+15         echo "The score should be between 0 and 100.Please enter again:"
+16         read score
+17      else
+18      # 输出级别 A
+19      if [ "$score" -ge 90 ]; then
+20         echo "The grade is A."
+21      else
+22         # 输出级别 B
+23         if [ "$score" -ge 80 ]; then
+24            echo "The grade is B."
+25         else
+26            # 输出级别 C
+27            if [ "$score" -ge 70 ]; then
+28               echo "The grade is C."
+29            else
+30               # 输出级别 D
+31               if [ "$score" -ge 60 ]; then
+32                  echo "The grade is D."
+33               else
+34                  # 输出级别 E
+35                  echo "The grade is E."
+36               fi
+37            fi
+38         fi
+39      fi
+40   fi
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的例子中，程序将用户输入的成绩分成A～E共5个等级。以上程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter4]# ./ex4-23.sh</span>
+Please enter a score:
+<span class="kindle-cn-bold">12</span>
+The grade is E.
+<span class="kindle-cn-bold">[root@linux chapter4]# ./ex4-23.sh</span>
+Please enter a score:
+<span class="kindle-cn-bold">98</span>
+The grade is A.
+<span class="kindle-cn-bold">[root@linux chapter4]# ./ex4-23.sh</span>
+Please enter a score:
+<span class="kindle-cn-bold">77</span>
+The grade is C.
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在前面的例子中，我们分别列举了简单的if else和两层嵌套的if else结构的使用方法。实际上，Shell中的if else结构并没有限制嵌套的层数，因此，用户可以根据自己的需要来灵活地使用这种流程控制结构。</p>
+      <h3 class="kindle-cn-heading2" id="sub65"><a href="part0004.html#toc65" class="calibre8">4.2.3　使用if elif语句进行多条件判断</a>
+      </h3>
+      <p class="kindle-cn-para-left">在【例4-23】中，我们介绍了嵌套的if else语句的使用方法。尽管这种方法可以很好地处理多个分支的情况，但是读者可能会发现一个非常严重的问题，那就是整个程序的条理看起来很不清楚，经常会出现漏掉fi的情况。为此，我们应该寻找更好地能够处理多分支情况的方法。</p>
+      <p class="kindle-cn-para-left">除了if else语句之外，Shell还提供了一个if elif语句，通过该语句，用户可以以比较优雅的方式来处理多分支情况。if elif语句的基本语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">if expression1
+then
+   statement1
+   statement2
+   …
+elif expression2
+then
+   statement3
+   statement4
+   …
+elif expression3
+then
+   statement5
+   statement6
+   …
+else
+   statementn
+   ..
+fi
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的语法中，expression1表示整个if elfi语句结构中的第1个条件表达式，如果该条件表达式的值为真，则执行第1个then子句中的语句statement1及statement2等；否则，继续下面的判断。如果表达式expression2的值为真，则执行第2个then子句中的语句，以此类推。如果所有的条件表达式的值都为假，则执行最后的else子句中的语句。最后是if elif结构的结束标志fi。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例4-24</span>】本例对【例4-23】进行改进，使得该程序的可读性更强，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter4/ex4-24.sh------------------
+02   #! /bin/sh
+03
+04   echo "Please enter a score:"
+05
+06   read score
+07
+08   if [ -z "$score" ]; then
+09      echo "You enter nothing.Please enter a score:"
+10      read score
+11   else
+12      if [ "$score" -lt 0 -o "$score" -gt 100 ]; then
+13         echo "The score should be between 0 and 100.Please enter again:"
+14         read score
+15      else
+16         # 如果成绩大于 90
+17         if [ "$score" -ge 90 ]; then
+18            echo "The grade is A."
+19         # 如果成绩大于 80 且小于 90
+20         elif [ "$score" -ge 80 ]; then
+21            echo "The grade is B."
+22         # 如果成绩大于 70 且小于 80
+23         elif [ "$score" -ge 70 ]; then
+24            echo "The grade is C."
+25         # 如果成绩大于 60 且小于 70
+26         elif [ "$score" -ge 60 ]; then
+27            echo "The grade is D."
+28         # 如果成绩小于 60
+29         else
+30            echo "The grade is E."
+31         fi
+32      fi
+33   fi
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的程序中，我们用一个if elif语句来代替多层嵌套的if else语句，从而使得整个程序的可读性大大增强。关于该程序的执行方法与【例4-23】完全相同。</p>
+      <h3 class="kindle-cn-heading2" id="sub66"><a href="part0004.html#toc66" class="calibre8">4.2.4　使用exit语句退出程序</a>
+      </h3>
+<p class="kindle-cn-para-left">在Shell程序执行的过程中，有时用户可能需要在满足某个条件的时候退出程序的执行。在这种情况下，我们可以通过if语句配合exit语句来实现。exit语句的基本作用是终止Shell程序的执行。除此之外，exit语句还可以带一个可选的参数，用来指定程序退出时的状态码。exit语句的基本语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">exit status
+</pre>
+</div>
+<p class="kindle-cn-para-left">其中，status参数表示退出状态，该参数是一个整数值，其取值范围为0～255。与其他的Shell命令的一样，Shell程序的退出状态也储存在系统变量$?中，因此，用户可以通过该变量取得Shell程序返回给父进程的退出状态码。</p>
+      <p class="kindle-cn-para-left">按照惯例，退出状态0意味着脚本成功运行完毕；而非0通常意味着程序执行过程出现某些错误，具体的错误可以根据具体的状态码来判断。正因为如此，用户可以用其他的非0值来给父进程传递不同的消息，根据子进程的成功或者失败，父进程采取不同的动作。如果没有参数给exit语句，则脚本的退出状态码就由脚本中最后执行的语句来决定，也就是由exit语句之前的那条语句的执行状态来决定。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例4-25</span>】演示在不同的情况下，程序返回不同的状态码，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter4/ex4-25.sh------------------
+02   #! /bin/sh
+03
+04   # 使用 echo 语句输出字符串
+05   echo hello world!
+06
+07   # 使用 $? 变量获取 echo 语句的执行状态
+08   echo $?
+09
+10   # 执行一个无效的命令
+11   aaa
+12   # 输出执行状态
+13   echo $?
+14
+15   # 退出
+16   exit 120
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第5行使用echo语句输出一个字符串。第8行输出上一条语句的退出状态。第11行是一个无效的命令，正因为无效，所以该语句会执行失败，第13行输出了这条无效命令的退出状态码。第16行使用exit语句退出程序，并且指定返回状态为120。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">01   [root@linux chapter4]# ./ex4-25.sh</span>
+02   hello world!
+03   0
+04   ./ex4-25.sh: line 11: aaa: command not found
+05   127
+</pre>
+</div>
+<p class="kindle-cn-para-left">其中，执行结果第3行输出的是代码中第5行的echo语句的退出状态。执行结果第5行的127是代码中第11行的无效命令的执行状态，我们可以发现，成功执行的语句的退出状态为0，而执行错误的语句的退出状态为非0。因为代码中的最后一行的exit语句执行后整个程序就退出了，所以没有输出状态码，我们可以在Shell中通过以下命令获取：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter4]# echo $?</span>
+120
+</pre>
+</div>
+      <p class="kindle-cn-para-left">从上面的执行结果可以发现，ex4-25.sh这个脚本的退出状态码为120。</p>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">尽管用户可以在程序中设置自己的退出状态码，但是通常情况下每个状态码都有特定的涵义，因此在返回这些状态码的时候一定要注意，避免执行脚本时产生误解。</span></p>
+      <p class="kindle-cn-para-left">通常情况下，exit语句与if语句相互配合可以更灵活地控制程序的流程，请参考下面的例子。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例4-26</span>】使用if和exit语句，使得程序在适当的时候退出。代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter4/ex4-26.sh------------------
+02   #! /bin/sh
+03
+04   # 如果文件已经存在，则直接退出
+05   if [ -e "$1" ]
+06   then
+07      echo "file $1 exists."
+08      exit 1
+09   # 如果文件不存在，则创建文件
+10   else
+11      touch "$1"
+12      echo "file $1 has been created."
+13      exit 0
+14   fi
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第5行判断用户输入的文件名是否存在，如果已经存在，则通过第7行输出提示信息，第8行通过exit语句退出程序，并且设置退出状态码为1；如果文件不存在，则通过第11行创建指定的文件，第12行输出提示信息，第13行通过exit语句退出程序，并且设置退出状态码为0。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter4]# ./ex4-26.sh /bin/ls</span>
+file /bin/ls exists.
+<span class="kindle-cn-bold">[root@linux chapter4]# echo $?</span>
+1
+<span class="kindle-cn-bold">[root@linux chapter4]# ./ex4-26.sh ./demo.txt</span>
+file ./demo.txt has been created.
+<span class="kindle-cn-bold">[root@linux chapter4]# echo $?</span>
+0
+</pre>
+</div>
+<p class="kindle-cn-para-left">从上面的执行结果可以得知，当指定的文件存在时，程序的退出状态码为1；当指定的文件不存在的时候，程序的退出状态码为0。这些退出状态码可以提供给其他程序，使得其他程序能够根据【例4-26】的执行结果而采取相应的动作。</p>
+      <h2 class="kindle-cn-heading1" id="sub67"><a href="part0004.html#toc67" class="calibre8">4.3　多条件判断语句case</a>
+      </h2>
+      <p class="kindle-cn-para-left">4.2节介绍了通过if elif语句来处理多分支的情况。实际上，与大多数程序设计语言一样，Shell也提供了一个专门处理多分支情况的语句，即case语句。通过使用case语句，可以使得程序更加有条理性，本节将介绍case语句的使用方法。</p>
+      <h3 class="kindle-cn-heading2" id="sub68"><a href="part0004.html#toc68" class="calibre8">4.3.1　多条件判断语句case的基本语法</a>
+      </h3>
+      <p class="kindle-cn-para-left">case语句的基本语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">case variable in
+value<sub class="calibre16">1</sub>)
+   statement<sub class="calibre16">1</sub>
+   statement<sub class="calibre16">2</sub>
+   ...
+   statement<sub class="calibre16">n</sub>;;
+value<sub class="calibre16">2</sub>)
+   statement<sub class="calibre16">1</sub>
+   statement<sub class="calibre16">2</sub>
+   ...
+   statement<sub class="calibre16">n</sub>;;
+value<sub class="calibre16">3</sub>)
+   statement<sub class="calibre16">1</sub>
+   statement<sub class="calibre16">2</sub>
+   ...
+   statement<sub class="calibre16">n</sub>;;
+...
+value<sub class="calibre16">n</sub>)
+   statement<sub class="calibre16">1</sub>
+   statement<sub class="calibre16">2</sub>
+   ...
+   statement<sub class="calibre16">n</sub>;;
+*)
+   statement<sub class="calibre16">1</sub>
+   statement<sub class="calibre16">2</sub>
+   ...
+   statement<sub class="calibre16">n</sub>;;
+esac
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的语法中，variable是一个变量，case语句会将该变量的值与value<span class="math-sub">1</span>～value<span class="math-sub">n</span>中的每个值相比较，如果与某个value的值相等，则执行该value所对应的一组语句。当遇到“;;”符号时，就跳出case语句，执行esac语句后面的语句。如果没有任何一个值与variable的值相匹配，则执行*后面的一组语句。</p>
+      <p class="kindle-cn-para-left">对于上面的case语句，用户应该注意以下几点：</p>
+      <ul class="kindle-cn-ul-square">
+      <li class="calibre5">对于变量名variable，可以使用双引号，也可以不使用。</li>
+      <li class="calibre5">每个case子句中的条件测试部分，都以右括号“)”结束。</li>
+<li class="calibre5">每个case子句都以一对分号“;;”作为结束符。在脚本执行的过程中，当遇到一对分号时，会跳过当前case子句后面的所有的case子句，包括*所对应的子句，执行esac子句后面的其他的语句。</li>
+      <li class="calibre5">case语句结构以esac结尾。这与if语句以fi结尾是一样的，都是以前面一个单词的所有字母的逆序排列作为结束标记。</li>
+      </ul>
+      <h3 class="kindle-cn-heading2" id="sub69"><a href="part0004.html#toc69" class="calibre8">4.3.2　利用case语句处理选项参数</a>
+      </h3>
+      <p class="kindle-cn-para-left">使用case语句来处理选项参数在Shell中非常普遍，尤其是/etc/init.d目录中服务脚本，几乎都含有一个或者多个case语句。例如，下面给出的是Java应用服务器Resin的一个服务脚本的部分代码：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">…
+01   case "$1" in
+02      # 启动服务
+03      start)
+04           log_daemon_msg "Starting resin"
+05           # 如果变量 USER 不为空，则切换到 USER 身份，启动 Resin 服务
+06           if test -n "$USER"; then
+07               su $USER -c """$RESIN_EXE $ARGS $START_ARGS $START_CMD""" 1&gt;&gt;
+$CONSOLE 2&gt;&gt; $CONSOLE
+08           else
+09               # 输出错误
+10               errors='$RESIN_EXE $ARGS $START_CMD 2&gt;&amp;1'
+11               if [ $? != 0 ]; then
+12                   log_daemon_msg $errors
+13               fi
+14           fi
+15
+16           log_end_msg $?
+17           ;;
+18     # 停止服务
+19     stop)
+20           log_daemon_msg "Stopping resin"
+21           if test -n "$USER"; then
+22             su $USER -c """$RESIN_EXE $ARGS shutdown""" 1&gt;&gt; $CONSOLE 2&gt;&gt;
+$CONSOLE
+23           else
+24               errors='$RESIN_EXE $ARGS shutdown 2&gt;&amp;1'
+25               if [ $? != 0 ]; then
+26                   log_daemon_msg $errors
+27               fi
+28           fi
+29
+30           log_end_msg $?
+31           ;;
+32     # 查看服务状态
+33     status)
+34           $RESIN_EXE $ARGS status || exit 3
+35           ;;
+36     # 重新启动服务
+37     restart)
+38           $0 stop
+39           $0 start
+40           ;;
+41     # 其他情况
+42     *)
+43           echo "Usage: $0 {start|stop|status|restart}"
+44           exit 1
+45   esac
+…
+</pre>
+</div>
+<p class="kindle-cn-para-left">在上面的代码中，第1行通过系统变量$1接收用户执行命令时的参数，这些参数可以取4个值，分别是start、stop、status及restart，其涵义分别表示启动Resin服务、停止Resin服务、查看Resin服务状态，以及重新启动Resin服务。在每个子句中，都有一组执行相应操作的语句。如果用户输入了这4个值以外的参数，则执行*对应的子句，提示用户使用方法。</p>
+      <p class="kindle-cn-para-left">我们可以通过以下方法来对Resin服务执行相应的操作。例如，下面的命令启动Resin服务：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux init.d]# /etc/init.d/resin start</span>
+Starting resin: .
+</pre>
+</div>
+      <p class="kindle-cn-para-left">而以下命令查看Resin服务的状态：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux init.d]# /etc/init.d/resin status</span>
+Resin/4.0.30 status for watchdog at 127.0.0.1:6600
+watchdog:
+  watchdog-pid: 22583
+server 'app-0' : ACTIVE
+  password: missing
+  watchdog-user: root
+  user: resin(resin)
+  root: /var/resin
+  conf: /etc/resin/resin.xml
+  uptime: 0 days 00h00
+</pre>
+</div>
+      <p class="kindle-cn-para-left">以下命令停止Resin服务：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux init.d]# /etc/init.d/resin stop</span>
+Stopping resin: .
+</pre>
+</div>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">在适当的时候使用case语句可以提高程序的可读性。</span></p>
+      <h3 class="kindle-cn-heading2" id="sub70"><a href="part0004.html#toc70" class="calibre8">4.3.3　利用case语句处理用户输入</a>
+      </h3>
+      <p class="kindle-cn-para-left">除了处理参数之外，使用case语句还可以处理用户多种不同的输入，从而根据不同的数据执行不同的代码，请参见下面的例子。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例4-27</span>】说明case语句的使用方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter4/ex4-27.sh------------------
+02   #! /bin/sh
+03
+04   # 输出提示信息
+05   echo "Hit a key,then hit return."
+06   # 读取用户按下的键
+07   read keypress
+08   #case 语句开始
+09   case "$keypress" in
+10      # 小写字母
+11      [[:lower:]])
+12         echo "Lowercase letter.";;
+13      # 大写字母
+14      [[:upper:]])
+15         echo "Uppercase letter.";;
+16      # 单个数字
+17      [0-9])
+18         echo "Digit.";;
+19      # 其他字符
+20      *)
+21         echo "other letter.";;
+22   esac
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第7行读取用户按下的键；第9行是case语句的开始，将变量keypress作为条件变量；第11行测试变量keypress对应的键值是否是小写字母，如果是小写字母，则输出相应的提示；第14行测试变量keypress的对应的键值是否是大写字母；第17行测试变量keypress对应的键值是否是0～9之间的数字；第20行使用星号匹配其他的情况。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">01   [root@linux chapter4]# ./ex4-27.sh</span>
+02   Hit a key,then hit return.
+<span class="kindle-cn-bold">03   a</span>
+04   Lowercase letter.
+<span class="kindle-cn-bold">05   [root@linux chapter4]# ./ex4-27.sh</span>
+06   Hit a key,then hit return.
+<span class="kindle-cn-bold">07   B</span>
+08   Uppercase letter.
+<span class="kindle-cn-bold">09   [root@linux chapter4]# ./ex4-27.sh</span>
+10   Hit a key,then hit return.
+<span class="kindle-cn-bold">11   8</span>
+12   Digit.
+<span class="kindle-cn-bold">13   [root@linux chapter4]# ./ex4-27.sh</span>
+14   Hit a key,then hit return.
+<span class="kindle-cn-bold">15   ?</span>
+16   other letter.
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在第3行中，输入了一个小写字母a，第7行输入了一个大写字母B，第11行输入一个数字8，第15行输入一个问号。程序分别根据用户输入的字符进行相应的输出。</p>
+      <h2 class="kindle-cn-heading1" id="sub71"><a href="part0004.html#toc71" class="calibre8">4.4　运算符</a>
+      </h2>
+<p class="kindle-cn-para-left">关于运算符，在4.1节中已经介绍了一些，例如字符串运算符、数值运算符，以及文件运算符等。关于这些运算符的详细使用方法，请参考表4-1。除了这些运算符之外，还有其他的与数值有关的运算符，例如算术运算符、位运算符，以及自增/自减运算符等，本节将介绍这些运算符的使用方法。</p>
+      <h3 class="kindle-cn-heading2" id="sub72"><a href="part0004.html#toc72" class="calibre8">4.4.1　算术运算符</a>
+      </h3>
+      <p class="kindle-cn-para-left">与其他的程序设计语言一样，Shell中的算术运算符也主要包括加（+）、减（-）、乘（*）、除（/）、求余（%），以及幂运算（**）等。表4-5列出了常用的算术运算符及其使用方法。</p>
+      <p class="kindle-cn-para-left">另外，在Linux Shell中，用户可以通过4种方式来执行算术运算，这4种方式分别如下。</p>
+<p class="kindle-cn-caption"><span class="kindle-cn-bold">表4-5　常用算术运算符及其用法</span></p>
+<table cellspacing="0" class="kindle-cn-table-body">
+        <tr class="calibre13">
+          <td class="kindle-cn-table-th">运算符</td>
+          <td class="kindle-cn-table-th1">说　明</td>
+          <td class="kindle-cn-table-th1">举　例</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">+</td>
+          <td class="kindle-cn-table-dg">求2个数的和</td>
+          <td class="kindle-cn-table-dg">例如1+5是求1和5的和</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">-</td>
+          <td class="kindle-cn-table-dg">求2个数的差</td>
+          <td class="kindle-cn-table-dg">例如9-3是求9和3的差</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">*</td>
+          <td class="kindle-cn-table-dg">求2个数的乘积</td>
+          <td class="kindle-cn-table-dg">例如2*4是求2和4的乘积</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">/</td>
+          <td class="kindle-cn-table-dg">求2个数的商</td>
+          <td class="kindle-cn-table-dg">例如28/4是求28除以4的商</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">%</td>
+          <td class="kindle-cn-table-dg">求余</td>
+          <td class="kindle-cn-table-dg">例如23%4是求23除以4后的余数，即3</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">**</td>
+          <td class="kindle-cn-table-dg">幂运算</td>
+          <td class="kindle-cn-table-dg">例如3**3是求33的值，即27</td>
+        </tr>
+      </table>
+<p class="kindle-cn-para-left"><span class="kindle-cn-bold">1．使用expr外部程序</span></p>
+      <p class="kindle-cn-para-left">expr是一个Shell命令，可以计算某个表达式的值，其基本语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">expr expression
+</pre>
+</div>
+      <p class="kindle-cn-para-left">其中，expression是要计算的表达式。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例4-28</span>】演示使用expr命令来计算不同的算术运算，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter4/ex4-28.sh------------------
+02   #! /bin/sh
+03
+04   # 计算 2 和 100 的差，即 -98
+05   result='expr 2 - 100'
+06   echo "$result"
+07   # 计算 2 和 100 的和，即 102
+08   result='expr 2 + 100'
+09   echo "$result"
+10   # 计算 2 和 5 的乘积，即 10
+11   result='expr 2 \* 5'
+12   echo "$result"
+13   # 计算 24 和 8 的商，即 3
+14   result='expr 24 / 8'
+15   echo "$result"
+16   # 先计算 2 和 6 的差，然后再乘以 12 ，即 -48
+17   result='expr \( 2 - 6 \) \* 12'
+18   echo "$result"
+19   # 错误的语法
+20   result='expr 2+5'
+21   echo "$result"
+22   # 错误的语法
+23   result='expr 2-4*9'
+24   echo "$result"
+25   # 错误的语法
+26   result='expr 1-(4-7)'
+27   echo "$result"
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，我们使用单反引号“'”将expr和算术表达式引起来。其中第5行计算2和100的差；第8行计算2和100的和；第11行计算2和5的乘积，其中的星号表示乘法运算，而反斜线“\”是转义字符；第14行计算24和8的商；第17行是一个复合运算，先计算括号里面的2和6的差，然后再计算括号外面的乘法；第20行、第23行和第26行是采用紧凑格式来书写算术表达式，即运算符的左右两边没有空格。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">01   [root@linux chapter4]# ./ex4-28.sh</span>
+02   -98
+03   102
+04   10
+05   3
+06   -48
+07   2+5
+08   2-4*9
+09   ./ex4-28.sh: command substitution: line 26: syntax error near unexpected
+token '('
+10   ./ex4-28.sh: command substitution: line 26: 'expr 1-(4-7)'
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的执行结果中，第2行是第5行代码的计算结果，第3行是代码第8行的计算结果，第4行代码是第11行的计算结果，第5行是代码第14行的计算结果，第6行是第17行的计算结果。上述语句都得到了正确的结果。</p>
+      <p class="kindle-cn-para-left">接下来我们再看一下输出结果中的第7行，在这一行中，程序并没有计算2和5的和，而是直接输出了这个表达式。同样，输出结果中的第8行也是直接输出了算术表达式，而非计算结果。第9行和第10行的错误消息是ex4-28.sh文件中第26行和第27行的执行结果。由于在使用expr进行算术运算的时候需要将括号转义，所以上面的语句执行错误。</p>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">在使用运算符时，一定要注意运算符左右两边的空格，否则会得出错误的结果。另外，expr命令不能计算幂运算。另外，在【例4-28】中，使用的是反单引号。</span></p>
+      <p class="kindle-cn-para-left"><span class="kindle-cn-bold">2．使用$((…))</span></p>
+      <p class="kindle-cn-para-left">使用这种形式来进行算术运算写法比较自由，无需对运算符和括号做转义处理，可以采用松散或者紧凑的格式来书写表达式。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例4-29</span>】演示如何使用$((..))符号进行算术运算，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter4/ex4-29.sh------------------
+02   #! /bin/sh
+03
+04   # 紧凑格式，计算 3 和 6 的和
+05   result=$((3+6))
+06   echo "$result"
+07   # 松散格式，计算 3 和 9 的和
+08   result=$(( 3 + 9 ))
+09   echo "$result"
+10   # 计算 3 和 6 的乘积
+11   reuslt=$(( 3 * 6 ))
+12   echo "$result"
+13   # 计算 7 和 5 的商
+14   result=$(( 7 / 5 ))
+15   echo "$result"
+16   # 计算 8 和 3 的余数
+17   result=$(( 8 % 3 ))
+18   echo "$result"
+19   # 复合运算
+20   result=$(( ( 1-4 ) * 5 ))
+21   echo "$result"
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第5行采用紧凑格式来书写算术表达式，即运算符左右没有空格；第8行采用松散格式来书写算术表达式；第11行执行的是乘法运算，没有将乘法运算符星号进行转义处理；第14行执行除法运算；第17行执行求余数运算；第20行是一个复合运算，其中的括号也没有进行转义处理。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter4]# ./ex4-29.sh</span>
+9
+12
+12
+1
+2
+-15
+</pre>
+</div>
+      <p class="kindle-cn-para-left">从上面的执行结果可以得知，使用$((…))来执行算术运算非常灵活。</p>
+      <p class="kindle-cn-para-left"><span class="kindle-cn-bold">3．使用$[…]</span></p>
+      <p class="kindle-cn-para-left">使用一个方括号同样可以执行算术运算，这种语法的特点与使用两个圆括号相同，无论是采用紧凑格式还是松散格式，都可以得到正确的结果。另外，算术表达式中的星号和圆括号也无需转义处理。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例4-30</span>】演示如何使用方括号来进行算术运算，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter4/ex4-30.sh------------------
+02   #! /bin/sh
+03
+04   # 加法运算
+05   result=$[4+5]
+06   echo "$result"
+07   # 复合运算
+08   result=$[(1+2)*3]
+09   echo "$result"
+10   # 幂运算
+11   result=$[ 2 ** 4 ]
+12   echo "$result"
+</pre>
+</div>
+      <p class="kindle-cn-para-left">以上程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter4]# ./ex4-30.sh</span>
+9
+9
+16
+</pre>
+</div>
+      <p class="kindle-cn-para-left"><span class="kindle-cn-bold">4．使用let命令</span></p>
+      <p class="kindle-cn-para-left">使用let命令可以执行一个或者多个算术表达式，其中的变量名无需使用$符号。如果表达式中含有空格或者其他特殊字符，则必须将其引用起来。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例4-31</span>】演示使用let命令来执行算术运算，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter4/ex4-31.sh------------------
+02   #! /bin/sh
+03
+04   # 定义变量
+05   n=10
+06   # 加法运算
+07   let n=n+1
+08   echo "$n"
+09   # 乘法运算
+10   let n=n*10
+11   echo "$n"
+12   # 幂运算
+13   let n=n**2
+14   echo "$n"
+</pre>
+</div>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter4]# ./ex4-31.sh</span>
+11
+110
+12100
+</pre>
+</div>
+      <p class="kindle-cn-para-left">除了表4-5列出的运算符之外，还有一些复合算术运算符，如表4-6所示。</p>
+<p class="kindle-cn-caption"><span class="kindle-cn-bold">表4-6　复合算术运算符</span></p>
+<table cellspacing="0" class="kindle-cn-table-body">
+        <tr class="calibre13">
+          <td class="kindle-cn-table-th">运算符</td>
+          <td class="kindle-cn-table-th1">说　明</td>
+          <td class="kindle-cn-table-th1">举　例</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">+=</td>
+          <td class="kindle-cn-table-dg">将左边的数加上右边的数，然后再将和赋给左边的变量</td>
+          <td class="kindle-cn-table-dg">例如，3 += 5等于8</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">-=</td>
+          <td class="kindle-cn-table-dg">将左边的数减去右边的数，然后再将差赋给左边的变量</td>
+          <td class="kindle-cn-table-dg">例如，5 -= 2等于3</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">*=</td>
+          <td class="kindle-cn-table-dg">将左边的数乘以右边的数，然后将积赋给左边的变量</td>
+          <td class="kindle-cn-table-dg">例如，2 *= 8等于16</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">/=</td>
+          <td class="kindle-cn-table-dg">将左边的数除以右边的数，然后再将商赋给左边的变量</td>
+          <td class="kindle-cn-table-dg">例如，6 /= 3等于2</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">%=</td>
+          <td class="kindle-cn-table-dg">将左边的数对右边的数求模之后，再赋给左边的变量</td>
+          <td class="kindle-cn-table-dg">例如，22 /= 3等于1</td>
+        </tr>
+      </table>
+      <p class="kindle-cn-para-left">关于这些运算符的使用方法，不再详细说明。</p>
+      <h3 class="kindle-cn-heading2" id="sub73"><a href="part0004.html#toc73" class="calibre8">4.4.2　位运算符</a>
+      </h3>
+<p class="kindle-cn-para-left">对于Shell编程来说，位运算可能使用的比较少，在此只是进行简单地介绍。位运算通常出现在整数间，它针对的不是整个整数，而是其二进制表示形式中的某个或者某些位（bit）。例如，2&gt;&gt;1是将二进制形式的2，即10，左移1位，从而变成100，即4。表4-7列出了常用的位运算符。</p>
+<p class="kindle-cn-caption"><span class="kindle-cn-bold">表4-7　常用位运算符</span></p>
+<table cellspacing="0" class="kindle-cn-table-body">
+        <tr class="calibre13">
+          <td class="kindle-cn-table-th">运算符</td>
+          <td class="kindle-cn-table-th1">说　明</td>
+          <td class="kindle-cn-table-th1">举　例</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">&lt;&lt;</td>
+          <td class="kindle-cn-table-dg">左移</td>
+          <td class="kindle-cn-table-dg">4 &lt;&lt; 2，将4左移2位，结果为16</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">&gt;&gt;</td>
+          <td class="kindle-cn-table-dg">右移</td>
+          <td class="kindle-cn-table-dg">8 &gt;&gt; 2，将8右移2位，结果为2</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">&amp;</td>
+          <td class="kindle-cn-table-dg">按位与</td>
+          <td class="kindle-cn-table-dg">8 &amp;&amp; 4，将8和4进行按位与运算，结果为0</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">|</td>
+          <td class="kindle-cn-table-dg">按位或</td>
+          <td class="kindle-cn-table-dg">8 | 4，将8和4进行按位或运算，结果为12</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">～</td>
+          <td class="kindle-cn-table-dg">按位非</td>
+          <td class="kindle-cn-table-dg">～8，将8进行按位非运算，结果为-9</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">^</td>
+          <td class="kindle-cn-table-dg">按位异或</td>
+          <td class="kindle-cn-table-dg">10 ^ 6，将10和6进行按二进制位异或运算，结果为12</td>
+        </tr>
+      </table>
+<p class="kindle-cn-para-left">在表4-7中列出的运算符中，左移运算符“&lt;&lt;”是将整个数字的所有二进制位左移相应的数量，每左移1位，相当于将当前的数字乘以2。右移运算符“&gt;&gt;”是将整个数字的所有二进制位右移相应的数量，每右移1位，相当于将当前的数字除以2。按位与“&amp;”将两个数字的每个二进制位进行与运算。如果这两个位都是1，则运算结果就是1；如果两个位中有任何一个为0，则运算结果就是0。</p>
+      <p class="kindle-cn-para-left">按位或“|”的运算过程与按位与基本相同，不同之处在于参与按位或运算的两个位中只要有一个位为1，则运算结果就为1；只有两个位都是0的情况下，运算结果才为0。按位非“～”的运算过程是将参与运算的数字的每个二进制位进行非运算，即将原来的1变成0，而将0变成1。按位异或运算的过程与按位与或者按位非基本相同，但是在按位异或的过程中，只要参与运算的两个位的值相同，即同时为0或者同时为1，其运算结果就是1；否则，运算结果为0。</p>
+      <p class="kindle-cn-para-left">如图4-1和图4-2所示，分别描述了左移和右移的过程。在图4-1中，上面的数字为4，将二进制形式的4左移2位，右边空出的位补0，最后变成了16。</p>
+<p class="kindle-cn-para-left">同理，在图4-2中，上面的数字为8，将二进制形式的8向右移动2位，右边的0去掉，最后变成了2。关于其他位运算，其过程大致相同，不再详细说明。下面举例说明移位运算的方法。</p>
+      <div class="chapter">
+        <div class="kindle-cn-image">
+          <p class="kindle-cn-para-center">
+            <img alt="alt237" src="../images/00041.jpeg" class="calibre15"/>
+          </p>
+          <p class="kindle-cn-caption">图4-1　左移运算</p>
+        </div>
+      </div>
+      <div class="chapter">
+        <div class="kindle-cn-image">
+          <p class="kindle-cn-para-center">
+            <img alt="alt238" src="../images/00042.jpeg" class="calibre15"/>
+          </p>
+          <p class="kindle-cn-caption">图4-2　右移运算</p>
+        </div>
+      </div>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例4-32</span>】演示位运算符的使用方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter4/ex4-32.sh------------------
+02   #! /bin/sh
+03
+04   # 左移运算
+05   result=$[ 2 &lt;&lt; 3 ]
+06   echo "$result"
+07   # 右移运算
+08   result=$[ 8 &gt;&gt; 2 ]
+09   echo "$result"
+10   # 按位与运算
+11   result=$[ 8 &amp; 4 ]
+12   echo "$result"
+13   # 按位非运算
+14   result=$[ ~8 ]
+15   echo "$result"
+16   # 按位异或运算
+17   result=$[ 10 ^ 6 ]
+18   echo "$result"
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第5行执行左移运算，第8行执行右移运算，第11行执行按位与运算，第14行执行按位非运算，第17行执行按位异或运算。在本例中，我们采用的是$[]的语法来执行算术运算。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter4]# ./ex4-32.sh</span>
+16
+2
+0
+-9
+12
+</pre>
+</div>
+      <p class="kindle-cn-para-left">除了简单的按位运算符之外，还有一些复合位运算符，表4-8列出了常用的复合位运算符。</p>
+<p class="kindle-cn-caption"><span class="kindle-cn-bold">表4-8　复合位运算符</span></p>
+<table cellspacing="0" class="kindle-cn-table-body">
+        <tr class="calibre13">
+          <td class="kindle-cn-table-th">运算符</td>
+          <td class="kindle-cn-table-th1">说　明</td>
+          <td class="kindle-cn-table-th1">举　例</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">&lt;&lt;=</td>
+          <td class="kindle-cn-table-dg">将变量的值左移指定位数之后重新赋给该变量</td>
+          <td class="kindle-cn-table-dg">x&lt;&lt;=3，将x的值左移3位，重新赋给变量x</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">&gt;&gt;=</td>
+          <td class="kindle-cn-table-dg">将变量的值右移指定位数之后重新赋给该变量</td>
+          <td class="kindle-cn-table-dg">x&gt;&gt;=4，将变量x的值右移4位后重新赋给变量x</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">&amp;=</td>
+          <td class="kindle-cn-table-dg">将变量的值与指定的数值按位与之后重新赋给该变量</td>
+          <td class="kindle-cn-table-dg">x&amp;=8，将变量x的值与8按位与运算之后重新赋给变量x</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">|=</td>
+          <td class="kindle-cn-table-dg">将变量的值与指定的数值按位或之后重新赋给该变量</td>
+          <td class="kindle-cn-table-dg">x|=7，将变量x的值与7执行按位或运算之后重新赋给变量x</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">^=</td>
+          <td class="kindle-cn-table-dg">将变量的值与指定的数值按位异或之后重新赋给该变量</td>
+          <td class="kindle-cn-table-dg">x^=9，将变量x的值与9执行按位异或运算之后重新赋给变量x</td>
+        </tr>
+      </table>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例4-33</span>】演示表4-8中列出的复合位运算符的使用方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter4/ex4-33.sh------------------
+02   #! /bin/sh
+03
+04   # 定义变量 x
+05   x=5
+06   # 执行左移赋值复合运算
+07   let "x&lt;&lt;=4"
+08   echo "$x"
+09   # 执行右移赋值复合运算
+10   let "x&gt;&gt;=2"
+11   echo "$x"
+12   # 执行按位或赋值运算
+13   let "x|=2"
+14   echo "$x"
+</pre>
+</div>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter4]# ./ex4-33.sh</span>
+80
+20
+22
+</pre>
+</div>
+      <p class="kindle-cn-para-left">至于如何得到上面的执行结果，请读者参照图4-2中的位运算方法，就可以得出结论。</p>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">复合运算符针对的都是变量。这是因为只有变量才有赋值的操作。</span></p>
+      <h3 class="kindle-cn-heading2" id="sub74"><a href="part0004.html#toc74" class="calibre8">4.4.3　自增/自减运算符</a>
+      </h3>
+<p class="kindle-cn-para-left">在Shell中，还有一类称为自增或者自减的运算符，这类运算符的作用是将某个变量自动加1或者减1。这类运算符一共有4种，分别是前置自增、前置自减、后置自增和后置自减，如表4-9所示。</p>
+<p class="kindle-cn-caption"><span class="kindle-cn-bold">表4-9　自增/自减运算符</span></p>
+<table cellspacing="0" class="kindle-cn-table-body">
+        <tr class="calibre13">
+          <td class="kindle-cn-table-th">运算符</td>
+          <td class="kindle-cn-table-th1">说　明</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">++variable</td>
+          <td class="kindle-cn-table-dg">先将变量variable的值加1，然后再赋给variable</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">--variable</td>
+          <td class="kindle-cn-table-dg">先将变量variable的值减1，然后再赋给variable</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">variable++</td>
+          <td class="kindle-cn-table-dg">先使用variable的值，然后再将该变量的值加1</td>
+        </tr>
+        <tr class="calibre13">
+          <td class="kindle-cn-table-dg1a">variable--</td>
+          <td class="kindle-cn-table-dg">先使用variable的值，然后再将该变量的值减1</td>
+        </tr>
+      </table>
+      <p class="kindle-cn-para-left">在表4-9中列出的运算符中，前置运算符都是先执行运算，然后再使用表达式的值；而后置运算符则是先使用表达式的值，然后再执行自增或者自减运算。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例4-34</span>】演示自增或者自减运算符的使用方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter4/ex4-34.sh------------------
+02   #! /bin/sh
+03
+04   # 定义变量 x
+05   x=5
+06   # 将变量 x 先自增，然后再计算表达式的值
+07   x=$[ x + (++x) ]
+08   echo "$x"
+09   # 将变量先自减，然后再计算表达式的值
+10   x=$[ --x ]
+11   echo "$x"
+12   # 先计算表达式的值，然后再自增
+13   x=$((x++))
+14   echo "$x"
+15   # 先计算表达式的值，然后再自减
+16   x=$(( x-- ))
+17   echo "$x"
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第5行定义变量x，并且赋值为5。第7行是一个复合表达式，程序会先执行括号中的++x，将x的值加1，从而变成6，然后再与括号外面的变量x相加，而此时括号外面的变量x的值仍然是5，因此整个表达式的值为11。第10行执行的是前置自减运算，程序会先将x的值减1，从而变成10，然后再将该值赋给变量x。第13行执行的是后置自增运算，因此，整个表达式的值应该是x自增前的值，即10，执行完第13行之后，x的值变为11。第16行执行后置自减运算，先将变量x的值自减，变成10，然后再将10赋给变量x。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter4]# ./ex4-34.sh</span>
+11
+10
+10
+10
+</pre>
+</div>
+      <p class="kindle-cn-para-left">对于上面的结果，读者可以对比上面的分析来理解是如何得来的。</p>
+      <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">无论是自增还是自减运算，都是针对变量而言的。不要对常量或者表达式执行自增或者自减运算，例如5++或者++(4+x)都是错误的。并且自增或者自减运算只能针对整数。</span></p>
+      <h3 class="kindle-cn-heading2" id="sub75"><a href="part0004.html#toc75" class="calibre8">4.4.4　数字常量的进制</a>
+      </h3>
+<p class="kindle-cn-para-left">默认情况下，Shell总是以十进制来表示数字。但是，用户也可以在Shell中使用其他进制来表示数字，例如二进制、八进制和十六进制。在Shell中，用户可以使用两种语法来表示不同的进制，首先是增加前缀，例如以0开头的数字表示八进制，以0x开头的数字表示十六进制。第二种语法是使用井号“#”，例如2#1000表示二进制，8#42表示八进制。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例4-35</span>】演示不同的进制的表示方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter4/ex4-35.sh------------------
+02   #! /bin/sh
+03
+04   # 十进制 20
+05   ((x=20))
+06   echo "$x"
+07   # 八进制 20
+08   ((x=020))
+09   echo "$x"
+10   # 十六进制 20
+11   ((x=0x20))
+12   echo "$x"
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的代码中，第5行的数字没有任何前缀，则表示这个数字是十进制数字；第8行的数字使用了前缀0，表示这是用八进制表示的数字；第11行的数字使用了前缀0x，表示这是一个用十六进制表示的数字。</p>
+      <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter4]# ./ex4-35.sh</span>
+20
+16
+32
+</pre>
+</div>
+      <p class="kindle-cn-para-left">在上面的输出结果中，最后输出的全部是以十进制表示的数字。</p>
+      <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例4-36</span>】演示使用井号“#”来表示不同进制的方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter4/ex4-36.sh------------------
+02   #! /bin/sh
+03
+04   # 二进制
+05   ((x="2#100000"))
+06   echo "$x"
+07   # 八进制
+08   ((x=8#123))
+09   echo "$x"
+10   # 十六进制
+11   ((x=16#32))
+12   echo "$x"
+</pre>
+</div>
+      <p class="kindle-cn-para-left">其执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter4]# ./ex4-36.sh</span>
+32
+83
+50
+</pre>
+</div>
+      <h2 class="kindle-cn-heading1" id="sub76"><a href="part0004.html#toc76" class="calibre8">4.5　小结</a>
+      </h2>
+      <p class="kindle-cn-para-left">本章深入探讨了条件测试、简单条件判断语句、多条件判断语句，以及运算符的使用方法等。主要内容包括条件测试的基本语法、字符串测试、数值测试、文件测试、逻辑操作符、简单的if else语句、if elif语句、case语句，以及算术运算符、位运算符和自增、自减运算符等。重点在于掌握基本的条件测试的语法，以及条件判断的使用方法。在下一章中，我们将介绍另外一种流程控制语句，即循环结构。</p>
+    </div>
+  
+
+  </div>
+
+  
+  <div class="calibreToc">
+    <h2><a href="../../pARZf2.html"> Table of contents</a></h2>
+     <div>
+  <ul>
+    <li>
+      <a href="part0001.html#UGI0-55ac501d2b9f4bebb0296c8a16b339b4">内容简介</a>
+    </li>
+    <li>
+      <a href="part0003.html#2RHM0-55ac501d2b9f4bebb0296c8a16b339b4">前言</a>
+    </li>
+    <li>
+      <a href="part0004.html#3Q280-55ac501d2b9f4bebb0296c8a16b339b4">目录</a>
+    </li>
+    <li>
+      <a href="part0005.html#chapter2">第1篇　认识Shell编程</a>
+      <ul>
+        <li>
+          <a href="part0006.html#chapter3">第1章　Shell入门基础</a>
+          <ul>
+            <li>
+              <a href="part0006.html#sub4">1.1　为什么学习和使用Shell编程</a>
+            </li>
+            <li>
+              <a href="part0006.html#sub5">1.2　什么是Shell</a>
+              <ul>
+                <li>
+                  <a href="part0006.html#sub6">1.2.1　Shell的起源</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub7">1.2.2　Shell的功能</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub8">1.2.3　Shell的分类</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0006.html#sub9">1.3　作为程序设计语言的Shell</a>
+              <ul>
+                <li>
+                  <a href="part0006.html#sub10">1.3.1　交互式程序</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub11">1.3.2　创建脚本</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub12">1.3.3　把脚本设置为可执行</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0006.html#sub13">1.4　向脚本传递参数</a>
+              <ul>
+                <li>
+                  <a href="part0006.html#sub14">1.4.1　Shell脚本的参数</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub15">1.4.2　参数扩展</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0006.html#sub16">1.5　第一个Shell程序：Hello，Bash Shell！</a>
+              <ul>
+                <li>
+                  <a href="part0006.html#sub17">1.5.1　Shell脚本的基本元素</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub18">1.5.2　指定命令解读器</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub19">1.5.3　Shell脚本中的注释和风格</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub20">1.5.4　如何执行Shell程序</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub21">1.5.5　Shell程序的退出状态</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0006.html#sub22">1.6　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0007.html#chapter23">第2章　Shell编程环境的搭建</a>
+          <ul>
+            <li>
+              <a href="part0007.html#sub24">2.1　在不同的操作系统上搭建Shell编程环境</a>
+              <ul>
+                <li>
+                  <a href="part0007.html#sub25">2.1.1　在Windows上搭建Shell编程环境</a>
+                </li>
+                <li>
+                  <a href="part0007.html#sub26">2.1.2　在Linux上搭建Shell编程环境</a>
+                </li>
+                <li>
+                  <a href="part0007.html#sub27">2.1.3　在FreeBSD上搭建Shell编程环境</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0007.html#sub28">2.2　编辑器的选择</a>
+              <ul>
+                <li>
+                  <a href="part0007.html#sub29">2.2.1　图形化编辑器</a>
+                </li>
+                <li>
+                  <a href="part0007.html#sub30">2.2.2　vi（vim）编辑器</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0007.html#sub31">2.3　系统环境的搭建</a>
+              <ul>
+                <li>
+                  <a href="part0007.html#sub32">2.3.1　Shell配置文件</a>
+                </li>
+                <li>
+                  <a href="part0007.html#sub33">2.3.2　命令别名</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0007.html#sub34">2.4　小结</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0008.html#chapter35">第2篇　Shell编程基础</a>
+      <ul>
+        <li>
+          <a href="part0009.html#chapter36">第3章　变量和引用</a>
+          <ul>
+            <li>
+              <a href="part0009.html#sub37">3.1　深入认识变量</a>
+              <ul>
+                <li>
+                  <a href="part0009.html#sub38">3.1.1　什么是变量</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub39">3.1.2　变量的命名</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub40">3.1.3　变量的类型</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub41">3.1.4　变量的定义</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub42">3.1.5　变量和引号</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub43">3.1.6　变量的作用域</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub43a">3.1.7　系统变量</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub44">3.1.8　环境变量</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0009.html#sub45">3.2　变量赋值和清空</a>
+              <ul>
+                <li>
+                  <a href="part0009.html#sub46">3.2.1　变量赋值</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub47">3.2.2　引用变量的值</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub48">3.2.3　清除变量</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0009.html#sub49">3.3　引用和替换</a>
+              <ul>
+                <li>
+                  <a href="part0009.html#sub50">3.3.1　引用</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub51">3.3.2　全引用</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub52">3.3.3　部分引用</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub53">3.3.4　命令替换</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub53a">3.3.5　转义</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0009.html#sub54">3.4　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0010.html#chapter55">第4章　条件测试和判断语句</a>
+          <ul>
+            <li>
+              <a href="part0010.html#sub56">4.1　条 件 测 试</a>
+              <ul>
+                <li>
+                  <a href="part0010.html#sub57">4.1.1　条件测试的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub58">4.1.2　字符串测试</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub59">4.1.3　整数测试</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub60">4.1.4　文件测试</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub61">4.1.5　逻辑操作符</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0010.html#sub62">4.2　条件判断语句</a>
+              <ul>
+                <li>
+                  <a href="part0010.html#sub63">4.2.1　使用简单的if语句进行条件判断</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub64">4.2.2　使用if else语句进行流程控制</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub65">4.2.3　使用if elif语句进行多条件判断</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub66">4.2.4　使用exit语句退出程序</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0010.html#sub67">4.3　多条件判断语句case</a>
+              <ul>
+                <li>
+                  <a href="part0010.html#sub68">4.3.1　多条件判断语句case的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub69">4.3.2　利用case语句处理选项参数</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub70">4.3.3　利用case语句处理用户输入</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0010.html#sub71">4.4　运 算 符</a>
+              <ul>
+                <li>
+                  <a href="part0010.html#sub72">4.4.1　算术运算符</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub73">4.4.2　位运算符</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub74">4.4.3　自增/自减运算符</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub75">4.4.4　数字常量的进制</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0010.html#sub76">4.5　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0011.html#chapter77">第5章　循 环 结 构</a>
+          <ul>
+            <li>
+              <a href="part0011.html#sub78">5.1　步进循环语句for</a>
+              <ul>
+                <li>
+                  <a href="part0011.html#sub79_1">5.1.1　带列表的for循环语句</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub79">5.1.2　不带列表的for循环语句</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub80">5.1.3　类C风格的for循环语句</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub81">5.1.4　使用for循环语句处理数组</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0011.html#sub82">5.2　until循环语句</a>
+              <ul>
+                <li>
+                  <a href="part0011.html#sub83">5.2.1　until语句的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub84">5.2.2　利用until语句批量增加用户</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0011.html#sub85">5.3　while循环语句</a>
+              <ul>
+                <li>
+                  <a href="part0011.html#sub86">5.3.1　while语句的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub87">5.3.2　通过计数器控制while循环结构</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub88">5.3.3　通过结束标记控制while循环结构</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub89">5.3.4　理解while语句与until语句的区别</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0011.html#sub90">5.4　嵌 套 循 环</a>
+            </li>
+            <li>
+              <a href="part0011.html#sub91">5.5　利用break和continue语句控制循环</a>
+              <ul>
+                <li>
+                  <a href="part0011.html#sub92">5.5.1　利用break语句控制循环</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub93">5.5.2　利用continue语句控制循环</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub94">5.5.3　分析break语句和continue语句的区别</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0011.html#sub95">5.6　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0012.html#chapter96">第6章　函数</a>
+          <ul>
+            <li>
+              <a href="part0012.html#sub97">6.1　函数</a>
+              <ul>
+                <li>
+                  <a href="part0012.html#sub98">6.1.1　什么是函数</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub99">6.1.2　函数的定义</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub100">6.1.3　函数的调用</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub101">6.1.4　函数链接</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub102">6.1.5　函数的返回值</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub103">6.1.6　函数和别名</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub104">6.1.7　再议全局变量和局部变量</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0012.html#sub105">6.2　函 数 参 数</a>
+              <ul>
+                <li>
+                  <a href="part0012.html#sub106">6.2.1　含有参数的函数的调用方法</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub107">6.2.2　获取函数参数的个数</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub108">6.2.3　通过位置变量接收参数值</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub109">6.2.4　移动位置参数</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub110">6.2.5　通过getopts接收函数参数</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub111">6.2.6　间接参数传递</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub112">6.2.7　通过全局变量传递数据</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub113">6.2.8　传递数组参数</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0012.html#sub114">6.3　函数库文件</a>
+              <ul>
+                <li>
+                  <a href="part0012.html#sub115">6.3.1　函数库文件的定义</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub116">6.3.2　函数库文件的调用</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0012.html#sub117">6.4　递 归 函 数</a>
+            </li>
+            <li>
+              <a href="part0012.html#sub118">6.5　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0013.html#chapter119">第7章　数组</a>
+          <ul>
+            <li>
+              <a href="part0013.html#sub120">7.1　定 义 数 组</a>
+              <ul>
+                <li>
+                  <a href="part0013.html#sub121">7.1.1　通过指定元素值来定义数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub122">7.1.2　通过declare语句定义数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub123">7.1.3　通过元素值集合定义数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub124">7.1.4　通过键值对定义数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub125">7.1.5　数组和普通变量</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0013.html#sub126">7.2　数组的赋值</a>
+              <ul>
+                <li>
+                  <a href="part0013.html#sub127">7.2.1　按索引为元素赋值</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub128">7.2.2　通过集合为数组赋值</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub129">7.2.3　在数组末尾追加新元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub130">7.2.4　通过循环为数组元素赋值</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0013.html#sub131">7.3　访 问 数 组</a>
+              <ul>
+                <li>
+                  <a href="part0013.html#sub132">7.3.1　访问第1个数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub133">7.3.2　通过下标访问数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub134">7.3.3　计算数组的长度</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub135">7.3.4　通过循环遍历数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub136">7.3.5　引用所有的数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub137">7.3.6　以切片方式获取部分数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub138">7.3.7　数组元素的替换</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0013.html#sub139">7.4　删 除 数 组</a>
+              <ul>
+                <li>
+                  <a href="part0013.html#sub140">7.4.1　删除指定数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub141">7.4.2　删除整个数组</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0013.html#sub142">7.5　数组的其他操作</a>
+              <ul>
+                <li>
+                  <a href="part0013.html#sub143">7.5.1　复制数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub144">7.5.2　连接数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub145">7.5.3　加载文件内容到数组</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0013.html#sub146">7.6　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0014.html#chapter147">第8章　正则表达式</a>
+          <ul>
+            <li>
+              <a href="part0014.html#sub148">8.1　什么是正则表达式</a>
+              <ul>
+                <li>
+                  <a href="part0014.html#sub149">8.1.1　为什么使用正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub150">8.1.2　如何学习正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub150a">8.1.3　如何实践正则表达式</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0014.html#sub151">8.2　正则表达式基础</a>
+              <ul>
+                <li>
+                  <a href="part0014.html#sub152">8.2.1　正则表达式的原理</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub153">8.2.2　基本正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub154">8.2.3　扩展正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub155">8.2.4　Perl正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub156">8.2.5　正则表达式字符集</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0014.html#sub157">8.3　正则表达式应用</a>
+              <ul>
+                <li>
+                  <a href="part0014.html#sub158">8.3.1　匹配单个字符</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub159">8.3.2　匹配多个字符</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub160">8.3.3　匹配字符串的开头或者结尾</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub161">8.3.4　运算符优先级</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub162">8.3.5　子表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub163">8.3.6　通配符</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0014.html#sub164">8.4　grep命令</a>
+              <ul>
+                <li>
+                  <a href="part0014.html#sub165">8.4.1　grep命令的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub166">8.4.2　grep命令族简介</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0014.html#sub167">8.5　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0015.html#chapter168">第9章　基本文本处理</a>
+          <ul>
+            <li>
+              <a href="part0015.html#sub169">9.1　使用echo命令输出文本</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub170">9.1.1　显示普通字符串</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub171">9.1.2　显示转义字符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub172">9.1.3　显示变量</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub173">9.1.4　换行和不换行</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub174">9.1.5　显示命令执行结果</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub175">9.1.6　echo命令执行结果的重定向</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub176">9.2　文本的格式化输出</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub177">9.2.1　使用UNIX制表符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub178">9.2.2　使用fold命令格式化行</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub179">9.2.3　使用fmt命令格式化段落</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub180">9.2.4　使用rev命令反转字符顺序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub181">9.2.5　使用pr命令格式化文本页</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub182">9.3　使用sort命令对文本排序</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub183">9.3.1　sort命令的基本用法</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub184">9.3.2　使用单个关键字排序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub185">9.3.3　根据指定的列排序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub186">9.3.4　根据关键字降序排序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub187">9.3.5　数值列的排序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub188">9.3.6　自定义列分隔符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub189">9.3.7　删除重复的行</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub190">9.3.8　根据多个关键字排序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub191">9.3.9　使用sort命令合并文件</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub192">9.4　文本的统计</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub193">9.4.1　输出含有行号的文本行</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub194">9.4.2　统计行数</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub195">9.4.3　统计单词数和字符数</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub196">9.5　使用cut命令选取文本列</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub197">9.5.1　cut命令及其语法</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub198">9.5.2　选择指定的文本列</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub199">9.5.3　选择指定数量的字符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub200">9.5.4　排除不包含列分隔符的行</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub201">9.6　使用paste命令拼接文本列</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub202">9.6.1　paste命令及其语法</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub203">9.6.2　自定义列分隔符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub204">9.6.3　拼接指定的文本列</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub205">9.7　使用join命令联接文本列</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub206">9.7.1　join命令及其语法</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub207">9.7.2　指定联接关键字列</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub208">9.7.3　内联接文本文件</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub209">9.7.4　左联接文本文件</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub210">9.7.5　右联接文本文件</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub211">9.7.6　全联接文本文件</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub212">9.7.7　自定义输出列</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub213">9.8　使用tr命令替换文件内容</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub214">9.8.1　tr命令及其语法</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub215">9.8.2　去除重复出现的字符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub216">9.8.3　删除空行</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub216a">9.8.4　大小写转换</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub216b">9.8.5　删除指定字符</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub217">9.9　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0016.html#chapter218">第10章　流 编 辑</a>
+          <ul>
+            <li>
+              <a href="part0016.html#sub219">10.1　sed命令及其语法</a>
+              <ul>
+                <li>
+                  <a href="part0016.html#sub220">10.1.1　sed命令以及语法</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub221">10.1.2　sed命令的工作方式</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub222">10.1.3　使用行号定位文本行</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub223">10.1.4　使用正则表达式定位文本行</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0016.html#sub224">10.2　sed命令的常用操作</a>
+              <ul>
+                <li>
+                  <a href="part0016.html#sub225">10.2.1　sed编辑命令基本语法</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub226">10.2.2　选择文本</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub227">10.2.3　替换文本</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub228">10.2.4　删除文本</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub229">10.2.5　追加文本</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub230">10.2.6　插入文本</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0016.html#sub231">10.3　组 合 命 令</a>
+              <ul>
+                <li>
+                  <a href="part0016.html#sub232">10.3.1　使用-e选项执行多个子命令</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub233">10.3.2　使用分号执行多个子命令</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub234">10.3.3　对一个地址使用多个子命令</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub235">10.3.4　sed脚本文件</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0016.html#sub236">10.4　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0017.html#chapter237">第11章　文本处理利器awk命令</a>
+          <ul>
+            <li>
+              <a href="part0017.html#sub238">11.1　awk入门</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub239">11.1.1　awk的功能</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub240">11.1.2　awk命令的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub241">11.1.3　awk的工作流程</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub242">11.1.4　执行awk程序的几种方式</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub246">11.2　awk的模式匹配</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub247">11.2.1　关系表达式</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub248">11.2.2　正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub249">11.2.3　混合模式</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub250">11.2.4　区间模式</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub243">11.2.5　BEGIN模式</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub251">11.2.6　END模式</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub252">11.3　变量</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub253">11.3.1　变量的定义和引用</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub254">11.3.2　系统内置变量</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub255">11.3.3　记录分隔符和字段分隔符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub256">11.3.4　记录和字段的引用</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub257">11.4　运算符和表达式</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub258">11.4.1　算术运算符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub259">11.4.2　赋值运算符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub260">11.4.3　条件运算符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub261">11.4.4　逻辑运算符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub262">11.4.5　关系运算符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub263">11.4.6　其他运算符</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub264">11.5　函数</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub265">11.5.1　字符串函数</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub266">11.5.2　算术函数</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub267">11.6　数组</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub268">11.6.1　数组的定义和赋值</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub269">11.6.2　遍历数组</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub270">11.7　流 程 控 制</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub271">11.7.1　if语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub272">11.7.2　while语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub273">11.7.3　do…while语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub274">11.7.4　for语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub275">11.7.5　break语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub276">11.7.6　continue语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub277">11.7.7　next语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub278">11.7.8　exit语句</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub279">11.8　awk程序的格式化输出</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub280">11.8.1　基本print语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub281">11.8.2　格式化输出printf语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub282">11.8.3　使用sprintf()函数生成格式化字符串</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub283">11.9　awk的程序与Shell的交互</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub284">11.9.1　通过管道实现与Shell的交换</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub285">11.9.2　通过system函数实现与Shell的交互</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub286">11.10　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0018.html#chapter287">第12章　文件的操作</a>
+          <ul>
+            <li>
+              <a href="part0018.html#sub288">12.1　文件</a>
+              <ul>
+                <li>
+                  <a href="part0018.html#sub289">12.1.1　列出文件</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub290">12.1.2　文件类型</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub291">12.1.3　文件的权限</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0018.html#sub292">12.2　查 找 文 件</a>
+              <ul>
+                <li>
+                  <a href="part0018.html#sub293">12.2.1　find命令以及语法</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub294">12.2.2　find命令：路径</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub295">12.2.3　find命令：测试</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub296">12.2.4　find命令：使用!运算符对测试求反</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub297">12.2.5　find命令：处理文件权限错误信息</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub298">12.2.6　find命令：动作</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0018.html#sub299">12.3　比 较 文 件</a>
+              <ul>
+                <li>
+                  <a href="part0018.html#sub300">12.3.1　使用comm比较文件</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub301">12.3.2　使用diff比较文件</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0018.html#sub302">12.4　文件描述符</a>
+              <ul>
+                <li>
+                  <a href="part0018.html#sub303">12.4.1　什么是文件描述符</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub304">12.4.2　标准输入、标准输出和标准错误</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0018.html#sub305">12.5　重 定 向</a>
+              <ul>
+                <li>
+                  <a href="part0018.html#sub306">12.5.1　输出重定向（覆盖）</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub307">12.5.2　输出重定向（追加）</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub308">12.5.3　输入重定向</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub309">12.5.4　当前文档</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub310">12.5.5　重定向两个文件描述符</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub311">12.5.6　使用exec命令分配文件描述符</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0018.html#sub312">12.6　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0019.html#chapter313">第13章　子Shell与进程处理</a>
+          <ul>
+            <li>
+              <a href="part0019.html#sub314">13.1　子Shell</a>
+              <ul>
+                <li>
+                  <a href="part0019.html#sub315">13.1.1　什么是子Shell</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub316">13.1.2　内部命令、保留字和外部命令</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub317">13.1.3　在子Shell中执行命令</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub318">13.1.4　把子Shell中的变量值传回父Shell</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0019.html#sub319">13.2　进 程 处 理</a>
+              <ul>
+                <li>
+                  <a href="part0019.html#sub320">13.2.1　什么是进程</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub321">13.2.2　通过脚本监控进程</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub322">13.2.3　作业控制</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub322a">13.2.4　信号与trap命令</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0019.html#sub323">13.3　小结</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0020.html#chapter324">第3篇　Shell编程实战</a>
+      <ul>
+        <li>
+          <a href="part0021.html#chapter325">第14章　Shell脚本调试技术</a>
+          <ul>
+            <li>
+              <a href="part0021.html#sub326">14.1　Shell脚本中的常见错误</a>
+              <ul>
+                <li>
+                  <a href="part0021.html#sub327">14.1.1　常见语法错误</a>
+                </li>
+                <li>
+                  <a href="part0021.html#sub328">14.1.2　常见逻辑错误</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0021.html#sub329">14.2　Shell脚本调试技术</a>
+              <ul>
+                <li>
+                  <a href="part0021.html#sub330">14.2.1　使用echo命令调试脚本</a>
+                </li>
+                <li>
+                  <a href="part0021.html#sub331">14.2.2　使用trap命令调试Shell脚本</a>
+                </li>
+                <li>
+                  <a href="part0021.html#sub332">14.2.3　使用tee命令调试Shell脚本</a>
+                </li>
+                <li>
+                  <a href="part0021.html#sub333">14.2.4　使用调试钩子调试Shell脚本</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0021.html#sub334">14.3　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0022.html#chapter335">第15章　利用Shell脚本解决实际问题</a>
+          <ul>
+            <li>
+              <a href="part0022.html#sub336">15.1　编写系统服务脚本</a>
+              <ul>
+                <li>
+                  <a href="part0022.html#sub337">15.1.1　系统启动过程</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub338">15.1.2　运行级别</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub339">15.1.3　服务脚本的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub340">15.1.4　编写MySQL服务脚本</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0022.html#sub341">15.2　通过脚本管理Apache服务器日志</a>
+              <ul>
+                <li>
+                  <a href="part0022.html#sub342">15.2.1　Apache以及日志文件简介</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub343">15.2.2　备份归档文件名生成函数</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub344">15.2.3　过期日志备份归档函数</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub345">15.2.4　过期日志删除函数</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub346">15.2.5　日志归档主程序</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub347">15.2.6　定时运行日志归档脚本</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0022.html#sub348">15.3　小结</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0023.html#chapter336">附录CD</a>
+    </li>
+  </ul>
+</div>
+
+
+  </div>
+  
+
+  <div class="calibreEbNav">
+    
+      <a href="part0009.html" class="calibreAPrev">previous page</a>
+    
+
+    <a href="../../pARZf2.html" class="calibreAHome"> start</a>
+
+    
+      <a href="part0011.html" class="calibreANext"> next page</a>
+    
+  </div>
+
+</div>
+
+</body>
+</html>

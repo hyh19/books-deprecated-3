@@ -1,0 +1,2405 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+    <title>第6章　函数</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+
+  
+
+
+<link href="../calibreHtmlOutBasicCss.css" type="text/css" rel="stylesheet" />
+
+</head>
+<body>
+
+<div class="calibreMeta">
+  <div class="calibreMetaTitle">
+  
+  
+    
+    <h1>
+      <a href="../../pARZf2.html">Shell从入门到精通
+</a>
+    </h1>
+    
+    
+  
+  </div>
+  <div class="calibreMetaAuthor">
+    张春晓
+
+  </div>
+</div>
+
+<div class="calibreMain">
+
+  <div class="calibreEbookContent">
+    
+      <div class="calibreEbNavTop">
+        
+          <a href="part0011.html" class="calibreAPrev">previous page</a>
+        
+
+        
+          <a href="part0013.html" class="calibreANext"> next page</a>
+        
+      </div>
+    
+
+    
+  <div class="chapter">
+    <div class="calibre2"></div><h1 class="kindle-cn-heading" id="chapter96"><a href="part0004.html#toc96" class="calibre3">第6章<br class="chapter"/>函数</a></h1>
+
+    <p class="kindle-cn-para-left">和其他程序设计语言一样，在Shell语言中也存在着函数。尽管在Shell中，函数并非必需的编程元素，但是通过使用函数，可以对程序进行更好地组织。将一些相对独立的代码变成函数，可以提高程序的可读性和重用性，避免重复编写大量相同的代码。本章将从函数的基础知识开始，依次介绍函数的定义、调用方法，以及参数传递等。</p>
+
+    <p class="kindle-cn-para-left">本章主要涉及的知识点如下所述。</p>
+
+    <ul class="kindle-cn-ul-square">
+      <li class="calibre5">函数：主要介绍函数的基础知识，包括什么是函数、函数的定义方法、函数的调用方法、函数的返回值、函数和别名的区别，以及函数中的全局变量和局部变量。</li>
+
+      <li class="calibre5">函数参数：主要介绍函数的参数传递，包括带参数的函数的调用方法、如何获取函数的参数的个数、通过位置变量获取参数值、移动位置变量、通过getopts获取参数值、间接参数传递、通过全局变量传递参数；以及传递数组参数等。</li>
+
+      <li class="calibre5">函数库文件：主要介绍如何共享函数，主要包括函数库文件的定义以及函数库文件的调用方法。</li>
+
+      <li class="calibre5">递归函数：介绍如何在Shell中实现递归函数及其调用方法。</li>
+    </ul>
+
+    <h2 class="kindle-cn-heading1" id="sub97"><a href="part0004.html#toc97" class="calibre8">6.1　函数</a></h2>
+
+<p class="kindle-cn-para-left">函数几乎是学习所有程序设计语言时都必须过的一关。对于学习过其他程序语言的用户来说，函数可能并不陌生。但是Shell中的函数与其他程序设计语言的函数有许多不同之处。为了使用户了解Shell中的函数，本节将介绍函数的相关基础知识。</p>
+
+    <h3 class="kindle-cn-heading2" id="sub98"><a href="part0004.html#toc98" class="calibre8">6.1.1　什么是函数</a></h3>
+
+    <p class="kindle-cn-para-left">通俗地讲，所谓函数就是将一组功能相对独立的代码集中起来，形成一个代码块，这个代码可以完成某个具体的功能。从上面的定义可以看出，Shell中的函数的概念与其他语言的函数的概念并没有太大的区别。从本质上讲，函数是一个函数名到某个代码块的映射。也就是说，用户在定义了函数之后，就可以通过函数名来调用其所对应的一组代码。</p>
+
+    <p class="kindle-cn-para-left">Shell函数可以完成某些相对独立的功能。因此，为了提高代码的可读性和代码的重用性，程序员应该将某些功能通过定义函数的方式来实现。这样的话，如果程序的其他地方需要相同的功能，只要调用该函数就可以了，无需重复书写相同的代码。</p>
+
+<p class="kindle-cn-para-left">从形式上看，函数与Shell脚本并没有明显的区别，Shell脚本中可以使用的命令和语句，都可以在函数中使用。但是，在执行的时候，函数和脚本还是有着本质上的区别。实际上，对于这一点，许多初学者，甚至包括许多已经接触Shell程序多年的用户来说，都没有完全弄清楚。对于一个单独的Shell脚本来说，在执行的时候，会为其创建一个新的Shell进程，来解释并执行脚本中的代码，当脚本执行完成，该Shell进程就会自动结束；而对于一个函数来说，在调用的时候，系统并不会为其单独创建一个Shell进程，而是在调用者的Shell进程中直接解释并执行函数中的代码。</p>
+
+    <h3 class="kindle-cn-heading2" id="sub99"><a href="part0004.html#toc99" class="calibre8">6.1.2　函数的定义</a></h3>
+
+    <p class="kindle-cn-para-left">在了解了函数的基本概念之后，接下来介绍Shell中的函数的定义方法。由于Shell脚本是从头开始执行的，所以Shell规定，函数必须在调用前定义。</p>
+
+    <p class="kindle-cn-para-left">在Shell语言中，用户可以通过两种语法来定义函数，分别如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">function_name ()
+{
+   statement1
+   statement2
+   ...
+   statement <i class="kindle-cn-italic">n</i>
+}
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">或者</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">function function_name ()
+{
+   statement1
+   statement2
+   ...
+   statement <i class="kindle-cn-italic">n</i>
+}
+</pre>
+</div>
+
+<p class="kindle-cn-para-left">上面两种语法的区别在于后者在函数名称前面使用了function关键字。其中function_name表示函数名称。Shell中的函数的命名规则与变量的命名规则基本相同，可以使用数字、字母或者下划线，但是只能以字母或者下划线开头。另外，用户应该尽量使用有意义的英文单词来命名函数，以利于提高代码的可读性。</p>
+
+    <p class="kindle-cn-para-left">Shell函数的函数体由一对大括号包括起来。其中包含一系列的Shell语句。通常情况下，能够在Shell脚本中使用的Shell命令都可以在函数中使用。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例6-1</span>】演示函数定义的方法。在本例中，定义了一个名称为sayhello()的函数，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter5/ex6-1.sh------------------
+02   #! /bin/bash
+03
+04   # 定义函数
+05   function sayhello()
+06   {
+07      echo "Hello, World!"
+08   }
+09   # 调用函数
+10   sayhello
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第5行使用function关键字定义sayhello()函数，第5行～第8行是函数体，该函数只有1行代码，即使用echo语句输出1个字符串。第10行调用上面定义的函数。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter6]# ./ex6-1.sh</span>
+Hello, World!
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">如果省略function关键字，则【例6-1】可以修改为以下代码：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #! /bin/bash
+02
+03   # 定义函数
+04   sayhello()
+05   {
+06      echo "Hello, World!"
+07   }
+08   # 调用函数
+09   sayhello
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">前面已经讲过，在Shell语言中，函数必须在调用前定义。因此，如果将【例6-1】中第10行的函数调用语句移到前面，如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #! /bin/bash
+02
+03   # 调用函数
+04   sayhello
+05   # 定义函数
+06   sayhello()
+07   {
+08      echo "Hello, World!"
+09   }
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">则会出现问题，其结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter6]# ./ex6-1.sh</span>
+./ex6-1.sh: line 3: sayhello: command not found
+</pre>
+</div>
+
+<p class="kindle-cn-para-left">上面的错误提示给出，未发现sayhello命令。之所以会出现以上错误，是因为Shell在执行脚本的时候，会优先将sayhello作为一个Shell命令来执行。</p>
+
+    <h3 class="kindle-cn-heading2" id="sub100"><a href="part0004.html#toc100" class="calibre8">6.1.3　函数的调用</a></h3>
+
+<p class="kindle-cn-para-left">当某个函数定义之后，用户就可以通过函数名来调用该函数。在Shell中，函数调用的基本语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">function_name param1 param2 …
+</pre>
+</div>
+
+<p class="kindle-cn-para-left">在上面的语法中，function_name表示函数名称，其后面跟的param1、param2…表示函数的参数。</p>
+
+    <p class="kindle-cn-para-left">在上面的例子中，实际上已经调用过函数了。为了使读者更加清楚函数的调用方法，下面进一步举例说明。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例6-2</span>】介绍函数的定义和调用方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter6/ex6-2.sh------------------
+02   #! /bin/bash
+03
+04   # 定义函数
+05   getCurrentTime()
+06   {
+07      current_time=`date`
+08      echo "$current_time"
+09   }
+10
+11   # 调用函数
+12   getCurrentTime
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第5行～第9行定义了名称为getCurrentTime()的函数，该函数的功能是输出当前的系统时间。其中第7行通过date命令来获取当前系统时间，并且将其值赋给变量current_time。第12行通过函数名来调用函数。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter6]# ./ex6-2.sh</span>
+Tue Jan 22 23:30:34 HKT 2013
+</pre>
+</div>
+
+<p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">当用户定义了一个函数之后，实际上该函数就成为一个合法的Shell命令，可以在后继的脚本中使用。定义函数时需要使用圆括号，而调用函数时无需圆括号。</span></p>
+
+    <h3 class="kindle-cn-heading2" id="sub101"><a href="part0004.html#toc101" class="calibre8">6.1.4　函数链接</a></h3>
+
+<p class="kindle-cn-para-left">所谓函数链接，是指在某个Shell函数中调用另外一个函数的过程。与其他程序设计语言一样，Shell允许用户函数的嵌套调用。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例6-3</span>】演示在某个函数中调用另外一个函数的函数链接，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter6/ex6-3.sh------------------
+02   #! /bin/bash
+03
+04   # 定义函数 john()
+05   john()
+06   {
+07      echo "Hello, this is John."
+08   }
+09   # 定义函数 alice
+10   alice()
+11   {
+12      # 调用函数 john
+13      john
+14      echo "Hello, this is Alice."
+15   }
+16   # 调用函数 alice
+17   alice
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第5行～第8行定义了一个名称为john()的函数，第10行～第15行定义了名称为alice()的函数，其中在第13行调用了前面定义的函数john()。第17行调用函数alice()。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter6]# ./ex6-3.sh</span>
+Hello, this is John.
+Hello, this is Alice.
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">从上面的执行结果可以得知，程序首先输出了关于john的信息，这条信息是函数john()输出的。然后输出了关于alice的信息，而这条信息是程序的第14行输出的。</p>
+
+    <p class="kindle-cn-para-left">函数链接并不仅仅局限于在某个函数中调用另外一个函数，还可以进行多层嵌套调用，或者在某个函数中调用多个函数，下面的例子就说明了这种情况。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例6-4</span>】演示在某个函数中同时调用多个其他函数的方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter6/ex6-4.sh------------------
+02   #! /bin/bash
+03
+04   # 定义函数 john()
+05   john()
+06   {
+07      echo "Hello, this is John."
+08   }
+09
+10   # 定义函数 alice()
+11   alice()
+12   {
+13      echo "Hello, this is Alice."
+14   }
+15   # 定义函数 sayhello()
+16   sayhello()
+17   {
+18      john
+19      alice
+20   }
+21   # 调用函数 sayhello()
+22   sayhello
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第5行～第8行定义了函数john()，第11行～第14行定义函数alice()，第16行～第20行定义函数sayhello()。其中，在函数sayhello()内部同时调用了函数john()和函数alice()。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter6]# ./ex6-4.sh</span>
+Hello, this is John.
+Hello, this is Alice.
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">从上面的执行结果可以得知，函数sayhello()通过调用前面两个函数，依次输出相关的信息。</p>
+
+          <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">在函数嵌套调用时，一定要注意函数定义的顺序和调用的顺序。必须按照先定义，后调用的原则。</span></p>
+
+    <h3 class="kindle-cn-heading2" id="sub102"><a href="part0004.html#toc102" class="calibre8">6.1.5　函数的返回值</a></h3>
+
+<p class="kindle-cn-para-left">尽管在其他程序设计语言中，函数的返回值似乎是一个习以为常的问题，也就是说，函数就应该根据用户输入的参数，进行相关的运算，然后将运算结果返回给调用者。然而，在Shell语言中，函数的返回值并不显得理所当然。这意味着Shell中的函数并没有准备要把函数中的某个运算结果作为函数的返回值来返回。因此，在Shell中，处理函数的返回值可以分为几种情况来讨论。</p>
+
+<p class="kindle-cn-para-left">首先，用户可以使用return语句来返回某个数值，这与绝大部分的程序设计语言是相同的。但是，在Shell中，return语句只能返回某个0～255之间的整数值。还记得前面介绍过的脚本的退出状态码吗？当一个Shell脚本执行结束的时候，可以通过exit命令返回其退出状态码。与之相类似，函数中的return语句实际上是用来返回函数的退出状态码的。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例6-5</span>】演示如何通过return语句返回某个数值，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter6/ex6-5.sh------------------
+02   #! /bin/bash
+03
+04   # 定义求和函数
+05   sum()
+06   {
+07      let "z = $1 + $2"
+08      # 将和作为退出状态码返回
+09      return "$z"
+10   }
+11   # 调用求和函数
+12   sum 22 4
+13   # 输出和
+14   echo "$?"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第5行～第10行定义了一个求和函数，其中第7行计算两个参数的和。关于函数参数的传递将在6.2节中介绍。第9行通过return语句将变量$z返回。第12行调用函数sum()，并且传递两个参数。与执行脚本相同，函数的退出状态码也可以通过系统变量$?获取，所以第14行通过变量$?获取了函数sum()的返回值（在此作为函数退出状态码返回）。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter6]# ./ex6-5.sh</span>
+26
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">从上面的执行结果可以得知，所传递的两个数的和被成功地返回。但是通过return语句只能返回整数值，并且是0～255之间的整数值，如果超出这个范围，则会返回错误的结果。例如，如果将第12行的两个参数改为以下两个数：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">sum 253 4
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">则执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter6]# ./ex6-5.sh</span>
+1
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">可以发现，正确的结果应该是257，但是函数的返回值却是1。</p>
+
+<p class="kindle-cn-para-left">尽管在函数中使用return语句返回用户所需要的数据存在着许多限制，但是在适当的时候使用仍然不失是一种非常便捷的方法。在Shell中，还有一种更加优雅的方法可以帮助用户获得函数执行后的某个结果，那就是使用echo语句。</p>
+
+    <p class="kindle-cn-para-left">在函数中，用户将需要返回的数据写入到标准输出（stdout），通常这个操作是使用echo语句来完成的。然后在调用程序中将函数的执行结果赋给一个变量。这种做法实际上就是命令替换的一个变种。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例6-6</span>】演示如何通过echo语句来传递函数返回值，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01 #-----------------------------/chapter6/ex6-6.sh------------------
+02 #! /bin/bash
+03
+04   # 定义函数
+05   length()
+06   {
+07      # 接收参数
+08      str=$1
+09      result=0
+10      if [ "$str" != "" ]; then
+11         # 计算字符串长度
+12         result=${#str}
+13      fi
+14      # 将长度值写入标准输出
+15      echo "$result"
+16   }
+17   # 调用函数
+18   len=$(length "abc123")
+19   # 输出执行结果
+20   echo "the string's length is $len"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第5行～第16行定义了一个名称为length()的函数，用来计算字符串的长度。其中，第8行通过位置变量$1接收参数，第12行计算用户输入的字符串的长度，第15行通过echo语句将字符串的长度值写入标准输出。第18行调用行数，并将执行结果赋给变量len。第20行输出变量len的值。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter6]# ./ex6-6.sh</span>
+the string's length is 6
+</pre>
+</div>
+
+          <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">Shell程序实际上是由许多Shell命令组成的，但是为了与其他程序设计语言保持一致，在本书中仍然将其称为语句，例如echo。</span></p>
+
+    <p class="kindle-cn-para-left">由于用户可以将各种数据写入到标准输出，所以通过echo语句可以将各种数据作为返回值返回给函数调用者，而不仅仅局限于整数。因此，使用echo语句获得函数的返回值更加灵活和强大。</p>
+
+    <h3 class="kindle-cn-heading2" id="sub103"><a href="part0004.html#toc103" class="calibre8">6.1.6　函数和别名</a></h3>
+
+    <p class="kindle-cn-para-left">在Shell中，与函数比较相似的一个概念就是别名。一个别名是一个Shell命令的缩写或者其他容易记忆的名称。用户可以使用alias命令来设置别名，其基本语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">alias name="command"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">其中，name是要指定的别名，command则是原有的Shell命令，也就是真正要执行的命令。</p>
+
+    <p class="kindle-cn-para-left">函数和别名的相似之处在于，它们都是通过一个名称映射到一个或者一组命令。例如函数是函数名到一组Shell命令的映射，而别名则是别名到一个Shell命令的映射。无论是函数还是别名，在调用时都是执行其所对应的相关命令。</p>
+
+    <p class="kindle-cn-para-left">与函数相比，别名的功能相对比较简单，其主要区别有以下两点：</p>
+    <ul class="kindle-cn-ul-square">
+    
+    <li class="calibre5">用户不能为一组命令指定别名。</li>
+
+    <li class="calibre5">别名中不能通过系统变量操作参数列表。</li>
+    
+    </ul>
+
+    <p class="kindle-cn-para-left">为了使读者更加清楚函数和别名的区别，下面举一个简单的例子。首先使用alias命令定义一个别名，如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter6]# alias ls="ls -l"</span>
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">上面的命令表示将ls-l这个命令的别名命名为ls，这样的话用户在命令行中输入ls命令之后，实际上执行的就是含有-l选项的ls命令，如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter6]# ls .</span>
+total 24
+-rwxr-xr-x  1   root    root    63  Jan 22 17:33        ex6-1.sh
+-rwxr-xr-x  1   root    root    98  Jan 22 23:20        ex6-2.sh
+…
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">当用户不再需要某个别名时，可以使用unalias命令将其删除，如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter6]# unalias ls</span>
+<span class="kindle-cn-bold">[root@linux chapter6]# ls .</span>
+ex6-1.sh ex6-2.sh ex6-3.sh ex6-4.sh ex6-5.sh ex6-6.sh
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">从上面的执行结果可以得知，当别名被删除之后，用户再执行ls命令时，会执行原始的ls命令，因此，上面的命令只是简单地输出了文件名。</p>
+
+<p class="kindle-cn-para-left">实际上，上述功能完全可以使用函数来实现。前面介绍的函数都是在脚本中定义的，实际上，用户可以直接在Shell环境中定义函数，其方法就是直接在Shell命令提示符后面依次输入函数名和函数体。例如，为了定义一个名称为lsl()的函数，用户可以在命令行中依次输入以下语句：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">01 [root@linux chapter6]# lsl()</span>
+<span class="kindle-cn-bold">02 &gt; {</span>
+<span class="kindle-cn-bold">03 &gt; ls -l "$@"</span>
+<span class="kindle-cn-bold">04 &gt; }</span>
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">其中，第1行输入函数名称，当按回车键之后，Shell会继续等待用户输入，因此后面的几行中在命令行的左侧出现一个大于号提示符。用户可以继续输入函数的函数体，当用户输入最后的右侧大括号之后，函数定义完成，又重新出现Shell提示符。</p>
+
+    <p class="kindle-cn-para-left">函数定义完成之后，就可以直接在当前的Shell中使用，如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter6]# lsl .</span>
+total 24
+-rwxr-xr-x  1   root        root    63  Jan 22 17:33    ex6-1.sh
+-rwxr-xr-x  1   root        root    98  Jan 22 23:20    ex6-2.sh
+…
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">当然，上面例子中的函数只是简单地执行了ls命令，实际上在函数内部可以对文件进行更加复杂地操作，例如删除文件或者复制文件等。关于这些功能，用户可以在上面的例子的基础上尝试实现。</p>
+
+<p class="kindle-cn-para-left">用户定义的Shell函数可以通过unset命令来删除，删除以后的函数名将不再有效，如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter6]# unset lsl</span>
+<span class="kindle-cn-bold">[root@linux chapter6]# lsl</span>
+-bash: lsl: command not found
+</pre>
+</div>
+
+<p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">在前面的例子中，我们定义了一个名称为ls的别名，而Shell中已经存在一个名称为ls的命令。但是在这种别名和同名命令同时存在的情况下，Shell会优先使用用户定义的别名，所以在上面的例子中，用户尽管没有指定要执行别名还是真实的命令，但是Shell会优先执行别名。</span></p>
+
+    <h3 class="kindle-cn-heading2" id="sub104"><a href="part0004.html#toc104" class="calibre8">6.1.7　再议全局变量和局部变量</a></h3>
+
+    <p class="kindle-cn-para-left">本书在第3章中已经详细介绍过了变量的使用方法。默认情况下，除了与函数参数关联的特殊变量之外，其他所有的变量都有全局的有效范围。另外，在函数内部，如果没有使用local关键字进行修饰，那么函数中的变量也是全局变量。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例6-7</span>】演示在函数内外所定义的全局变量的使用方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter6/ex6-7.sh------------------
+02   #! /bin/bash
+03
+04   # 在函数外定义全局变量
+05   var="Hello world"
+06
+07   func()
+08   {
+09      # 在函数内改变变量的值
+10      var="Orange Apple Banana"
+11      echo "$var"
+12      # 在函数内定义全局变量
+13      var2="Hello John"
+14   }
+15   # 输出变量值
+16   echo "$var"
+17   # 调用函数
+18   func
+19   # 重新输出变量的值
+20   echo "$var"
+21   # 输出函数内定义的变量的值
+22   echo "$var2"
+</pre>
+</div>
+
+<p class="kindle-cn-para-left">在上面的代码中，第5行定义了一个名称为var的变量，该变量在函数外面定义，所以该变量属于全局变量，其有效范围是整个脚本，无论是在函数内还是在函数外，都可以正常引用。第7行～第14行定义了一个名称为func()的函数，其中，第10行为变量var重新赋值，第11行输出变量var的值。第13行在函数内部定义了一个名称为var2的函数。第16行在函数外面输出变量var的值。第18行调用了函数func()。由于函数内部修改了变量var的值，所以在第20行又重新输出了该变量的值。第22行输出变量var2的值，该变量是在函数内部定义的。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter6]# ./ex6-7.sh</span>
+Hello world
+Orange Apple Banana
+Orange Apple Banana
+Hello John
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的执行结果中，第1行的字符串是第16行代码的echo语句的输出，此时函数还没有被调用，所以变量var的值并没有改变。第2行的字符串是第11行代码的函数内的echo语句的输出结果，此时变量var的值已经被修改。而第3行的字符串是第20行代码的echo语句的执行结果，此时函数被调用，所以变量var的值已经改变。最后一行的字符串是第22行代码的echo语句的执行结果。</p>
+
+    <p class="kindle-cn-para-left">从上面的执行结果可以得知，无论在何处，赋值语句都会影响全局变量的值。并且，全局变量的值被改变之后，在整个脚本内都有效。另外，默认情况下，在函数内部定义的变量也是全局变量，在脚本的任何位置都可以引用。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例6-8</span>】演示在函数内部定义局部变量的方法，以及在全局变量和局部变量重名的情况下，会发生什么事情。代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter6/ex6-8.sh------------------
+02   #! /bin/bash
+03
+04   # 全局变量
+05   var="Hello world"
+06
+07   func()
+08   {
+09      # 局部变量
+10      local var="Orange Apple Banana"
+11      echo "$var"
+12      # 局部变量
+13      local var2="Hello John"
+14   }
+15   echo "$var"
+16   func
+17   echo "$var"
+18   echo "$var2"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">其实本例和【例6-7】基本相同，区别在于前者的第10行和第13行的变量名称前面都使用了关键字local。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter6]# ./ex6-8.sh</span>
+Hello world
+Orange Apple Banana
+Hello world
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的执行结果中，一共有4行输出。其中第1行是第15行代码的echo语句的执行结果，该语句输出了全局变量var的值。第2行是第11行代码的输出，可以发现，该语句输出了局部变量var的值。第3行是第17行代码的输出，尽管我们在第16行代码调用了函数func()，但是这并没有影响到全局变量var的值，该语句仍然输出了变量var的初始值。第4行是一个空行，是第18行代码的输出结果。之所以会输出空行，是因为第13行代码中的变量var2的作用域仅仅局限于函数内部。</p>
+
+<p class="kindle-cn-para-left">从【例6-8】可以得知，当某个程序中同时存在相同名称的全局变量和局部变量时，在函数内部，局部变量会屏蔽全局变量。也就是说，在函数内部，使用的是局部变量，而函数外面，使用的是全局变量。</p>
+
+    <h2 class="kindle-cn-heading1" id="sub105"><a href="part0004.html#toc105" class="calibre8">6.2　函数参数</a></h2>
+
+<p class="kindle-cn-para-left">在6.1节中，我们介绍的绝大部分函数都没有参数。实际上，对于函数来说，参数非常重要。通过参数，用户可以将想要函数处理的数据传递给函数。Shell语言中，同样支持含有参数的函数。本节将介绍函数参数的使用方法。</p>
+
+    <h3 class="kindle-cn-heading2" id="sub106"><a href="part0004.html#toc106" class="calibre8">6.2.1　含有参数的函数的调用方法</a></h3>
+
+<p class="kindle-cn-para-left">在某些程序设计语言中，函数的参数分为形参和实参，其中，形参是在函数定义的时候指定的参数；而实参则是在函数调用的时候指定的参数。通常情况下，函数的实参都是放在圆括号里面，如果有多个参数，则这些参数之间使用逗号隔开。当然，也有一些语言在调用函数的时候并不是将参数放在圆括号里面，例如Visual Basic等。但是，这些语言的参数仍然需要使用逗号隔开。</p>
+
+    <p class="kindle-cn-para-left">与这些程序设计语言相比，Shell的函数参数的语法比较特殊。实际上，Shell将脚本参数和函数参数做了统一地处理。也就是说，Shell采用了相同的方法来处理脚本的参数和函数参数。因此，对于含有参数的函数，用户可以使用以下语法来调用。</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">function_name arg1 arg2 ...
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">其中，function_name表示函数名称，arg1、arg2及arg3等则表示函数参数，这些参数之间通过空格隔开。用户可以发现，实际上这种语法与执行Shell脚本的语法完全相同。</p>
+
+    <h3 class="kindle-cn-heading2" id="sub107"><a href="part0004.html#toc107" class="calibre8">6.2.2　获取函数参数的个数</a></h3>
+
+<p class="kindle-cn-para-left">在Shell中，不仅含有参数的函数的调用方法和执行脚本的语法相同，而且，在函数内部，用户也是通过位置变量来接收参数的值。这一点，与Shell脚本也是完全相同的。前面已经介绍过，用户可以通过系统变量$#来获取脚本的参数的个数。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例6-9</span>】演示如何通过$#来获取函数参数的个数，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter6/ex6-9.sh------------------
+02   #! /bin/bash
+03
+04   # 定义函数
+05   func()
+06   {
+07      # 输出参数个数
+08      echo "the function has $# parameters."
+09   }
+10   # 调用函数
+11   func a b c d e f g hello
+12   func 12 3 "hello world"
+13   func
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第5行～第9行定义了名称为func()的函数，其中第8行输出了参数的个数。第11行调用func()函数，提供了8个参数，第12行同样是调用func()函数，但是只提供了3个参数。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter6]# ./ex6-9.sh</span>
+the function has 8 parameters.
+the function has 3 parameters.
+the function has 0 parameters.
+</pre>
+</div>
+
+<p class="kindle-cn-para-left">从上面的执行结果可以得知，当用户在Shell脚本中定义函数时，实际上并没有指定该函数到底拥有多少个参数。函数最终会有多少个参数，取决于用户在调用该函数时为该函数提供了多少个参数。在上面的例子中，当用户为函数func()提供8个参数时，系统变量$#输出了参数个数为8；当用户为函数func()提供3个参数时，系统变量$#的值为3；而当用户没有为函数提供参数时，系统变量$#的值为0。与其他程序设计语言相比，在这一点上面，Shell函数拥有非常明显的特点。</p>
+
+    <p class="kindle-cn-para-left">另外，在第12行代码中，第3个参数为“hello world”，中间含有一个空格，在这种情况下，用户应该使用单引号或者双引号将其引用起来，免得Shell误认为是两个参数。</p>
+
+          <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">Shell函数的参数以空格隔开，如果某个参数中含有空格，则应该使用引号将其引用起来。</span></p>
+
+    <h3 class="kindle-cn-heading2" id="sub108"><a href="part0004.html#toc108" class="calibre8">6.2.3　通过位置变量接收参数值</a></h3>
+
+<p class="kindle-cn-para-left">与Shell脚本一样，用户可以在Shell函数中使用位置变量来获取参数值。例如，$0表示脚本名称，$1表示第1个参数，$2表示第2个参数等，依此类推。另外，用户还可以通过系统变量$@和$*获取所有参数的值，至于这两者的区别，与3.1节中介绍的完全相同，不再重复说明。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例6-10</span>】演示如何在函数中使用位置变量获取参数的值，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter6/ex6-10.sh------------------
+02   #! /bin/bash
+03
+04   # 定义函数
+05   func()
+06   {
+07      # 输出所有的参数
+08      echo "all parameters are $*"
+09      # 输出所有的参数
+10      echo "all parameters are $@"
+11      # 输出脚本名称
+12      echo "the script's name is $0"
+13      # 输出第 1 个参数
+14      echo "the first parameter is $1"
+15      # 输出第 2 个参数
+16      echo "the second paramter is $2"
+17   }
+18   # 调用函数
+19   func hello world
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第8行使用系统变量$*获取所有参数值，第10行使用系统变量$@获取所有的参数值，第12行使用位置变量$0获取当前脚本的名称，第14行和第16行分别使用位置变量$1和$2获取第1个和第2个参数的值。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter6]# ./ex6-10.sh</span>
+all parameters are hello world
+all parameters are hello world
+the script's name is ./ex6-10.sh
+the first parameter is hello
+the second paramter is world
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">从上面的执行结果可以得知，系统变量$*和$@都获取了函数的所有的参数，在本例中，第8行和第10行代码的输出从表面上看不出有什么区别。位置变量$0也成功地获取当前脚本的名称，$1和$2分别获取了第1个和第2个参数值。</p>
+
+          <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">无论是在脚本中，还是在函数中，位置变量$0获取的都是当前执行的脚本的名称。</span></p>
+
+    <h3 class="kindle-cn-heading2" id="sub109"><a href="part0004.html#toc109" class="calibre8">6.2.4　移动位置参数</a></h3>
+
+    <p class="kindle-cn-para-left">在前面介绍中，在Shell脚本中，用户可以使用shift命令来使得脚本的所有的位置参数向左移动一个位置，从而使得用户可以通过9以内的位置变量来获取超过9个的参数。在函数中，这种方法仍然适用。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例6-11</span>】通过一种非常巧妙的方法依次获取传递给函数的各个参数，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter6/ex6-11.sh------------------
+02   #! /bin/bash
+03
+04   # 定义函数
+05   func()
+06   {
+07      # 通过 while 循环和 shift 命令依次获取参数值
+08      while (($# &gt; 0))
+09      do
+10         echo "$1"
+11         shift
+12       done
+13   }
+</pre>
+</div>
+
+<p class="kindle-cn-para-left">在上面的代码中，通过while循环语句配合shift命令获取各个参数的值。第8行是循环语句的开始，其中将$#变量的值大于0作为循环执行的条件。我们已经知道系统变量$#获取的传递给函数或者脚本的参数的个数。当传递给函数func()的参数个数为0时，终止循环。第10行输出第1个参数的值。第11行是执行shift命令。</p>
+
+    <p class="kindle-cn-para-left">上面的程序之所以会正确地执行，关键之处就在于shift命令。该命令的功能是将传递给函数func()的位置参数向左移动一个位置，同时删除原来的第1个参数。因此，每执行1次shift命令，所有的位置参数都会向左移动1个位置，原来处于第2个位置的参数会移动到第1个位置上面。同时，函数的参数个数也会随之减1。所以，当传递给函数func()的参数的个数变成0时，就表示所有的参数都已经移动完成。另外，由于所有的参数都会移动到第1个位置上面，所以用户只要使用一个位置变量$1就可以了。</p>
+
+          <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">shift命令会影响到系统变量$#的值。</span></p>
+
+    <h3 class="kindle-cn-heading2" id="sub110"><a href="part0004.html#toc110" class="calibre8">6.2.5　通过getopts接收函数参数</a></h3>
+
+    <p class="kindle-cn-para-left">在绝大多数情况下，用户可以通过位置变量$1、$2…$n等手动获取每个参数。但是，如果用户需要处理情况比较多，或者是多个分支的情况，这个方法就不够用了。这个时候，用户可以考虑使用getopts来接收参数。</p>
+
+    <p class="kindle-cn-para-left">getopts是bash内置的一个命令，通过该命令，用户可以获取函数的选项以及参数值，或者是脚本的命令行选项以及参数值。getopts命令的基本语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">getopts optstring [args]
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的语法中，参数optstring包含一个可以为getopts命令识别的选项名称列表。如果某个选项名称的后面跟随着一个冒号，则表示用户可以为该选项提供参数值。同时，参数值将被保存到一个名称为$OPTARG的系统变量中。getopts命令会依次遍历每个选项，选项名称将被保存到args变量中。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例6-12</span>】演示如何通过getopts命令获取各个选项及其参数值，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter6/ex6-12.sh------------------
+02   #! /bin/bash
+03
+04   # 定义函数
+05   func()
+06   {
+07      # 逐个接收选项及其参数
+08      while getopts "a:b:c" arg
+09      do
+10         # 当指定了 -a 选项时
+11         case "$arg" in
+12            a)
+13               # 输出 -a 选项的参数值
+14               echo "a's argument is $OPTARG"
+15               ;;
+16            b)
+17               echo "b's argument is $OPTARG."
+18               ;;
+19            c)
+20               echo "c"
+21               ;;
+22            ?)
+23               # 未知选项
+24               echo "unkown argument."
+25               exit 1
+26               ;;
+27         esac
+28      done
+29   }
+30   # 调用函数
+31   func -a hello -b world
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第8行通过getopts命令获取用户提供给函数func()的各个选项，其中函数func()可以接收的选项有a、b和c，其中选项a和b可以含有参数，而选项c不含有参数。在while循环的过程中，当前选项名称将被保存到变量arg中，而选项的参数值将被保存到系统变量$OPTARG中。</p>
+
+    <p class="kindle-cn-para-left">当用户提供了-a和-b选项时，输出参数值。当用户提供了-c选项时，只是简单地输出一个字符“c”。如果用户提供了未知选项（不在选项列表中的选项）时，输出相应的提示信息。</p>
+
+    <p class="kindle-cn-para-left">第31行调用函数func()，并且提供了-a和-b这两个选项及其参数。该函数的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter6]# ./ex6-12.sh</span>
+a's argument is hello.
+b's argument is world.
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">从上面的执行结果可以得知，程序已经成功地获取了-a和-b这两个选项的参数值。</p>
+
+          <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">系统变量$OPTARG是一个内置的系统变量。</span></p>
+
+    <h3 class="kindle-cn-heading2" id="sub111"><a href="part0004.html#toc111" class="calibre8">6.2.6　间接参数传递</a></h3>
+
+<p class="kindle-cn-para-left">在Shell中，函数还支持间接参数传递。所谓间接参数传递，是指通过间接变量引用来实现函数参数的传递。如果某个变量的值又是另外一个变量的变量名，则该变量称为间接变量。</p>
+
+    <p class="kindle-cn-para-left">例如，在某个脚本中，存在以下两个变量：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">var=name
+name=John
+</pre>
+</div>
+
+<p class="kindle-cn-para-left">可以发现，在上面的代码中，变量var的值恰好是后面一个变量的变量名。此时，对于第2个变量，用户可以通过以下两种方式来引用：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">${name}
+${!var}
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">其中第1种引用方法是直接通过变量名来引用，而第2种引用方法则是通过第1个变量名来间接地引用。在Shell中，变量的间接引用通常使用以下语法来实现：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">${!var_name}
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">其中，变量var_name的值是另外一个变量的名称。当用户使用以上语法间接引用变量时，实际上取得的是var_name的值所代表的变量的值，而非变量var_name的值。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例6-13</span>】演示如何在函数中使用间接参数传递，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter6/ex6-13.sh------------------
+02   #! /bin/bash
+03
+04   # 定义函数
+05   func()
+06   {
+07      echo "$1"
+08   }
+09
+10   # 定义变量
+11   var=name
+12   name=John
+13   # 调用函数
+14   func "$var"
+15   func ${!var}
+16   # 修改变量的值
+17   name=Alice
+18   # 再次调用函数
+19   func "$var"
+20   func ${!var}
+</pre>
+</div>
+
+<p class="kindle-cn-para-left">在上面的代码中，函数func()比较简单，只有一行代码，输出第1个参数的值。第11～第12行定义了两个变量，其中变量var的值是下面一个变量的名称。第14行将变量var作为参数传递给函数，第15行通过间接引用的方法将第2个变量作为参数传递给函数。第17行修改变量name的值。第19行～第20行分别调用函数func()。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter6]# ./ex6-13.sh</span>
+name
+John
+name
+Alice
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的输出结果中，第1个字符串name是第14行代码的函数调用输出的。第2个字符串John是第15行代码的间接参数传递调用func()时输出的。可以发现，当使用间接引用变量时，程序正确地输出了第2个变量的值。第3个字符串name是第19行代码的函数调用输出的。第4个字符串是第20行代码的间接参数传递输出的。从执行结果可以得知，当修改了第2个变量的值之后，通过间接参数传递，用户仍然可以得到正确的结果。</p>
+
+    <h3 class="kindle-cn-heading2" id="sub112"><a href="part0004.html#toc112" class="calibre8">6.2.7　通过全局变量传递数据</a></h3>
+
+    <p class="kindle-cn-para-left">参数的作用是在主程序和函数之间传递数据。但是，用户除了可以使用参数传递数据之外，还可以通过全局变量来传递。前面已经介绍过，全局变量的作用域是整个程序，包括函数内部。尽管这种方式是有效的，但是在许多程序设计语言中，这种做法却饱受诟病，其原因在于会导致程序结构非常不清晰，代码的可读性较差。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例6-14</span>】演示如何通过全局变量向函数传递数据，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter6/ex6-14.sh------------------
+02   #! /bin/bash
+03
+04   # 定义全局变量
+05   file="/bin/ls"
+06   # 定义函数
+07   func()
+08   {
+09      if [ -e "$file" ]
+10      then
+11         echo "the file exists."
+12      else
+13         echo "the file does not exist."
+14      fi
+15   }
+16   # 调用函数
+17   func
+18   # 修改全局变量的值
+19   file="/bin/a"
+20   # 调用函数
+21   func
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第5行定义了一个全局变量。第9行判断全局变量所表示的文件是否存在。第17行调用前面定义的函数。第19行修改全局变量的值，第21行重新调用函数。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter6]# ./ex6-14.sh</span>
+the file exists.
+the file does not exist.
+</pre>
+</div>
+
+          <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">无论在何种程序设计语言中，都不建议使用全局变量来传递数据。因此，用户应该尽量避免使用这种方式。</span></p>
+
+    <h3 class="kindle-cn-heading2" id="sub113"><a href="part0004.html#toc113" class="calibre8">6.2.8　传递数组参数</a></h3>
+
+    <p class="kindle-cn-para-left">在某些情况下，用户需要将一个数组作为参数传递给某个函数，然后在函数中对数组内容进行相应的处理。严格地讲，Shell并不支持将数组作为参数传递给函数，但是用户仍然可以通过一些变通的方法实现数组参数的传递。</p>
+
+    <p class="kindle-cn-para-left">首先，用户可以将数组的元素展开，然后作为多个由空格隔开的参数传递给函数。下面举例说明这种传递参数的方法。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例6-15</span>】演示将数组元素作为多个参数传递给函数的方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter6/ex6-15.sh------------------
+02   #! /bin/bash
+03
+04   # 定义函数
+05   func()
+06   {
+07      echo "number of elements is $#."
+08      while [ $# -gt 0 ]
+09      do
+10         echo "$1"
+11         shift
+12       done
+13   }
+14   # 定义数组
+15   a=(a b "c d" e)
+16   # 调用函数
+17   func "${a[@]}"
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，函数内部通过while循环语句配合shift命令将数组元素逐个接收过来。第15行定义了一个数组，关于数组的详细使用方法，将在第7章中介绍。第17行调用函数func()，并且将数组传递给函数，其中变量${a[@]}可以获取数组所有元素的值。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter6]# ./ex6-15.sh</span>
+number of elements is 4.
+a
+b
+c d
+e
+</pre>
+</div>
+
+<p class="kindle-cn-para-left">从上面的执行结果可以得知，程序可以成功地获取传递过去的数组元素的个数，以及各个元素的值。实际上，在【例6-15】中，数组元素的个数与函数func()的实际参数的个数是相同的，因此，用户可以使用系统变量$#来获取数组元素个数。</p>
+
+    <p class="kindle-cn-para-left">在【例6-15】中，有一点非常值得注意，那就是第17行代码在调用函数时，变量${a[@]}外面是使用双引号引用起来的。其主要原因就是数组a的第3个元素中含有空格。在这种情况下，如果将变量${a[@]}外面的双引号去掉，则会将第3个元素误认为是2个元素。代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #! /bin/bash
+02
+03   # 定义函数
+04   func()
+05   {
+06      while [ $# -gt 0 ]
+07      do
+08         echo "$1"
+09         shift
+10       done
+11   }
+12   # 定义数组
+13   a=(a b "c d" e)
+14   # 调用函数
+15   func ${a[@]}
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter6]# ./ex6-15.sh</span>
+number of elements is 5.
+a
+b
+c
+d
+e
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">从上面的执行结果可以得知，程序已经错误地将数组元素判断为5个。</p>
+
+    <h2 class="kindle-cn-heading1" id="sub114"><a href="part0004.html#toc114" class="calibre8">6.3　函数库文件</a></h2>
+
+    <p class="kindle-cn-para-left">在前面的几节中，我们写过一些脚本，用来完成一些特定的任务。许多脚本都要执行一些常用的操作，例如显示出错信息和警告信息，以及提示用户输入等。为了方便地重用这些功能，可以创建一些可重用的函数。这些函数可以单独地放在函数库文件中。本节将介绍如何在Shell程序中创建和调用函数库文件。</p>
+
+    <h3 class="kindle-cn-heading2" id="sub115"><a href="part0004.html#toc115" class="calibre8">6.3.1　函数库文件的定义</a></h3>
+
+<p class="kindle-cn-para-left">创建一个函数库文件的过程类似于编写一个Shell脚本。脚本与库文件之间的唯一区别在于函数库文件通常只包括函数，而脚本中则可以既包括函数和变量的定义，又包括可执行的代码。此处所说的可执行代码，是指位于函数外部的代码，当脚本被载入后，这些代码会立即被执行，无需另外调用。例如，在下面的代码中：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #! /bin/bash
+02
+03   msg="Hello world."
+04   echo "$msg"
+05   func()
+06   {
+07      echo "$1"
+08   }
+09   func "$msg"
+</pre>
+</div>
+
+<p class="kindle-cn-para-left">第1行～第4行都是可执行代码，第5行～第8行定义了一个名称为func()的函数，虽然其中的第7行是可执行的代码，但是只有当用户调用函数时，这些代码才会执行。所以，第5行～第8行的函数定义属于不可执行代码。第9行是函数调用，也属于可执行代码。</p>
+
+    <p class="kindle-cn-para-left">下面定义一个函数库文件，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter6/lib.sh------------------
+02   #! /bin/bash
+03
+04   # 定义函数
+05   error()
+06   {
+07      echo "ERROR:" $@ 1&gt;&amp;2
+08   }
+09   warning()
+10   {
+11      echo "WARNING:" $@ 1&gt;&amp;2
+12   }
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，只定义了两个函数，其名称分别为error()和warning()。其中前者用来将错误消息显示到标准输出；而后者用来显示警告信息。1和2都是文件描述符，其中1表示标准输出，2表示标准错误输出。符号&gt;&amp;可以复制一个输出描述符。</p>
+
+<p class="kindle-cn-para-left">从上面的代码可以看出，函数库文件与普通的脚本的结构完全相同。通常情况下，用户应该为函数库文件提供有意义的名称，例如errors.sh或者math.sh等。同时，为了便于管理，应该将所有的库文件单独放到一个目录中，例如lib等。</p>
+
+          <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">由于函数库文件是由主程序载入并执行的，所以用户无需拥有库文件的执行权限，只要拥有读取权限即可。</span></p>
+
+    <h3 class="kindle-cn-heading2" id="sub116"><a href="part0004.html#toc116" class="calibre8">6.3.2　函数库文件的调用</a></h3>
+
+    <p class="kindle-cn-para-left">当库文件定义好之后，用户就可以在程序中载入库文件，并且调用其中的函数。在Shell中，载入库文件的命令为.，即一个圆点，其语法如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">. filename
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">其中，参数filename表示库文件的名称，必须是一个合法的文件名。库文件可以使用相对路径，也可以使用绝对路径。另外，圆点命令和库文件名之间有一个空格。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例6-16</span>】演示如何在Shell脚本中加载库文件，并且调用其中的函数，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter6/ex6-16.sh------------------
+02   #! /bin/bash
+03
+04   # 载入函数库
+05   . ex6-22.sh
+06
+07   # 定义变量
+08   msg="the file is not found."
+09   # 调用函数库中的函数
+10   error $msg
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">在上面的代码中，第5行使用圆点命令载入前面定义的lib.sh文件，第10行调用其中的error()函数显示错误消息。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter6]# ./ex6-16.sh</span>
+ERROR: the file is not found.
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">当用户使用函数库文件时，必须在调用函数前将库文件载入，否则会出现以下错误：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter6]# ./ex6-16.sh</span>
+./ex6-16.sh: line 10: error: command not found
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">上面的错误是将第5行移到第10行后面出现的。之所以会出现以上错误，是因为Shell在解释脚本的第10行时，并没有发现用户定义了名称为error()的函数，所以会将其作为一个Shell名称来对待，但是系统中又没有名称为error的名称，所以就出现了命令未发现的错误。</p>
+
+    <p class="kindle-cn-para-left">另外，载入库文件命令.后面的库文件名称一定要准确，必须是一个已经存在的磁盘文件。无论是使用相对路径，还是绝对路径，都必须是准确的。如果指定的文件不存在，则会出现以下错误：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter6]# ./ex6-16.sh</span>
+./ex6-16.sh: line 3: ../ex6-16.sh: No such file or directory
+./ex6-16.sh: line 6: error: command not found
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">上面的错误信息是将【例6-16】中的第5行代码改为一个错误的文件名之后出现的。其中，第1行错误信息是Shell在解释第5行时，并没有发现指定的文件。第2行错误信息是由于前面没有正确地载入库文件，所以导致Shell没有找到名称为error()的函数。</p>
+
+          <p class="kindle-cn-para-hang"><img class="kindle-cn-inline-image1" alt="img" src="../images/00005.jpeg"/><span class="kindle-cn-bold">注意：</span><span class="cnother">载入文件命令.与文件名之间一定要保留一个空格，许多初学者往往忽略了这个空格而导致程序执行错误。</span></p>
+
+    <h2 class="kindle-cn-heading1" id="sub117"><a href="part0004.html#toc117" class="calibre8">6.4　递归函数</a></h2>
+
+<p class="kindle-cn-para-left">Linux的Shell也支持函数的递归调用。也就是说，函数可以直接或者间接地调用自身。在函数的递归调用中，函数既是调用者，又是被调用者。本节将介绍如何在Shell中实现递归函数。</p>
+
+    <p class="kindle-cn-para-left">递归函数的调用过程就是反复地调用其自身，每调用一次就进入新的一层。首先看一个具体的例子。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例6-17</span>】演示递归函数的定义方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter6/ex6-17.sh------------------
+02   #! /bin/bash
+03
+04   # 定义递归函数
+05   func()
+06   {
+07      read y
+08      # 递归调用
+09      func "$y"
+10      echo "$y"
+11   }
+12   # 调用函数
+13   func
+</pre>
+</div>
+
+<p class="kindle-cn-para-left">在上面的代码中，第5行～第11行定义了一个递归函数，其中，第7行是从标准输入读取数据。第9行是调用自身，第10行输出变量$y的值。第13行从主程序中调用递归函数。</p>
+
+<p class="kindle-cn-para-left">可以发现，【例6-17】中确实定义了一个递归函数。但是，上面的函数却存在着一个非常大的问题，即该程序会无限地重复调用下去，不会主动退出。这是因为在【例6-17】中并没有提供递归调用终止的条件，这当然是不正确的。为了能够使得递归调用在适当的时机终止，用户需要在递归函数中指定某个条件。当该条件满足时，程序不再进行递归调用，而是逐层返回，直至最外面的一层调用。</p>
+
+<p class="kindle-cn-para-left">在介绍递归函数时，经常使用的一个例子就是计算某个数的阶乘。在数学中，整数n的阶乘可以使用以下公式来计算：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><i class="kindle-cn-italic">n</i>! = 1                           （当 <i class="kindle-cn-italic">n</i>=0 时）
+<i class="kindle-cn-italic">n</i>! = n * ( <i class="kindle-cn-italic">n</i>-1)!                （当 <i class="kindle-cn-italic">n</i>&gt;0 时）
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">也就是说，当n等于0时，n的阶乘就是1；当n大于0时，n的阶乘等于n与n-1的阶乘的乘积。通常情况下，在计算阶乘时，用户应该指定当n等于0时终止递归调用。</p>
+
+    <p class="kindle-cn-para-left">【<span class="kindle-cn-bold">例6-18</span>】实现了根据用户输入的数值计算其阶乘的方法，代码如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12">01   #-----------------------------/chapter6/ex6-18.sh------------------
+02   #! /bin/bash
+03
+04   # 定义递归函数
+05   fact()
+06   {
+07      # 定义局部变量
+08      local n="$1"
+09      # 当 n 等于 0 时终止递归调用
+10      if [ "$n" -eq 0 ]
+11      then
+12         result=1
+13      else
+14         # 当 n 大于 0 时，递归计算 n-1 的阶乘
+15         let "m=n-1"
+16         fact "$m"
+17         let "result=$n * $?"
+18      fi
+19      # 将计算结果以退出状态码的形式返回
+20      return $result
+21   }
+22
+23   # 调用递归函数
+24   fact "$1"
+25
+26   echo "Factorial of $1 is $?"
+</pre>
+</div>
+
+<p class="kindle-cn-para-left">在上面的代码中，第5行～第21行定义了一个计算阶乘的递归函数。其中将递归变量的值为0作为终止递归调用的条件。第10行～第12行是当递归变量的值为0时，直接返回其阶乘值1。第13行～第18行是当递归变量的值大于0时，递归计算n-1的阶乘的过程。第15行将递归变量n的值减1，赋给另外一个变量m，第16行是递归调用的语句，通过该语句调用fact()函数自身，并将m作为新的递归变量传递给它。第17行代码是在退出递归的过程中才调用，每退出一层，便得到一个fact()函数的退出状态码，这个退出状态码代表当前递归变量的阶乘值，通过第20行的return语句返回，并通过系统变量$?获得。然后将当前退出的递归变量的阶乘值与上层递归调用中的局部变量$n相乘，得到当前的$n的阶乘值。最后，最顶层的递归调用的结果也是通过return语句返回。</p>
+
+<p class="kindle-cn-para-left">第24行是调用递归函数，第26行输出计算的结果，其中计算结果通过系统变量$?获取。</p>
+
+    <p class="kindle-cn-para-left">该程序的执行结果如下：</p>
+<div class="kindle-cn-xinying">
+<pre class="calibre12"><span class="kindle-cn-bold">[root@linux chapter6]# ./ex6-18.sh 4</span>
+Factorial of 6 is 24
+</pre>
+</div>
+
+    <p class="kindle-cn-para-left">为了使读者更加清楚【例6-18】的调用过程，下面对其进行简单地分析：</p>
+    <p class="kindle-cn-para-left">（1）用户传入数值为4。</p>
+
+    <p class="kindle-cn-para-left">（2）此时，n的值为4，大于0，所以执行程序的第15行，将4减1后得到3。</p>
+
+    <p class="kindle-cn-para-left">（3）继续执行第16行，将3作为新的递归变量传递给函数fact()。为了便于说明，将该层递归调用命名为第1层。</p>
+
+    <p class="kindle-cn-para-left">（4）重新返回到第8行开始执行。此时递归变量仍然大于0，所以重复执行第15行，将3减1后得到2。</p>
+
+    <p class="kindle-cn-para-left">（5）继续执行第16行，将2作为新的递归变量传递给函数fact()。为了便于说明，将该层递归调用命名为第2层。</p>
+
+<p class="kindle-cn-para-left">（6）重新返回到第8行开始执行。此时递归变量为2，仍然大于0，所以继续执行第15行，将2减1后得到1。</p>
+
+    <p class="kindle-cn-para-left">（7）继续执行第16行，将1作为新的递归变量传递给函数fact()。为了便于说明，将该层递归调用命名为第3层。</p>
+
+<p class="kindle-cn-para-left">（8）重新返回到第8行开始执行。此时递归变量为1，仍然大于0，所以继续执行第15行，将1减1后得到0。</p>
+
+    <p class="kindle-cn-para-left">（9）继续执行第16行，将0作为新的递归变量传递给函数fact()。为了便于说明，将该层递归调用命名为第4层。</p>
+
+    <p class="kindle-cn-para-left">（10）重新返回到第8行开始执行。此时递归变量为1，仍然大于0，所以继续执行第15行，将1减1后得到0。</p>
+
+    <p class="kindle-cn-para-left">（11）继续执行第16行，将0作为新的递归变量传递给函数fact()。为了便于说明，将该层递归调用命名为第5层。</p>
+
+    <p class="kindle-cn-para-left">（12）此时递归变量的值为0，所以满足第10行的递归变量值等于0的条件，程序执行第12行的赋值语句。然后执行第20行的return语句，将1以退出状态码的形式返回。并且退出了第5层递归调用。</p>
+
+    <p class="kindle-cn-para-left">（13）当第5层递归调用退出后，程序便执行第17行的算术运算。其中变量n的值为1，而系统变量$?获取的是第5层递归调用的退出状态码，即1。此时，变量result的值就是1的阶乘值，即1。</p>
+
+    <p class="kindle-cn-para-left">（14）继续执行第20行的return语句，退出第4层递归调用，将1的阶乘值以退出状态码的形式返回。</p>
+
+    <p class="kindle-cn-para-left">（15）重复执行第（14）步，依次退出第3层、第2层和第1层递归调用，便依次得到2、3和4的阶乘值。</p>
+
+    <p class="kindle-cn-para-left">（16）等程序退出了第1层递归调用后，执行第20行代码，将最后的4的阶乘值以退出状态码的形式返回。</p>
+
+    <p class="kindle-cn-para-left">（17）最后执行第26行，输出最终结果。</p>
+
+<p class="kindle-cn-para-left">尽管【例6-18】已经实现了阶乘的计算，但是前面已经介绍过，return返回的只能是255以内的数值。因此，当阶乘值超出这个范围时，便得到错误的结果。但是用户可以使用6.1节中介绍的方法来对其改进。</p>
+
+    <h2 class="kindle-cn-heading1" id="sub118"><a href="part0004.html#toc118" class="calibre8">6.5　小结</a></h2>
+
+<p class="kindle-cn-para-left">本章详细介绍了Shell语言中的函数的使用方法，主要内容包括函数的基础知识、函数的参数传递、函数库文件的定义和调用，以及递归函数的实现等。重点在于掌握Shell函数的定义方法、函数的返回值、通过位置变量和getopts函数传递参数，以及如何将通用的函数写成库文件以提高代码的重用性。在下一章中，将介绍数组的相关知识。</p>
+  </div>
+
+
+  </div>
+
+  
+  <div class="calibreToc">
+    <h2><a href="../../pARZf2.html"> Table of contents</a></h2>
+     <div>
+  <ul>
+    <li>
+      <a href="part0001.html#UGI0-55ac501d2b9f4bebb0296c8a16b339b4">内容简介</a>
+    </li>
+    <li>
+      <a href="part0003.html#2RHM0-55ac501d2b9f4bebb0296c8a16b339b4">前言</a>
+    </li>
+    <li>
+      <a href="part0004.html#3Q280-55ac501d2b9f4bebb0296c8a16b339b4">目录</a>
+    </li>
+    <li>
+      <a href="part0005.html#chapter2">第1篇　认识Shell编程</a>
+      <ul>
+        <li>
+          <a href="part0006.html#chapter3">第1章　Shell入门基础</a>
+          <ul>
+            <li>
+              <a href="part0006.html#sub4">1.1　为什么学习和使用Shell编程</a>
+            </li>
+            <li>
+              <a href="part0006.html#sub5">1.2　什么是Shell</a>
+              <ul>
+                <li>
+                  <a href="part0006.html#sub6">1.2.1　Shell的起源</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub7">1.2.2　Shell的功能</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub8">1.2.3　Shell的分类</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0006.html#sub9">1.3　作为程序设计语言的Shell</a>
+              <ul>
+                <li>
+                  <a href="part0006.html#sub10">1.3.1　交互式程序</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub11">1.3.2　创建脚本</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub12">1.3.3　把脚本设置为可执行</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0006.html#sub13">1.4　向脚本传递参数</a>
+              <ul>
+                <li>
+                  <a href="part0006.html#sub14">1.4.1　Shell脚本的参数</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub15">1.4.2　参数扩展</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0006.html#sub16">1.5　第一个Shell程序：Hello，Bash Shell！</a>
+              <ul>
+                <li>
+                  <a href="part0006.html#sub17">1.5.1　Shell脚本的基本元素</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub18">1.5.2　指定命令解读器</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub19">1.5.3　Shell脚本中的注释和风格</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub20">1.5.4　如何执行Shell程序</a>
+                </li>
+                <li>
+                  <a href="part0006.html#sub21">1.5.5　Shell程序的退出状态</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0006.html#sub22">1.6　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0007.html#chapter23">第2章　Shell编程环境的搭建</a>
+          <ul>
+            <li>
+              <a href="part0007.html#sub24">2.1　在不同的操作系统上搭建Shell编程环境</a>
+              <ul>
+                <li>
+                  <a href="part0007.html#sub25">2.1.1　在Windows上搭建Shell编程环境</a>
+                </li>
+                <li>
+                  <a href="part0007.html#sub26">2.1.2　在Linux上搭建Shell编程环境</a>
+                </li>
+                <li>
+                  <a href="part0007.html#sub27">2.1.3　在FreeBSD上搭建Shell编程环境</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0007.html#sub28">2.2　编辑器的选择</a>
+              <ul>
+                <li>
+                  <a href="part0007.html#sub29">2.2.1　图形化编辑器</a>
+                </li>
+                <li>
+                  <a href="part0007.html#sub30">2.2.2　vi（vim）编辑器</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0007.html#sub31">2.3　系统环境的搭建</a>
+              <ul>
+                <li>
+                  <a href="part0007.html#sub32">2.3.1　Shell配置文件</a>
+                </li>
+                <li>
+                  <a href="part0007.html#sub33">2.3.2　命令别名</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0007.html#sub34">2.4　小结</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0008.html#chapter35">第2篇　Shell编程基础</a>
+      <ul>
+        <li>
+          <a href="part0009.html#chapter36">第3章　变量和引用</a>
+          <ul>
+            <li>
+              <a href="part0009.html#sub37">3.1　深入认识变量</a>
+              <ul>
+                <li>
+                  <a href="part0009.html#sub38">3.1.1　什么是变量</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub39">3.1.2　变量的命名</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub40">3.1.3　变量的类型</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub41">3.1.4　变量的定义</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub42">3.1.5　变量和引号</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub43">3.1.6　变量的作用域</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub43a">3.1.7　系统变量</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub44">3.1.8　环境变量</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0009.html#sub45">3.2　变量赋值和清空</a>
+              <ul>
+                <li>
+                  <a href="part0009.html#sub46">3.2.1　变量赋值</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub47">3.2.2　引用变量的值</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub48">3.2.3　清除变量</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0009.html#sub49">3.3　引用和替换</a>
+              <ul>
+                <li>
+                  <a href="part0009.html#sub50">3.3.1　引用</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub51">3.3.2　全引用</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub52">3.3.3　部分引用</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub53">3.3.4　命令替换</a>
+                </li>
+                <li>
+                  <a href="part0009.html#sub53a">3.3.5　转义</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0009.html#sub54">3.4　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0010.html#chapter55">第4章　条件测试和判断语句</a>
+          <ul>
+            <li>
+              <a href="part0010.html#sub56">4.1　条 件 测 试</a>
+              <ul>
+                <li>
+                  <a href="part0010.html#sub57">4.1.1　条件测试的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub58">4.1.2　字符串测试</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub59">4.1.3　整数测试</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub60">4.1.4　文件测试</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub61">4.1.5　逻辑操作符</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0010.html#sub62">4.2　条件判断语句</a>
+              <ul>
+                <li>
+                  <a href="part0010.html#sub63">4.2.1　使用简单的if语句进行条件判断</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub64">4.2.2　使用if else语句进行流程控制</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub65">4.2.3　使用if elif语句进行多条件判断</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub66">4.2.4　使用exit语句退出程序</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0010.html#sub67">4.3　多条件判断语句case</a>
+              <ul>
+                <li>
+                  <a href="part0010.html#sub68">4.3.1　多条件判断语句case的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub69">4.3.2　利用case语句处理选项参数</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub70">4.3.3　利用case语句处理用户输入</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0010.html#sub71">4.4　运 算 符</a>
+              <ul>
+                <li>
+                  <a href="part0010.html#sub72">4.4.1　算术运算符</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub73">4.4.2　位运算符</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub74">4.4.3　自增/自减运算符</a>
+                </li>
+                <li>
+                  <a href="part0010.html#sub75">4.4.4　数字常量的进制</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0010.html#sub76">4.5　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0011.html#chapter77">第5章　循 环 结 构</a>
+          <ul>
+            <li>
+              <a href="part0011.html#sub78">5.1　步进循环语句for</a>
+              <ul>
+                <li>
+                  <a href="part0011.html#sub79_1">5.1.1　带列表的for循环语句</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub79">5.1.2　不带列表的for循环语句</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub80">5.1.3　类C风格的for循环语句</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub81">5.1.4　使用for循环语句处理数组</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0011.html#sub82">5.2　until循环语句</a>
+              <ul>
+                <li>
+                  <a href="part0011.html#sub83">5.2.1　until语句的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub84">5.2.2　利用until语句批量增加用户</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0011.html#sub85">5.3　while循环语句</a>
+              <ul>
+                <li>
+                  <a href="part0011.html#sub86">5.3.1　while语句的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub87">5.3.2　通过计数器控制while循环结构</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub88">5.3.3　通过结束标记控制while循环结构</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub89">5.3.4　理解while语句与until语句的区别</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0011.html#sub90">5.4　嵌 套 循 环</a>
+            </li>
+            <li>
+              <a href="part0011.html#sub91">5.5　利用break和continue语句控制循环</a>
+              <ul>
+                <li>
+                  <a href="part0011.html#sub92">5.5.1　利用break语句控制循环</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub93">5.5.2　利用continue语句控制循环</a>
+                </li>
+                <li>
+                  <a href="part0011.html#sub94">5.5.3　分析break语句和continue语句的区别</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0011.html#sub95">5.6　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0012.html#chapter96">第6章　函数</a>
+          <ul>
+            <li>
+              <a href="part0012.html#sub97">6.1　函数</a>
+              <ul>
+                <li>
+                  <a href="part0012.html#sub98">6.1.1　什么是函数</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub99">6.1.2　函数的定义</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub100">6.1.3　函数的调用</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub101">6.1.4　函数链接</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub102">6.1.5　函数的返回值</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub103">6.1.6　函数和别名</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub104">6.1.7　再议全局变量和局部变量</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0012.html#sub105">6.2　函 数 参 数</a>
+              <ul>
+                <li>
+                  <a href="part0012.html#sub106">6.2.1　含有参数的函数的调用方法</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub107">6.2.2　获取函数参数的个数</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub108">6.2.3　通过位置变量接收参数值</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub109">6.2.4　移动位置参数</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub110">6.2.5　通过getopts接收函数参数</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub111">6.2.6　间接参数传递</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub112">6.2.7　通过全局变量传递数据</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub113">6.2.8　传递数组参数</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0012.html#sub114">6.3　函数库文件</a>
+              <ul>
+                <li>
+                  <a href="part0012.html#sub115">6.3.1　函数库文件的定义</a>
+                </li>
+                <li>
+                  <a href="part0012.html#sub116">6.3.2　函数库文件的调用</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0012.html#sub117">6.4　递 归 函 数</a>
+            </li>
+            <li>
+              <a href="part0012.html#sub118">6.5　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0013.html#chapter119">第7章　数组</a>
+          <ul>
+            <li>
+              <a href="part0013.html#sub120">7.1　定 义 数 组</a>
+              <ul>
+                <li>
+                  <a href="part0013.html#sub121">7.1.1　通过指定元素值来定义数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub122">7.1.2　通过declare语句定义数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub123">7.1.3　通过元素值集合定义数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub124">7.1.4　通过键值对定义数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub125">7.1.5　数组和普通变量</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0013.html#sub126">7.2　数组的赋值</a>
+              <ul>
+                <li>
+                  <a href="part0013.html#sub127">7.2.1　按索引为元素赋值</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub128">7.2.2　通过集合为数组赋值</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub129">7.2.3　在数组末尾追加新元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub130">7.2.4　通过循环为数组元素赋值</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0013.html#sub131">7.3　访 问 数 组</a>
+              <ul>
+                <li>
+                  <a href="part0013.html#sub132">7.3.1　访问第1个数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub133">7.3.2　通过下标访问数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub134">7.3.3　计算数组的长度</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub135">7.3.4　通过循环遍历数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub136">7.3.5　引用所有的数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub137">7.3.6　以切片方式获取部分数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub138">7.3.7　数组元素的替换</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0013.html#sub139">7.4　删 除 数 组</a>
+              <ul>
+                <li>
+                  <a href="part0013.html#sub140">7.4.1　删除指定数组元素</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub141">7.4.2　删除整个数组</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0013.html#sub142">7.5　数组的其他操作</a>
+              <ul>
+                <li>
+                  <a href="part0013.html#sub143">7.5.1　复制数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub144">7.5.2　连接数组</a>
+                </li>
+                <li>
+                  <a href="part0013.html#sub145">7.5.3　加载文件内容到数组</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0013.html#sub146">7.6　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0014.html#chapter147">第8章　正则表达式</a>
+          <ul>
+            <li>
+              <a href="part0014.html#sub148">8.1　什么是正则表达式</a>
+              <ul>
+                <li>
+                  <a href="part0014.html#sub149">8.1.1　为什么使用正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub150">8.1.2　如何学习正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub150a">8.1.3　如何实践正则表达式</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0014.html#sub151">8.2　正则表达式基础</a>
+              <ul>
+                <li>
+                  <a href="part0014.html#sub152">8.2.1　正则表达式的原理</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub153">8.2.2　基本正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub154">8.2.3　扩展正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub155">8.2.4　Perl正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub156">8.2.5　正则表达式字符集</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0014.html#sub157">8.3　正则表达式应用</a>
+              <ul>
+                <li>
+                  <a href="part0014.html#sub158">8.3.1　匹配单个字符</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub159">8.3.2　匹配多个字符</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub160">8.3.3　匹配字符串的开头或者结尾</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub161">8.3.4　运算符优先级</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub162">8.3.5　子表达式</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub163">8.3.6　通配符</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0014.html#sub164">8.4　grep命令</a>
+              <ul>
+                <li>
+                  <a href="part0014.html#sub165">8.4.1　grep命令的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0014.html#sub166">8.4.2　grep命令族简介</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0014.html#sub167">8.5　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0015.html#chapter168">第9章　基本文本处理</a>
+          <ul>
+            <li>
+              <a href="part0015.html#sub169">9.1　使用echo命令输出文本</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub170">9.1.1　显示普通字符串</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub171">9.1.2　显示转义字符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub172">9.1.3　显示变量</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub173">9.1.4　换行和不换行</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub174">9.1.5　显示命令执行结果</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub175">9.1.6　echo命令执行结果的重定向</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub176">9.2　文本的格式化输出</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub177">9.2.1　使用UNIX制表符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub178">9.2.2　使用fold命令格式化行</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub179">9.2.3　使用fmt命令格式化段落</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub180">9.2.4　使用rev命令反转字符顺序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub181">9.2.5　使用pr命令格式化文本页</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub182">9.3　使用sort命令对文本排序</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub183">9.3.1　sort命令的基本用法</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub184">9.3.2　使用单个关键字排序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub185">9.3.3　根据指定的列排序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub186">9.3.4　根据关键字降序排序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub187">9.3.5　数值列的排序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub188">9.3.6　自定义列分隔符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub189">9.3.7　删除重复的行</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub190">9.3.8　根据多个关键字排序</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub191">9.3.9　使用sort命令合并文件</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub192">9.4　文本的统计</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub193">9.4.1　输出含有行号的文本行</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub194">9.4.2　统计行数</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub195">9.4.3　统计单词数和字符数</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub196">9.5　使用cut命令选取文本列</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub197">9.5.1　cut命令及其语法</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub198">9.5.2　选择指定的文本列</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub199">9.5.3　选择指定数量的字符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub200">9.5.4　排除不包含列分隔符的行</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub201">9.6　使用paste命令拼接文本列</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub202">9.6.1　paste命令及其语法</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub203">9.6.2　自定义列分隔符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub204">9.6.3　拼接指定的文本列</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub205">9.7　使用join命令联接文本列</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub206">9.7.1　join命令及其语法</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub207">9.7.2　指定联接关键字列</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub208">9.7.3　内联接文本文件</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub209">9.7.4　左联接文本文件</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub210">9.7.5　右联接文本文件</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub211">9.7.6　全联接文本文件</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub212">9.7.7　自定义输出列</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub213">9.8　使用tr命令替换文件内容</a>
+              <ul>
+                <li>
+                  <a href="part0015.html#sub214">9.8.1　tr命令及其语法</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub215">9.8.2　去除重复出现的字符</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub216">9.8.3　删除空行</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub216a">9.8.4　大小写转换</a>
+                </li>
+                <li>
+                  <a href="part0015.html#sub216b">9.8.5　删除指定字符</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0015.html#sub217">9.9　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0016.html#chapter218">第10章　流 编 辑</a>
+          <ul>
+            <li>
+              <a href="part0016.html#sub219">10.1　sed命令及其语法</a>
+              <ul>
+                <li>
+                  <a href="part0016.html#sub220">10.1.1　sed命令以及语法</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub221">10.1.2　sed命令的工作方式</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub222">10.1.3　使用行号定位文本行</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub223">10.1.4　使用正则表达式定位文本行</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0016.html#sub224">10.2　sed命令的常用操作</a>
+              <ul>
+                <li>
+                  <a href="part0016.html#sub225">10.2.1　sed编辑命令基本语法</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub226">10.2.2　选择文本</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub227">10.2.3　替换文本</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub228">10.2.4　删除文本</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub229">10.2.5　追加文本</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub230">10.2.6　插入文本</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0016.html#sub231">10.3　组 合 命 令</a>
+              <ul>
+                <li>
+                  <a href="part0016.html#sub232">10.3.1　使用-e选项执行多个子命令</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub233">10.3.2　使用分号执行多个子命令</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub234">10.3.3　对一个地址使用多个子命令</a>
+                </li>
+                <li>
+                  <a href="part0016.html#sub235">10.3.4　sed脚本文件</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0016.html#sub236">10.4　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0017.html#chapter237">第11章　文本处理利器awk命令</a>
+          <ul>
+            <li>
+              <a href="part0017.html#sub238">11.1　awk入门</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub239">11.1.1　awk的功能</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub240">11.1.2　awk命令的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub241">11.1.3　awk的工作流程</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub242">11.1.4　执行awk程序的几种方式</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub246">11.2　awk的模式匹配</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub247">11.2.1　关系表达式</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub248">11.2.2　正则表达式</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub249">11.2.3　混合模式</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub250">11.2.4　区间模式</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub243">11.2.5　BEGIN模式</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub251">11.2.6　END模式</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub252">11.3　变量</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub253">11.3.1　变量的定义和引用</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub254">11.3.2　系统内置变量</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub255">11.3.3　记录分隔符和字段分隔符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub256">11.3.4　记录和字段的引用</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub257">11.4　运算符和表达式</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub258">11.4.1　算术运算符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub259">11.4.2　赋值运算符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub260">11.4.3　条件运算符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub261">11.4.4　逻辑运算符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub262">11.4.5　关系运算符</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub263">11.4.6　其他运算符</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub264">11.5　函数</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub265">11.5.1　字符串函数</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub266">11.5.2　算术函数</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub267">11.6　数组</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub268">11.6.1　数组的定义和赋值</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub269">11.6.2　遍历数组</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub270">11.7　流 程 控 制</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub271">11.7.1　if语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub272">11.7.2　while语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub273">11.7.3　do…while语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub274">11.7.4　for语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub275">11.7.5　break语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub276">11.7.6　continue语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub277">11.7.7　next语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub278">11.7.8　exit语句</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub279">11.8　awk程序的格式化输出</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub280">11.8.1　基本print语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub281">11.8.2　格式化输出printf语句</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub282">11.8.3　使用sprintf()函数生成格式化字符串</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub283">11.9　awk的程序与Shell的交互</a>
+              <ul>
+                <li>
+                  <a href="part0017.html#sub284">11.9.1　通过管道实现与Shell的交换</a>
+                </li>
+                <li>
+                  <a href="part0017.html#sub285">11.9.2　通过system函数实现与Shell的交互</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0017.html#sub286">11.10　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0018.html#chapter287">第12章　文件的操作</a>
+          <ul>
+            <li>
+              <a href="part0018.html#sub288">12.1　文件</a>
+              <ul>
+                <li>
+                  <a href="part0018.html#sub289">12.1.1　列出文件</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub290">12.1.2　文件类型</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub291">12.1.3　文件的权限</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0018.html#sub292">12.2　查 找 文 件</a>
+              <ul>
+                <li>
+                  <a href="part0018.html#sub293">12.2.1　find命令以及语法</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub294">12.2.2　find命令：路径</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub295">12.2.3　find命令：测试</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub296">12.2.4　find命令：使用!运算符对测试求反</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub297">12.2.5　find命令：处理文件权限错误信息</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub298">12.2.6　find命令：动作</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0018.html#sub299">12.3　比 较 文 件</a>
+              <ul>
+                <li>
+                  <a href="part0018.html#sub300">12.3.1　使用comm比较文件</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub301">12.3.2　使用diff比较文件</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0018.html#sub302">12.4　文件描述符</a>
+              <ul>
+                <li>
+                  <a href="part0018.html#sub303">12.4.1　什么是文件描述符</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub304">12.4.2　标准输入、标准输出和标准错误</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0018.html#sub305">12.5　重 定 向</a>
+              <ul>
+                <li>
+                  <a href="part0018.html#sub306">12.5.1　输出重定向（覆盖）</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub307">12.5.2　输出重定向（追加）</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub308">12.5.3　输入重定向</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub309">12.5.4　当前文档</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub310">12.5.5　重定向两个文件描述符</a>
+                </li>
+                <li>
+                  <a href="part0018.html#sub311">12.5.6　使用exec命令分配文件描述符</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0018.html#sub312">12.6　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0019.html#chapter313">第13章　子Shell与进程处理</a>
+          <ul>
+            <li>
+              <a href="part0019.html#sub314">13.1　子Shell</a>
+              <ul>
+                <li>
+                  <a href="part0019.html#sub315">13.1.1　什么是子Shell</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub316">13.1.2　内部命令、保留字和外部命令</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub317">13.1.3　在子Shell中执行命令</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub318">13.1.4　把子Shell中的变量值传回父Shell</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0019.html#sub319">13.2　进 程 处 理</a>
+              <ul>
+                <li>
+                  <a href="part0019.html#sub320">13.2.1　什么是进程</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub321">13.2.2　通过脚本监控进程</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub322">13.2.3　作业控制</a>
+                </li>
+                <li>
+                  <a href="part0019.html#sub322a">13.2.4　信号与trap命令</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0019.html#sub323">13.3　小结</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0020.html#chapter324">第3篇　Shell编程实战</a>
+      <ul>
+        <li>
+          <a href="part0021.html#chapter325">第14章　Shell脚本调试技术</a>
+          <ul>
+            <li>
+              <a href="part0021.html#sub326">14.1　Shell脚本中的常见错误</a>
+              <ul>
+                <li>
+                  <a href="part0021.html#sub327">14.1.1　常见语法错误</a>
+                </li>
+                <li>
+                  <a href="part0021.html#sub328">14.1.2　常见逻辑错误</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0021.html#sub329">14.2　Shell脚本调试技术</a>
+              <ul>
+                <li>
+                  <a href="part0021.html#sub330">14.2.1　使用echo命令调试脚本</a>
+                </li>
+                <li>
+                  <a href="part0021.html#sub331">14.2.2　使用trap命令调试Shell脚本</a>
+                </li>
+                <li>
+                  <a href="part0021.html#sub332">14.2.3　使用tee命令调试Shell脚本</a>
+                </li>
+                <li>
+                  <a href="part0021.html#sub333">14.2.4　使用调试钩子调试Shell脚本</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0021.html#sub334">14.3　小结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0022.html#chapter335">第15章　利用Shell脚本解决实际问题</a>
+          <ul>
+            <li>
+              <a href="part0022.html#sub336">15.1　编写系统服务脚本</a>
+              <ul>
+                <li>
+                  <a href="part0022.html#sub337">15.1.1　系统启动过程</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub338">15.1.2　运行级别</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub339">15.1.3　服务脚本的基本语法</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub340">15.1.4　编写MySQL服务脚本</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0022.html#sub341">15.2　通过脚本管理Apache服务器日志</a>
+              <ul>
+                <li>
+                  <a href="part0022.html#sub342">15.2.1　Apache以及日志文件简介</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub343">15.2.2　备份归档文件名生成函数</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub344">15.2.3　过期日志备份归档函数</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub345">15.2.4　过期日志删除函数</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub346">15.2.5　日志归档主程序</a>
+                </li>
+                <li>
+                  <a href="part0022.html#sub347">15.2.6　定时运行日志归档脚本</a>
+                </li>
+              </ul>
+            </li>
+            <li>
+              <a href="part0022.html#sub348">15.3　小结</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0023.html#chapter336">附录CD</a>
+    </li>
+  </ul>
+</div>
+
+
+  </div>
+  
+
+  <div class="calibreEbNav">
+    
+      <a href="part0011.html" class="calibreAPrev">previous page</a>
+    
+
+    <a href="../../pARZf2.html" class="calibreAHome"> start</a>
+
+    
+      <a href="part0013.html" class="calibreANext"> next page</a>
+    
+  </div>
+
+</div>
+
+</body>
+</html>
