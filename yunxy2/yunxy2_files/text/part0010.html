@@ -1,0 +1,1006 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+    <title>未知</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+
+  
+
+
+<link href="../calibreHtmlOutBasicCss.css" type="text/css" rel="stylesheet" />
+
+</head>
+<body>
+
+<div class="calibreMeta">
+  <div class="calibreMetaTitle">
+  
+  
+    
+    <h1>
+      <a href="../../yunxy2.html">七周七数据库
+</a>
+    </h1>
+    
+    
+  
+  </div>
+  <div class="calibreMetaAuthor">
+    Eric Redmond, Jim R.Wilson
+
+  </div>
+</div>
+
+<div class="calibreMain">
+
+  <div class="calibreEbookContent">
+    
+      <div class="calibreEbNavTop">
+        
+          <a href="part0009.html" class="calibreAPrev">previous page</a>
+        
+
+        
+          <a href="part0011.html" class="calibreANext"> next page</a>
+        
+      </div>
+    
+
+    
+  <p class="classtitle"><a id="a008" href="part0009.html#toca008">第1章 概述</a></p>
+
+  <p class="content1">当前是数据库世界的一个重要时刻。多年来，无论针对的问题是大还是小，关系模型一直是事实上的选择。我们不指望关系数据库会很快消失，但是人们正在从RDBMS的迷雾中走出来，寻找替代的方案，如无模式或可替代的数据结构，可简单复制，具有高可用性，可横向扩展，以及新的查询方法。这些选择统称为NoSQL，而NoSQL占据了本书的大部分内容。</p>
+
+  <p class="content1">本书将探讨七种数据库，涉及各种数据库风格。在阅读本书的过程中，你将了解每个数据库具有的各种功能和折中，如持久性与速度、绝对一致性与最终一致性等，并学会如何针对你的使用场景，做出最好的决策。</p>
+
+  <p class="chaptertitle"><a id="a009" href="part0009.html#toca009">1.1 从一个问题开始</a></p>
+
+  <p class="content1">本书的核心问题是：哪种数据库或数据库组合最好地解决了你的问题？读完本书，如果你知道如何根据特定需求和手头的资源做出这种选择，我们会很高兴。</p>
+
+  <p class="content1">但要回答这个问题，你需要了解你的选择。为此，我们将带你深入这7个数据库，揭示精华，并指出瑕疵。你将亲手尝试CRUD操作，发挥你使用的模式的力量，并找到下面这些问题的答案：</p>
+
+  <p class="content1">●这是什么类型的数据库？数据库分为各种类型，例如，关系型、键-值型、多列型、面向文档型和图型。流行的数据库（包括本书中介绍的）一般可以划分为这几大类型。你将了解每种类型的数据库，以及它们最适合的各种问题。我们对本书涉及的数据库精心挑选，以覆盖这些类型，包括一个关系数据库（Postgres），两个键-值存储数据库（Riak 和Redis），一个面向列的数据库（HBase），两个面向文档的数据库（MongoDB和CouchDB），以及一个图数据库（Neo4j）。</p>
+
+  <p class="content1">●驱动力是什么？数据库不是凭空产生的。它们是为了解决实际使用中提出的问题。在 RDBMS（关系数据库管理系统）出现的环境中，数据库查询的灵活性比灵活的模式更重要。另一方面，建立面向列的数据库是为了适于存储跨多机的大量数据，而数据之间的关系退居次要地位。我们将介绍使用每个数据库的场景和相关的例子。</p>
+
+  <p class="content1">●如何与数据库交互？数据库往往支持多种连接选项。只要某个数据库有交互式的命令行界面，我们会首先使用它，之后再介绍其他方法。如果需要编程，我们主要使用Ruby和JavaScript，尽管不时会用到其他几种语言，如PL/pgSQL（Postgres）和Gremlin（Neo4j）。更深入一层，我们将讨论诸如REST（CouchDB和Riak）和Thrift（HBase）协议。第9章将介绍一个更复杂的数据库环境，它由Node.js JavaScript实现联接在一起。</p>
+
+  <p class="content1">●每种数据库的独特性体现在哪里？任何数据存储库都支持写入和读回数据。它们在其他的方面彼此大不相同。有些数据库允许对任意字段的查询。有些数据库提供快速索引查找。有些数据库支持自由定义的查询（ad hoc query）；而其他的数据库的查询必须先规划。模式是数据库所强制的一个刚性框架，或仅仅是一些随意商定的准则？理解每种数据库的功能和限制，将有助于挑选适合你的工作的数据库。</p>
+
+  <p class="content1">●每种数据库的性能如何？这个数据库如何工作？其开销如何？它支持分片吗？复制呢？它是否使用一致散列均匀地分布数据？它将相似的数据放在一起吗？这个数据库为读、写或其他操作做了优化吗？如果你能对优化进行控制，程度如何？</p>
+
+  <p class="content1">●每种数据库的可伸缩性如何？可伸缩性与性能相关。没有上下文，谈论可伸缩性一般不会有结论。本书会提供背景知识，你在建立这个上下文时就能提出正确的问题。虽然如何扩展每个数据库的讨论会有意淡化，但在这些章节里，你会发现每种数据存储库是更容易实现横向扩展（MongoDB、Hbase 和 Riak），还是传统的纵向扩展（Postgres、Neo4j和Redis），或者介于两者之间。</p>
+
+  <p class="content1">我们的目标不是将某种数据库的新手培养成大师。如果这样做的话，其中任何一个数据库都将充满整本书的篇幅。但最终你应该能够牢牢把握每个数据库的优势，以及它们的不同。</p>
+
+  <p class="chaptertitle"><a id="a010" href="part0009.html#toca010">1.2 风格</a></p>
+
+  <p class="content1">如同音乐一样，各种数据库有着其本身独特的风格。所有的歌曲都使用同样的音符，但是有些音符对某些网络的歌曲更合适。少有人驾驶着敞篷车，沿着 405 号公路超速行驶，同时播放巴赫的《B小调弥撒曲》。同样，在某些情况下，一些数据库比其他数据库更好些。你要问的不是“我能够用这个数据库来存储和完善数据吗？”而是“我应该用这个数据库吗？”</p>
+
+  <p class="content1">本节将要探讨 5种主要的数据库类型，也会简单介绍每种类型中我们要关注的数据库。</p>
+
+  <p class="content1">重要的是要记住，你将面临的大多数数据问题，可以用本书中的大部分或全部数据库解决，更别说还有其他数据库。问题不是某种数据库风格是否能别生搬硬套地用来为你的数据建模，而是它是否最适合你的问题领域、使用模式，以及可用的资源。你将学会预测一种数据库是否在本质上对你有用，而这是一门艺术。</p>
+
+  <p class="sectiontitle"><a id="a011" href="part0009.html#toca011">1.2.1 关系数据库</a></p>
+
+  <p class="content1">关系模型通常是大多数有数据库经验的人首先想到的。关系数据库管理系统（Relational DataBase Management System，RDBMS）是以集合理论为基础的系统，实现为具有行和列的二维表。与RDBMS交互的标准方法，是用结构化查询语言（Structured Query Language，SQL）编写查询。数据值具有类型，可以是数字、字符串、日期、未解释的二进制大对象，或其他类型。系统强制使用类型。重要的是，表可以联接并转化为新的、更复杂的表，因为它们的数学基础是关系（集合）理论。</p>
+
+  <p class="content1">有许多开源关系数据库可供选择，包括MySQL、H2、HSQLDB、SQLite等。第2章将介绍PostgreSQL。</p>
+
+  <p class="content1">PostgreSQL</p>
+
+  <p class="content1">PostgreSQL久经沙场，它是迄今为止我们介绍的最古老和最健壮的数据库。PostgreSQL符合SQL标准，之前曾使用过关系数据库的人都会觉得熟悉它，这为我们将使用的其他数据库提供了一个坚实的比较基础。我们还将探讨一些不大为人熟悉的 SQL 功能以及Postgres特有的优势。从SQL新手到专家，每个人都能从中有所收获。</p>
+
+  <p class="sectiontitle"><a id="a012" href="part0009.html#toca012">1.2.2 键-值数据库</a></p>
+
+  <p class="content1">键-值（Key-Value，KV）存储库是我们介绍的最简单的模型。顾名思义，KV存储库将键与值配对，类似于所有流行编程语言中的映射（或哈希表）。某些KV实现允许复杂的值类型，如哈希或列表，但这不是必需的。一些 KV 实现提供了一种迭代遍历键的方式，但这也是额外的好处。如果你将文件的路径视为键而将文件内容作为值，文件系统也可以看成是键-值存储库。因为KV存储库对资源的要求非常少，所以这种数据库类型在一些场景中有令人难以置信的高性能，但是当你有复杂的查询和聚合需求时，它一般不会有帮助。</p>
+
+  <p class="content1">与关系数据库一样，有许多开源的 KV 存储库可以选择。一些较受欢迎的产品包括memcached（及相关的memcachedb和membase）、Voldemort，以及我们在本书中介绍的两个产品：Redis和Riak。</p>
+
+  <p class="content1">1．Riak</p>
+
+  <p class="content1">第3章介绍的Riak不仅仅是一个键-值存储库，它从一开始就支持HTTP和REST等Web方式。它严格实现了亚马逊Dynamo的原理，具有一些高级功能，如解决冲突的向量时钟。Riak中的值可以是任何内容，从纯文本到XML到图像数据，而键之间的关系由称为链接（link）的命名结构处理。Riak是本书中知名度较小的数据库，但它越来越受欢迎，在我们将要讨论的数据库中，它是第一个通过mapreduce支持高级查询的数据库。</p>
+
+  <p class="content1">2．Redis</p>
+
+  <p class="content1">Redis提供复杂的数据类型，如有序集合和哈希，以及基本消息模式，如发布-订阅和阻塞队列。它是查询机制最健壮的KV存储库之一。在写入磁盘之前先写入内存缓存， Redis 因此获得了惊人的性能，代价是在出现硬件故障的情况下，增加了数据丢失的风险。这一特性使得它适合用于缓存非关键数据，或作为消息代理。我们将它留到最后介绍（参见第8章），以便可以用Redis与其他数据库配合，构建多数据库应用。</p>
+
+  <p class="sectiontitle"><a id="a013" href="part0009.html#toca013">1.2.3 列型数据库</a></p>
+
+  <p class="content1">列型（或面向列的数据库）的命名源自于其设计的一个重要方面，即来自一个给定的列（在二维表的意义上）的数据存放在一起。相比之下，面向行的数据库（如RDBMS），将一行的信息保存在一起。这种差异看起来似乎无关紧要，但实际上这种设计决策的影响很深。在面向列的数据库中，添加列是相当简易的，而且是逐行完成的。每一行可以有一组不同的列，或完全没有，允许表保持稀疏（sparse），而不会产生空值的存储成本。在结构方面，列型数据库大约介于关系数据库和键-值存储库之间。</p>
+
+  <p class="content1">在列型数据库市场中，竞争相比关系数据库或键-值存储较少。三种最流行的产品是HBase（在第4章中介绍）、Cassandra和Hypertable。</p>
+
+  <p class="content1">HBase</p>
+
+  <p class="content1">在我们介绍的所有非关系数据库中，这个面向列的数据库与关系模型最为相似。以Google的BigTable论文作为蓝图，HBase建立在Hadoop（一个mapreduce引擎）之上，其设计目标是在常用硬件的集群上横向伸缩。HBase 保证了强一致性并提供带行和列的表的功能，这使得SQL粉丝有宾至如归的感觉。它直接支持版本控制和压缩，这令它在“大数据”的世界中与众不同。</p>
+
+  <p class="sectiontitle"><a id="a014" href="part0009.html#toca014">1.2.4 文档型数据库</a></p>
+
+  <p class="content1">当然，面向文档的数据库存储的就是文档。简而言之，文档就像是哈希，具有一个独一无二的标识符（ID）字段和值，值可能是任何类型，包括更多的哈希。文档可以包含嵌套的结构，因此，它们表现出了高度的灵活性，允许有可变域。该系统对输入的数据很少有限制，只要它满足基本要求，可以表示为一个文档。在建索引、自由定义的查询、复制、一致性及其他设计决策等方面，不同的文档数据库采取了不同的方法。需要了解这些差异，及其对特定使用场景的影响，才能在它们之间做出明智地选择。</p>
+
+  <p class="content1">文档数据库市场中的两大开源产品是MongoDB（在第5章中介绍）和CouchDB（在第6章中介绍）。</p>
+
+  <p class="content1">1．MongoDB</p>
+
+  <p class="content1">MongoDB的设计目标是支持巨大的数据（名字mongo是从单词humongous中提取的）。Mongo服务器的配置试图保持一致性：如果你写入了什么内容，随后的读取将得到相同的值（直到下次更新）。这一特性吸引了那些具有RDBMS背景的人。它也提供了一些原子读写操作（如递增一个值），以及对嵌套文档结构的深层查询。MongoDB 利用 JavaScript 作为查询语言，支持简单的查询和复杂的mapreduce工作。</p>
+
+  <p class="content1">2．CouchDB</p>
+
+  <p class="content1">CouchDB 的目标是各种部署场景，从数据中心到桌面，一直到智能手机。CouchDB是用Erlang编写的，具有独特的坚固性，这一点在大部分其他数据库中是缺乏的。由于它的数据文件几乎不可摧毁，即使是面对间歇性的连接丢失或硬件故障，CouchDB也仍能保持高可用性。像Mongo一样，CouchDB的原生查询语言是JavaScript。视图包括mapreduce函数，它们以文档的形式存储并在节点之间复制，像任何其他的数据一样。</p>
+
+  <p class="sectiontitle"><a id="a015" href="part0009.html#toca015">1.2.5 图数据库</a></p>
+
+  <p class="content1">这是一种不太常用的数据库类型，图数据库善于处理高度互联的数据。图数据库包含节点及节点之间的关系。节点和关系可以有一些属性（一些键-值对），用来存储数据。图数据库的真正实力是按照关系遍历节点。</p>
+
+  <p class="content1">第7章讨论现在最流行的图数据库Neo4j。</p>
+
+  <p class="content1">Neo4j</p>
+
+  <p class="content1">在遍历自我引用或以其他方式杂乱地连接在一起的数据时，其他数据库常常操作失败。这正是Neo4j使人眼前一亮的地方。使用图数据库的好处在于能够快速在节点和关系之间移动，找到相关数据。图数据库经常用在社交网络应用中，它们因灵活性而受到关注，Neo4j是其中的佼佼者。</p>
+
+  <p class="sectiontitle"><a id="a016" href="part0009.html#toca016">1.2.6 混合使用多种数据库</a></p>
+
+  <p class="content1">在实际环境中，各种数据库经常一起使用。使用单一的关系数据库仍然很常见，但随着时间的推移，流行的做法是同时使用几种数据库，利用它们各自的长处，创建一个生态系统，比其各部分的功能总和更强大、更全面、更健壮。这种做法叫做多持久并存（Polyglot Persistence），第9章将进一步讨论这一主题。</p>
+
+  <p class="chaptertitle"><a id="a017" href="part0009.html#toca017">1.3 前进和提升</a></p>
+
+  <p class="content1">我们正处在数据存储选择的寒武纪大爆炸之中，很难准确预测未来会如何发展。但我们可以相当肯定，任何一种特定策略（关系型或其他类型）都不大可能大获全胜。相反，我们将看到越来越多的专用数据库，每种适合一组特定（但肯定有重叠）的理想问题。今天有一些工作需要关系数据库的专业知识（DBA），同样，我们会看到对应的非关系领域的增长。</p>
+
+  <p class="content1">与编程语言和程序库一样，数据库是另一套工具，每个开发人员都应该知道数据库。每一个好木匠必须了解他的工具箱里有什么。就像所有好的建筑师一样，如果你不熟悉可供你使用的多种选择，就不会成为一名大师。</p>
+
+  <p class="content1">本书就像是一个车间里的速成课。在本书中，你会挥动锤子，转动电钻，使用射钉枪，并最终能够建立比鸟笼子更大、更复杂的东西。闲话少说，我们来使用我们的第一个数据库：PostgreSQL。</p>
+
+
+  </div>
+
+  
+  <div class="calibreToc">
+    <h2><a href="../../yunxy2.html"> Table of contents</a></h2>
+     <div>
+  <ul>
+    <li>
+      <a href="part0000.html#0-342f01c62f074cc5bffaaa8640a8120e">封面</a>
+    </li>
+    <li>
+      <a href="part0001.html#UGI0-342f01c62f074cc5bffaaa8640a8120e">扉页</a>
+    </li>
+    <li>
+      <a href="part0002.html#1T140-342f01c62f074cc5bffaaa8640a8120e">版权</a>
+    </li>
+    <li>
+      <a href="part0003.html#a002">内容提要</a>
+    </li>
+    <li>
+      <a href="part0004.html#a003">译者简介</a>
+    </li>
+    <li>
+      <a href="part0005.html#a004">序</a>
+    </li>
+    <li>
+      <a href="part0006.html#a005">作者访谈</a>
+    </li>
+    <li>
+      <a href="part0007.html#a006">前言</a>
+    </li>
+    <li>
+      <a href="part0008.html#a007">致谢</a>
+    </li>
+    <li>
+      <a href="part0009.html#8IL20-342f01c62f074cc5bffaaa8640a8120e">目录</a>
+    </li>
+    <li>
+      <a href="part0010.html#a008">第1章 概述</a>
+      <ul>
+        <li>
+          <a href="part0010.html#a009">1.1 从一个问题开始</a>
+        </li>
+        <li>
+          <a href="part0010.html#a010">1.2 风格</a>
+          <ul>
+            <li>
+              <a href="part0010.html#a011">1.2.1 关系数据库</a>
+            </li>
+            <li>
+              <a href="part0010.html#a012">1.2.2 键-值数据库</a>
+            </li>
+            <li>
+              <a href="part0010.html#a013">1.2.3 列型数据库</a>
+            </li>
+            <li>
+              <a href="part0010.html#a014">1.2.4 文档型数据库</a>
+            </li>
+            <li>
+              <a href="part0010.html#a015">1.2.5 图数据库</a>
+            </li>
+            <li>
+              <a href="part0010.html#a016">1.2.6 混合使用多种数据库</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0010.html#a017">1.3 前进和提升</a>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0011.html#a018">第2章 PostgreSQL</a>
+      <ul>
+        <li>
+          <a href="part0011.html#a019">2.1 这就是Post-greS-Q-L</a>
+        </li>
+        <li>
+          <a href="part0011.html#a020">2.2 第1天：关系、CRUD和联接</a>
+          <ul>
+            <li>
+              <a href="part0011.html#a021">2.2.1 从SQL开始</a>
+            </li>
+            <li>
+              <a href="part0011.html#a022">2.2.2 使用表</a>
+            </li>
+            <li>
+              <a href="part0011.html#a023">2.2.3 使用联接的查询</a>
+            </li>
+            <li>
+              <a href="part0011.html#a024">2.2.4 外联接</a>
+            </li>
+            <li>
+              <a href="part0011.html#a025">2.2.5 使用索引快速查找</a>
+            </li>
+            <li>
+              <a href="part0011.html#a026">2.2.6 第1天总结</a>
+            </li>
+            <li>
+              <a href="part0011.html#a027">2.2.7 第1天作业</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0011.html#a028">2.3 第2天：高级查询、代码和规则</a>
+          <ul>
+            <li>
+              <a href="part0011.html#a029">2.3.1 聚合函数</a>
+            </li>
+            <li>
+              <a href="part0011.html#a030">2.3.2 分组</a>
+            </li>
+            <li>
+              <a href="part0011.html#a031">2.3.3 窗口函数</a>
+            </li>
+            <li>
+              <a href="part0011.html#a032">2.3.4 事务</a>
+            </li>
+            <li>
+              <a href="part0011.html#a033">2.3.5 存储过程</a>
+            </li>
+            <li>
+              <a href="part0011.html#a034">2.3.6 触发器</a>
+            </li>
+            <li>
+              <a href="part0011.html#a035">2.3.7 视图</a>
+            </li>
+            <li>
+              <a href="part0011.html#a036">2.3.8 规则是什么</a>
+            </li>
+            <li>
+              <a href="part0011.html#a037">2.3.9 联表分析</a>
+            </li>
+            <li>
+              <a href="part0011.html#a038">2.3.10 第2天总结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0011.html#a039">2.4 第3天：全文检索和多维查询</a>
+          <ul>
+            <li>
+              <a href="part0011.html#a040">2.4.1 模糊搜索</a>
+            </li>
+            <li>
+              <a href="part0011.html#a041">2.4.2 SQL标准的字符串匹配</a>
+            </li>
+            <li>
+              <a href="part0011.html#a042">2.4.3 字符串相似比较算法levenshtein</a>
+            </li>
+            <li>
+              <a href="part0011.html#a043">2.4.4 三连词</a>
+            </li>
+            <li>
+              <a href="part0011.html#a044">2.4.5 全文检索</a>
+            </li>
+            <li>
+              <a href="part0011.html#a045">2.4.6 组合使用字符串匹配方法</a>
+            </li>
+            <li>
+              <a href="part0011.html#a046">2.4.7 把电影风格表示成多维超立方体</a>
+            </li>
+            <li>
+              <a href="part0011.html#a047">2.4.8 第3天总结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0011.html#a048">2.5 总结</a>
+          <ul>
+            <li>
+              <a href="part0011.html#a049">2.5.1 PostgreSQL的优点</a>
+            </li>
+            <li>
+              <a href="part0011.html#a050">2.5.2 PostgreSQL的缺点</a>
+            </li>
+            <li>
+              <a href="part0011.html#a051">2.5.3 结束语</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0012.html#a052">第3章 Riak</a>
+      <ul>
+        <li>
+          <a href="part0012.html#a053">3.1 Riak喜欢Web</a>
+        </li>
+        <li>
+          <a href="part0012.html#a054">3.2 第1天：CRUD、链接和MIME</a>
+          <ul>
+            <li>
+              <a href="part0012.html#a055">3.2.1 REST是最棒的（或用cURL时）</a>
+            </li>
+            <li>
+              <a href="part0012.html#a056">3.2.2 将值放于桶中</a>
+            </li>
+            <li>
+              <a href="part0012.html#a057">3.2.3 链接</a>
+            </li>
+            <li>
+              <a href="part0012.html#a058">3.2.4 Riak的MIME类型</a>
+            </li>
+            <li>
+              <a href="part0012.html#a059">3.2.5 第1天总结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0012.html#a060">3.3 第2天：Mapreduce和服务器集群</a>
+          <ul>
+            <li>
+              <a href="part0012.html#a061">3.3.1 填充脚本</a>
+            </li>
+            <li>
+              <a href="part0012.html#a062">3.3.2 mapreduce介绍</a>
+            </li>
+            <li>
+              <a href="part0012.html#a063">3.3.3 Riak中的mapreduce</a>
+            </li>
+            <li>
+              <a href="part0012.html#a064">3.3.4 关于一致性和持久性</a>
+            </li>
+            <li>
+              <a href="part0012.html#a065">3.3.5 第2天总结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0012.html#a066">3.4 第3天：解决冲突和扩展Riak</a>
+          <ul>
+            <li>
+              <a href="part0012.html#a067">3.4.1 以向量时钟解决冲突</a>
+            </li>
+            <li>
+              <a href="part0012.html#a068">3.4.2 扩展Riak</a>
+            </li>
+            <li>
+              <a href="part0012.html#a069">3.4.3 第3天总结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0012.html#a070">3.5 总结</a>
+          <ul>
+            <li>
+              <a href="part0012.html#a071">3.5.1 Riak的优点</a>
+            </li>
+            <li>
+              <a href="part0012.html#a072">3.5.2 Riak的缺点</a>
+            </li>
+            <li>
+              <a href="part0012.html#a073">3.5.3 Riak之于CAP</a>
+            </li>
+            <li>
+              <a href="part0012.html#a074">3.5.4 结束语</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0013.html#a075">第4章 HBase</a>
+      <ul>
+        <li>
+          <a href="part0013.html#a076">4.1 介绍HBase</a>
+        </li>
+        <li>
+          <a href="part0013.html#a077">4.2 第1天：CRUD和表管理</a>
+          <ul>
+            <li>
+              <a href="part0013.html#a078">4.2.1 配置HBase</a>
+            </li>
+            <li>
+              <a href="part0013.html#a079">4.2.2 HBase shell</a>
+            </li>
+            <li>
+              <a href="part0013.html#a080">4.2.3 创建表</a>
+            </li>
+            <li>
+              <a href="part0013.html#a081">4.2.4 插入、更新和读取数据</a>
+            </li>
+            <li>
+              <a href="part0013.html#a082">4.2.5 修改表</a>
+            </li>
+            <li>
+              <a href="part0013.html#a083">4.2.6 通过编程方式添加数据</a>
+            </li>
+            <li>
+              <a href="part0013.html#a084">4.2.7 第1天总结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0013.html#a085">4.3 第2天：处理大数据</a>
+          <ul>
+            <li>
+              <a href="part0013.html#a086">4.3.1 导入数据，调用脚本</a>
+            </li>
+            <li>
+              <a href="part0013.html#a087">4.3.2 流式XML</a>
+            </li>
+            <li>
+              <a href="part0013.html#a088">4.3.3 流式维基百科</a>
+            </li>
+            <li>
+              <a href="part0013.html#a089">4.3.4 压缩和Bloom过滤器</a>
+            </li>
+            <li>
+              <a href="part0013.html#a090">4.3.5 开始</a>
+            </li>
+            <li>
+              <a href="part0013.html#a091">4.3.6 区域和监控磁盘使用简介</a>
+            </li>
+            <li>
+              <a href="part0013.html#a092">4.3.7 区域的问讯</a>
+            </li>
+            <li>
+              <a href="part0013.html#a093">4.3.8 扫描一个表来建立另一个表</a>
+            </li>
+            <li>
+              <a href="part0013.html#a094">4.3.9 构建扫描程序</a>
+            </li>
+            <li>
+              <a href="part0013.html#a095">4.3.10 运行脚本</a>
+            </li>
+            <li>
+              <a href="part0013.html#a096">4.3.11 检查输出</a>
+            </li>
+            <li>
+              <a href="part0013.html#a097">4.3.12 第2天总结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0013.html#a098">4.4 第3天：放入云端</a>
+          <ul>
+            <li>
+              <a href="part0013.html#a099">4.4.1 开发Thrift协议的HBase应用</a>
+            </li>
+            <li>
+              <a href="part0013.html#a100">4.4.2 Whirr简介</a>
+            </li>
+            <li>
+              <a href="part0013.html#a101">4.4.3 设置EC2</a>
+            </li>
+            <li>
+              <a href="part0013.html#a102">4.4.4 准备Whirr</a>
+            </li>
+            <li>
+              <a href="part0013.html#a103">4.4.5 配置集群</a>
+            </li>
+            <li>
+              <a href="part0013.html#a104">4.4.6 启动集群</a>
+            </li>
+            <li>
+              <a href="part0013.html#a105">4.4.7 连接集群</a>
+            </li>
+            <li>
+              <a href="part0013.html#a106">4.4.8 销毁集群</a>
+            </li>
+            <li>
+              <a href="part0013.html#a107">4.4.9 第3天总结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0013.html#a108">4.5 总结</a>
+          <ul>
+            <li>
+              <a href="part0013.html#a109">4.5.1 HBase的优点</a>
+            </li>
+            <li>
+              <a href="part0013.html#a110">4.5.2 HBase的缺点</a>
+            </li>
+            <li>
+              <a href="part0013.html#a111">4.5.3 HBase on CAP</a>
+            </li>
+            <li>
+              <a href="part0013.html#a112">4.5.4 结束语</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0014.html#a113">第5章 MongoDB</a>
+      <ul>
+        <li>
+          <a href="part0014.html#a114">5.1 其大无比</a>
+        </li>
+        <li>
+          <a href="part0014.html#a115">5.2 第1天：CRUD和嵌套</a>
+          <ul>
+            <li>
+              <a href="part0014.html#a116">5.2.1 命令行的乐趣</a>
+            </li>
+            <li>
+              <a href="part0014.html#a117">5.2.2 Mongo的更多有趣内容</a>
+            </li>
+            <li>
+              <a href="part0014.html#a118">5.2.3 深入挖掘</a>
+            </li>
+            <li>
+              <a href="part0014.html#a119">5.2.4 更新</a>
+            </li>
+            <li>
+              <a href="part0014.html#a120">5.2.5 引用</a>
+            </li>
+            <li>
+              <a href="part0014.html#a121">5.2.6 删除</a>
+            </li>
+            <li>
+              <a href="part0014.html#a122">5.2.7 用代码来读取</a>
+            </li>
+            <li>
+              <a href="part0014.html#a123">5.2.8 第1天总结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0014.html#a124">5.3 第2天：索引、分组和mapreduce</a>
+          <ul>
+            <li>
+              <a href="part0014.html#a125">5.3.1 索引：如果还不够快</a>
+            </li>
+            <li>
+              <a href="part0014.html#a126">5.3.2 聚合查询</a>
+            </li>
+            <li>
+              <a href="part0014.html#a127">5.3.3 服务器端命令</a>
+            </li>
+            <li>
+              <a href="part0014.html#a128">5.3.4 mapreduce（以及Finalize）</a>
+            </li>
+            <li>
+              <a href="part0014.html#a129">5.3.5 第2天总结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0014.html#a130">5.4 第3天：副本集、分片、地理空间和GridFS</a>
+          <ul>
+            <li>
+              <a href="part0014.html#a131">5.4.1 副本集</a>
+            </li>
+            <li>
+              <a href="part0014.html#a132">5.4.2 偶数节点的问题</a>
+            </li>
+            <li>
+              <a href="part0014.html#a133">5.4.3 分片</a>
+            </li>
+            <li>
+              <a href="part0014.html#a134">5.4.4 地理空间查询</a>
+            </li>
+            <li>
+              <a href="part0014.html#a135">5.4.5 GridFS</a>
+            </li>
+            <li>
+              <a href="part0014.html#a136">5.4.6 第3天总结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0014.html#a137">5.5 总结</a>
+          <ul>
+            <li>
+              <a href="part0014.html#a138">5.5.1 Mongo的优点</a>
+            </li>
+            <li>
+              <a href="part0014.html#a139">5.5.2 Mongo的缺点</a>
+            </li>
+            <li>
+              <a href="part0014.html#a140">5.5.3 结束语</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0015.html#a141">第6章 CouchDB</a>
+      <ul>
+        <li>
+          <a href="part0015.html#a142">6.1 在沙发上放松</a>
+        </li>
+        <li>
+          <a href="part0015.html#a143">6.2 第1天：CRUD、Futon1与 cURL Redux</a>
+          <ul>
+            <li>
+              <a href="part0015.html#a144">6.2.1 享受Futon</a>
+            </li>
+            <li>
+              <a href="part0015.html#a145">6.2.2 用cURL执行基于REST的CRUD操作</a>
+            </li>
+            <li>
+              <a href="part0015.html#a146">6.2.3 用GET读取文档</a>
+            </li>
+            <li>
+              <a href="part0015.html#a147">6.2.4 用POST新建文档</a>
+            </li>
+            <li>
+              <a href="part0015.html#a148">6.2.5 用PUT更新文档</a>
+            </li>
+            <li>
+              <a href="part0015.html#a149">6.2.6 用DELETE移除文档</a>
+            </li>
+            <li>
+              <a href="part0015.html#a150">6.2.7 第1天总结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0015.html#a151">6.3 第2天：创建/查询视图</a>
+          <ul>
+            <li>
+              <a href="part0015.html#a152">6.3.1 通过视图访问文档</a>
+            </li>
+            <li>
+              <a href="part0015.html#a153">6.3.2 编写你的第一个视图</a>
+            </li>
+            <li>
+              <a href="part0015.html#a154">6.3.3 将视图另存为“设计文档”</a>
+            </li>
+            <li>
+              <a href="part0015.html#a155">6.3.4 由Name查找Artists</a>
+            </li>
+            <li>
+              <a href="part0015.html#a156">6.3.5 由name查找albums</a>
+            </li>
+            <li>
+              <a href="part0015.html#a157">6.3.6 查询自定义的Artist与Album视图</a>
+            </li>
+            <li>
+              <a href="part0015.html#a158">6.3.7 使用Ruby将数据导入CouchDB</a>
+            </li>
+            <li>
+              <a href="part0015.html#a159">6.3.8 第2天总结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0015.html#a160">6.4 第3天：进阶视图、Changes API以及复制数据</a>
+          <ul>
+            <li>
+              <a href="part0015.html#a161">6.4.1 用规约器创建进阶视图</a>
+            </li>
+            <li>
+              <a href="part0015.html#a162">6.4.2 规约器调用详解</a>
+            </li>
+            <li>
+              <a href="part0015.html#a163">6.4.3 监控CouchDB的变化</a>
+            </li>
+            <li>
+              <a href="part0015.html#a164">6.4.4 连续监控变化</a>
+            </li>
+            <li>
+              <a href="part0015.html#a165">6.4.5 在CouchDB中复制数据</a>
+            </li>
+            <li>
+              <a href="part0015.html#a166">6.4.6 第3天总结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0015.html#a167">6.5 总结</a>
+          <ul>
+            <li>
+              <a href="part0015.html#a168">6.5.1 CouchDB的优点</a>
+            </li>
+            <li>
+              <a href="part0015.html#a169">6.5.2 CouchDB的缺点</a>
+            </li>
+            <li>
+              <a href="part0015.html#a170">6.5.3 结束语</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0016.html#a171">第7章 Neo4j</a>
+      <ul>
+        <li>
+          <a href="part0016.html#a172">7.1 Neo4j，白板友好的数据库</a>
+        </li>
+        <li>
+          <a href="part0016.html#a173">7.2 第1天：图、Groovy和CRUD</a>
+          <ul>
+            <li>
+              <a href="part0016.html#a174">7.2.1 Neo4j之Web接口</a>
+            </li>
+            <li>
+              <a href="part0016.html#a175">7.2.2 通过Gremlin操作Neo4j</a>
+            </li>
+            <li>
+              <a href="part0016.html#a176">7.2.3 pipe的威力</a>
+            </li>
+            <li>
+              <a href="part0016.html#a177">7.2.4 Pipeline与顶点</a>
+            </li>
+            <li>
+              <a href="part0016.html#a178">7.2.5 无模式的社会性数据</a>
+            </li>
+            <li>
+              <a href="part0016.html#a179">7.2.6 垫脚石</a>
+            </li>
+            <li>
+              <a href="part0016.html#a180">7.2.7 引入Groovy</a>
+            </li>
+            <li>
+              <a href="part0016.html#a181">7.2.8 特定领域的步骤</a>
+            </li>
+            <li>
+              <a href="part0016.html#a182">7.2.9 更新、删除与完成</a>
+            </li>
+            <li>
+              <a href="part0016.html#a183">7.2.10 第1天总结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0016.html#a184">7.3 第2天：REST、索引与算法</a>
+          <ul>
+            <li>
+              <a href="part0016.html#a185">7.3.1 引入REST</a>
+            </li>
+            <li>
+              <a href="part0016.html#a186">7.3.2 用REST新建节点与关系</a>
+            </li>
+            <li>
+              <a href="part0016.html#a187">7.3.3 查找路径</a>
+            </li>
+            <li>
+              <a href="part0016.html#a188">7.3.4 索引</a>
+            </li>
+            <li>
+              <a href="part0016.html#a189">7.3.5 REST与Gremlin</a>
+            </li>
+            <li>
+              <a href="part0016.html#a190">7.3.6 大数据</a>
+            </li>
+            <li>
+              <a href="part0016.html#a191">7.3.7 功能全面的算法</a>
+            </li>
+            <li>
+              <a href="part0016.html#a192">7.3.8 第2天总结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0016.html#a193">7.4 第3天：分布式高可用性</a>
+          <ul>
+            <li>
+              <a href="part0016.html#a194">7.4.1 事务</a>
+            </li>
+            <li>
+              <a href="part0016.html#a195">7.4.2 高可用性</a>
+            </li>
+            <li>
+              <a href="part0016.html#a196">7.4.3 HA集群</a>
+            </li>
+            <li>
+              <a href="part0016.html#a197">7.4.4 备份</a>
+            </li>
+            <li>
+              <a href="part0016.html#a198">7.4.5 第3天总结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0016.html#a199">7.5 总结</a>
+          <ul>
+            <li>
+              <a href="part0016.html#a200">7.5.1 Neo4j的优点</a>
+            </li>
+            <li>
+              <a href="part0016.html#a201">7.5.2 Neo4j的缺点</a>
+            </li>
+            <li>
+              <a href="part0016.html#a202">7.5.3 Neo4j之于CAP</a>
+            </li>
+            <li>
+              <a href="part0016.html#a203">7.5.4 结束语</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0017.html#a204">第8章 Redis</a>
+      <ul>
+        <li>
+          <a href="part0017.html#a205">8.1 数据结构服务器存储库</a>
+        </li>
+        <li>
+          <a href="part0017.html#a206">8.2 第1天：CRUD与数据类型</a>
+          <ul>
+            <li>
+              <a href="part0017.html#a207">8.2.1 入门指南</a>
+            </li>
+            <li>
+              <a href="part0017.html#a208">8.2.2 事务</a>
+            </li>
+            <li>
+              <a href="part0017.html#a209">8.2.3 复杂数据类型</a>
+            </li>
+            <li>
+              <a href="part0017.html#a210">8.2.4 到期</a>
+            </li>
+            <li>
+              <a href="part0017.html#a211">8.2.5 数据库命名空间</a>
+            </li>
+            <li>
+              <a href="part0017.html#a212">8.2.6 更多命令</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0017.html#a213">8.3 第2天：高级用法，分布</a>
+          <ul>
+            <li>
+              <a href="part0017.html#a214">8.3.1 一个简单的接口</a>
+            </li>
+            <li>
+              <a href="part0017.html#a215">8.3.2 服务器信息</a>
+            </li>
+            <li>
+              <a href="part0017.html#a216">8.3.3 Redis配置</a>
+            </li>
+            <li>
+              <a href="part0017.html#a217">8.3.4 AOF（append only file）</a>
+            </li>
+            <li>
+              <a href="part0017.html#a218">8.3.5 主从复制</a>
+            </li>
+            <li>
+              <a href="part0017.html#a219">8.3.6 数据转储</a>
+            </li>
+            <li>
+              <a href="part0017.html#a220">8.3.7 Redis集群</a>
+            </li>
+            <li>
+              <a href="part0017.html#a221">8.3.8 Bloom过滤器</a>
+            </li>
+            <li>
+              <a href="part0017.html#a222">8.3.9 SETBIT和GETBIT</a>
+            </li>
+            <li>
+              <a href="part0017.html#a223">8.3.10 第2天总结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0017.html#a224">8.4 第3天：与其他数据库合作</a>
+          <ul>
+            <li>
+              <a href="part0017.html#a225">8.4.1 多持久并存服务</a>
+            </li>
+            <li>
+              <a href="part0017.html#a226">8.4.2 数据填充</a>
+            </li>
+            <li>
+              <a href="part0017.html#a227">8.4.3 关系存储</a>
+            </li>
+            <li>
+              <a href="part0017.html#a228">8.4.4 服务</a>
+            </li>
+            <li>
+              <a href="part0017.html#a229">8.4.5 第3天总结</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0017.html#a230">8.5 总结</a>
+          <ul>
+            <li>
+              <a href="part0017.html#a231">8.5.1 Redis的优点</a>
+            </li>
+            <li>
+              <a href="part0017.html#a232">8.5.2 Redis的缺点</a>
+            </li>
+            <li>
+              <a href="part0017.html#a233">8.5.3 结束语</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0018.html#a234">第9章 结束语</a>
+      <ul>
+        <li>
+          <a href="part0018.html#a235">9.1 类型终极版</a>
+          <ul>
+            <li>
+              <a href="part0018.html#a236">9.1.1 关系型</a>
+            </li>
+            <li>
+              <a href="part0018.html#a237">9.1.2 键-值存储库</a>
+            </li>
+            <li>
+              <a href="part0018.html#a238">9.1.3 列型</a>
+            </li>
+            <li>
+              <a href="part0018.html#a239">9.1.4 文档型</a>
+            </li>
+            <li>
+              <a href="part0018.html#a240">9.1.5 图</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0018.html#a241">9.2 选择</a>
+        </li>
+        <li>
+          <a href="part0018.html#a242">9.3 我们将走向哪里</a>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0019.html#a243">附录A 数据库概述表</a>
+    </li>
+    <li>
+      <a href="part0020.html#a244">附录B CAP定理</a>
+    </li>
+  </ul>
+</div>
+
+
+  </div>
+  
+
+  <div class="calibreEbNav">
+    
+      <a href="part0009.html" class="calibreAPrev">previous page</a>
+    
+
+    <a href="../../yunxy2.html" class="calibreAHome"> start</a>
+
+    
+      <a href="part0011.html" class="calibreANext"> next page</a>
+    
+  </div>
+
+</div>
+
+</body>
+</html>
