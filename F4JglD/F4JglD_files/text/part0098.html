@@ -1,0 +1,568 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+    <title>Unknown</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+
+  
+
+
+<link href="../calibreHtmlOutBasicCss.css" type="text/css" rel="stylesheet" />
+
+</head>
+<body>
+
+<div class="calibreMeta">
+  <div class="calibreMetaTitle">
+  
+  
+    
+    <h1>
+      <a href="../../F4JglD.html">数据架构师的PostgreSQL修炼
+</a>
+    </h1>
+    
+    
+  
+  </div>
+  <div class="calibreMetaAuthor">
+    Maymala
+
+  </div>
+</div>
+
+<div class="calibreMain">
+
+  <div class="calibreEbookContent">
+    
+      <div class="calibreEbNavTop">
+        
+          <a href="part0097.html" class="calibreAPrev">previous page</a>
+        
+
+        
+          <a href="part0099.html" class="calibreANext"> next page</a>
+        
+      </div>
+    
+
+    
+  <h2 class="p4">8.3　查找/扫描开销及统计参数</h2>
+  <p class="ziti3">现在，让我们看几个影响查询计划和性能的参数。</p>
+  <p class="ziti3">default_statistics_target参数告诉PostgreSQL应该抽样多少数据来填充存储元数据的表。它的默认值是100。PostgreSQL会考虑（300乘以当前值）个页面。也就是说，在默认值100的情况下，PostgreSQL会读取30000个页面（或整张表，如果表还没有那么大时）来完成行的随机抽样。从这些样本中，PostgreSQL会填充pg_statistic类别。收集的数据类型包括去重的非空值的个数、最常用的值、值的最高频数等。这些值将被规划器用于制订执行计划。pg_statistic中的列明细可以参考<a href="http://www.postgresql.org/docs/current/static/catalog-pg-statistic.html" class="calibre1 pcalibre">http://www.postgresql.org/docs/current/static/catalog-pg-statistic.html</a>。</p>
+  <p class="ziti3">如果某个查询的EXPLAIN ANALYZE展示出实际成本和预估成本之间的明显差异，我们应该考虑增加统计目标。它可以针对独立表在COLUMN级别进行设置。以下代码展示了如何找到当前的默认值，如何针对一个表更改它，如何查看某些表的这个值：</p>
+  <div class="pic"><img alt="" src="../images/00279.jpeg" class="calibre2"/></div>
+  <div class="pic"><img alt="" src="../images/00280.jpeg" class="calibre2"/></div>
+  <p class="ziti3">值-1表示默认值。注意增加这个值会导致更多的抽样，也就是更多的资源消耗。最好是在会话中设置这个值，可以看到分析表使用了多长时间、查询性能增加了多少，然后决定是否应该保留新值。现在使用更高的值，规划器可以获得更多数据，并有更多的工作要处理，从而完成最佳计划。然而，对于许多查询，响应时间的改进可能更可观。如果我们知道数据对于特定属性的分布是不均匀的，通过查询计划检查查询是否在WHERE子句中使用非标准值是有意义的。</p>
+  <p class="ziti3">可以调整几个成本相关的常量，从而对规划器产生影响：</p>
+    <p class="ziti3">·seq_page_cost</p>
+    <p class="ziti3">·random_page_cost</p>
+  <p class="ziti3">这两者的设置是相互关联的。当按顺序（序列扫描）从服务器获取页面数据块时，seq_page_cost用来测量资源的成本。在第7章中，我们看到可以用顺序或随机的方式提取页面。在一个顺序的访问计划中，数据将被逐块读取。如果块编号为1至100，则1号块将被取出，然后是2号块、3号块等，直到所有数据被取出（使用LIMIT语句）。在这种情况下，当取出被请求的行数时，停止读取。在随机页提取方式下，数据库可以按照7、28、49这样的顺序请求数据块。</p>
+  <p class="ziti3">random_page_cost的默认值为4，seq_page_cost的默认值为1，意味着随机寻找的成本是顺序访问成本的4倍。将默认的4:1的比例改变到一个较低的2:1的比例，可以增加规划器使用索引的机会。</p>
+  <p class="ziti3">让我们讨论几方面的考虑，假设情况是已经为4:1的默认设置。第一个考虑是随机检索比顺序扫描开销更多。对于旋转磁盘这是一定的，对于固态硬盘（SSD）却不一定。如果你使用的是托管服务器，很有可能它使用的是固态硬盘。数字海洋（Digital Ocean）是一个虚拟专用服务器（VPS）的新进公司，在2011年推出了它们的服务，这些服务全部使用SSD存储。在过去的几年里，几乎所有的大公司，包括亚马逊网络服务（Amazon Web Services）、Rackspace和Linode，都已开始提供固态硬盘的服务。因此，针对固态硬盘，从4:1降低到一个相对较低的比例是个不错的主意。</p>
+  <p class="ziti3">接下来的考虑是，虽然随机磁盘寻道开销较大，但是大部分的获取可能压根不会导致磁盘I/O瓶颈。拥有足够内存和设置适当缓存的服务器将意味着大多数读取从缓存中发生。关于4:1的默认设置，请参考<a href="http://www.postgresql.org/docs/current/static/runtime-config-query.html" class="calibre1 pcalibre">http://www.postgresql.org/docs/current/static/runtime-config-query.html</a>。</p>
+  <p class="ziti3">“默认值可以被认为是随机访问比顺序访问慢40倍，同时期望90%的随机读取是被缓存的。”</p>
+  <p class="ziti3">如果我们使用旋转磁盘，如果大部分的提取产生物理I/O，可能有必要向另一个方向调整，也就是设置高于4:1的值。让我们看一些示例数据和设置的影响：</p>
+  <div class="pic"><img alt="" src="../images/00281.jpeg" class="calibre2"/></div>
+  <div class="pic"><img alt="" src="../images/00282.jpeg" class="calibre2"/></div>
+  <p class="ziti3">查询计划从Index Scan切换到Seq Scan，原因是索引包括随机检索；我们仅仅告诉了优化器随机检索开销巨大。如果提高seq_page_cost会发生什么：</p>
+  <div class="pic"><img alt="" src="../images/00283.jpeg" class="calibre2"/></div>
+  <p class="ziti3">将random_page_cost的值设置得比seq_page_cost低是个糟糕的做法。我们也要记住这里并不是随机和顺序页面开销的绝对值，而是它们之间的比例才会影响查询规划器。</p>
+  <p class="p">CPU成本</p>
+  <p class="ziti3">上面讨论了磁盘和磁盘访问成本，接下来我们看一下CPU成本。我们记得有关扫描的成本（顺序和随机）分别为1和4。与这些值相比，默认的CPU相关的成本设置是非常小的：</p>
+    <p class="ziti3">·cpu_operator_cost（0.0025）：这个值代表执行一个操作（比如散列或者聚合）的CPU成本。</p>
+    <p class="ziti3">·cpu_tuple_cost（0.01）：这个值代表处理每一行的成本。</p>
+    <p class="ziti3">·cpu_index_tuple_cost（0.005）：这个值代表处理每个索引的成本。</p>
+  <p class="ziti3">这些值都低，因为我们的假设是处理记录比提取记录的开销更小。换句话说，如果我们把这些值都设置为1，很可能会陷入讨厌的I/O瓶颈。由于计算成本中CPU成本非常小（结果就是默认设置低值），受此影响，对CPU成本设置的细微变化不大可能对查询计划或响应时间产生影响。</p>
+  <p class="ziti3">让我们看看这些成本是如何增加到总成本中的。举个例子，执行一个直接的顺序扫描，不包括任何索引，没有随机访问。由于没有索引元组或操作符，因此也就没有相应的CPU成本：</p>
+  <div class="pic"><img alt="" src="../images/00284.jpeg" class="calibre2"/></div>
+  <div class="pic"><img alt="" src="../images/00285.jpeg" class="calibre2"/></div>
+  <p class="ziti3">计算出来的成本中的数字28850和PostgreSQL中估计的成本一致。用于计算总成本的公式可以被简化为如下形式：</p>
+  <div class="pic"><img alt="" src="../images/00286.jpeg" class="calibre2"/></div>
+  <p class="ziti3">这里，TC代表总成本，n1、n2、n3等代表页面或者元组数，同时例子中c1、c2、c3等代表各自的成本常量或参数设置。</p>
+  <p class="ziti3"><img alt="" class="formula-1-5em" src="../images/00002.jpeg"/>关于查询规划器设置有一系列布尔值设置，默认都是开启的。完整的列表可以从<a href="http://www.postgresql.org/docs/current/static/runtime-config-query.html" class="calibre1 pcalibre">http://www.postgresql.org/docs/current/static/runtime-config-query.html</a>获得。</p>
+  <p class="ziti3">如文档中提到的，关闭这些设置中的一个或多个最好是在临时的系统环境中。修改规划器的成本常量，如我们所见这是个正确的方法。我们将看一下另外两个设置是如何工作的。enable_indexscan和enable_bitmapscan是我们尝试改变的两个设置。这两个设置如它们的名字一样，是开启或关闭索引和位图扫描的。它们的默认值是开启：</p>
+  <div class="pic"><img alt="" src="../images/00287.jpeg" class="calibre2"/></div>
+  <div class="pic"><img alt="" src="../images/00288.jpeg" class="calibre2"/></div>
+  <p class="ziti3">通过关闭这些设置，我们促使规划器选择了一个更加昂贵的查询计划，结果就是成本持续上涨。在大多数情况下，不要试图修改这些设置，我们要确保规划可以提供最新的统计数据（通过执行ANALYZE），并且可以获取足够多的信息（通过调整统计目标）。</p>
+  <p class="ziti3">虽然有更多的设置，而且这些设置的调整可以影响规划器，但是提到的这些设置已经足够用，因为在大多数情况下，优化器已经可以选择一个相对优化的方案。</p>
+  <p class="ziti3">现在，我们将看两个特殊对象，可以用它们来提高响应时间。其中一个使用预先计算好或准备好的数据集以提高响应时间，而另一个牵涉将大表分成许多小表来改进性能。</p>
+
+
+  </div>
+
+  
+  <div class="calibreToc">
+    <h2><a href="../../F4JglD.html"> Table of contents</a></h2>
+     <div>
+  <ul>
+    <li>
+      <a href="part0002.html#1T140-561c0923cbd245afb0c664cff8295cdf">作者简介</a>
+    </li>
+    <li>
+      <a href="part0003.html#2RHM0-561c0923cbd245afb0c664cff8295cdf">审校者简介</a>
+    </li>
+    <li>
+      <a href="part0004.html#3Q280-561c0923cbd245afb0c664cff8295cdf">前言</a>
+    </li>
+    <li>
+      <a href="part0005.html#4OIQ0-561c0923cbd245afb0c664cff8295cdf">第1章 安装PostgreSQL</a>
+      <ul>
+        <li>
+          <a href="part0006.html#5N3C0-561c0923cbd245afb0c664cff8295cdf">1.1 安装选项</a>
+          <ul>
+            <li>
+              <a href="part0007.html#6LJU0-561c0923cbd245afb0c664cff8295cdf">1.1.1 下载并提取源码</a>
+            </li>
+            <li>
+              <a href="part0008.html#7K4G0-561c0923cbd245afb0c664cff8295cdf">1.1.2 检查源码内容</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0009.html#8IL20-561c0923cbd245afb0c664cff8295cdf">1.2 编译源码的各种依赖</a>
+        </li>
+        <li>
+          <a href="part0010.html#9H5K0-561c0923cbd245afb0c664cff8295cdf">1.3 配置和创建makefile</a>
+        </li>
+        <li>
+          <a href="part0011.html#AFM60-561c0923cbd245afb0c664cff8295cdf">1.4 建立和创建可执行文件</a>
+        </li>
+        <li>
+          <a href="part0012.html#BE6O0-561c0923cbd245afb0c664cff8295cdf">1.5 安装和移动文件到指定的位置</a>
+        </li>
+        <li>
+          <a href="part0013.html#CCNA0-561c0923cbd245afb0c664cff8295cdf">1.6 初始化集群</a>
+          <ul>
+            <li>
+              <a href="part0014.html#DB7S0-561c0923cbd245afb0c664cff8295cdf">1.6.1 快速了解各个目录</a>
+            </li>
+            <li>
+              <a href="part0015.html#E9OE0-561c0923cbd245afb0c664cff8295cdf">1.6.2 已创建的进程</a>
+            </li>
+            <li>
+              <a href="part0016.html#F8900-561c0923cbd245afb0c664cff8295cdf">1.6.3 创建的重要文件</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0017.html#G6PI0-561c0923cbd245afb0c664cff8295cdf">1.7 与扩展程序相互协作</a>
+        </li>
+        <li>
+          <a href="part0018.html#H5A40-561c0923cbd245afb0c664cff8295cdf">1.8 小结</a>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0019.html#I3QM0-561c0923cbd245afb0c664cff8295cdf">第2章 服务器架构</a>
+      <ul>
+        <li>
+          <a href="part0020.html#J2B80-561c0923cbd245afb0c664cff8295cdf">2.1 从守护进程开始</a>
+        </li>
+        <li>
+          <a href="part0021.html#K0RQ0-561c0923cbd245afb0c664cff8295cdf">2.2 理解共享缓冲区</a>
+        </li>
+        <li>
+          <a href="part0022.html#KVCC0-561c0923cbd245afb0c664cff8295cdf">2.3 检查点</a>
+        </li>
+        <li>
+          <a href="part0023.html#LTSU0-561c0923cbd245afb0c664cff8295cdf">2.4 WAL与WAL写进程</a>
+          <ul>
+            <li>
+              <a href="part0024.html#MSDG0-561c0923cbd245afb0c664cff8295cdf">2.4.1 恢复</a>
+            </li>
+            <li>
+              <a href="part0025.html#NQU20-561c0923cbd245afb0c664cff8295cdf">2.4.2 增量备份和基于时间点的恢复</a>
+            </li>
+            <li>
+              <a href="part0026.html#OPEK0-561c0923cbd245afb0c664cff8295cdf">2.4.3 复制</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0027.html#PNV60-561c0923cbd245afb0c664cff8295cdf">2.5 后台写入器</a>
+        </li>
+        <li>
+          <a href="part0028.html#QMFO0-561c0923cbd245afb0c664cff8295cdf">2.6 自动清空加载器进程</a>
+        </li>
+        <li>
+          <a href="part0029.html#RL0A0-561c0923cbd245afb0c664cff8295cdf">2.7 日志进程</a>
+        </li>
+        <li>
+          <a href="part0030.html#SJGS0-561c0923cbd245afb0c664cff8295cdf">2.8 统计信息收集器进程</a>
+        </li>
+        <li>
+          <a href="part0031.html#TI1E0-561c0923cbd245afb0c664cff8295cdf">2.9 WAL发送器和WAL接收器</a>
+        </li>
+        <li>
+          <a href="part0032.html#UGI00-561c0923cbd245afb0c664cff8295cdf">2.10 使用work_mem在内存中进行排序</a>
+        </li>
+        <li>
+          <a href="part0033.html#VF2I0-561c0923cbd245afb0c664cff8295cdf">2.11 使用maintenance_work_mem进行维护</a>
+        </li>
+        <li>
+          <a href="part0034.html#10DJ40-561c0923cbd245afb0c664cff8295cdf">2.12 小结</a>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0035.html#11C3M0-561c0923cbd245afb0c664cff8295cdf">第3章 PostgreSQL——对象层次和角色</a>
+      <ul>
+        <li>
+          <a href="part0036.html#12AK80-561c0923cbd245afb0c664cff8295cdf">3.1 PostgreSQL集群</a>
+        </li>
+        <li>
+          <a href="part0037.html#1394Q0-561c0923cbd245afb0c664cff8295cdf">3.2 了解表空间</a>
+          <ul>
+            <li>
+              <a href="part0038.html#147LC0-561c0923cbd245afb0c664cff8295cdf">3.2.1 使用临时表空间管理临时对象</a>
+            </li>
+            <li>
+              <a href="part0039.html#1565U0-561c0923cbd245afb0c664cff8295cdf">3.2.2 视图</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0040.html#164MG0-561c0923cbd245afb0c664cff8295cdf">3.3 数据库、模式与search_path</a>
+        </li>
+        <li>
+          <a href="part0041.html#173720-561c0923cbd245afb0c664cff8295cdf">3.4 角色和权限</a>
+        </li>
+        <li>
+          <a href="part0042.html#181NK0-561c0923cbd245afb0c664cff8295cdf">3.5 小结</a>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0043.html#190860-561c0923cbd245afb0c664cff8295cdf">第4章 使用事务进行工作</a>
+      <ul>
+        <li>
+          <a href="part0044.html#19UOO0-561c0923cbd245afb0c664cff8295cdf">4.1 了解事务</a>
+        </li>
+        <li>
+          <a href="part0045.html#1AT9A0-561c0923cbd245afb0c664cff8295cdf">4.2 PostgreSQL和MVCC</a>
+        </li>
+        <li>
+          <a href="part0046.html#1BRPS0-561c0923cbd245afb0c664cff8295cdf">4.3 小结</a>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0047.html#1CQAE0-561c0923cbd245afb0c664cff8295cdf">第5章 使用SQL Power Architect进行数据建模</a>
+      <ul>
+        <li>
+          <a href="part0048.html#1DOR00-561c0923cbd245afb0c664cff8295cdf">5.1 数据库工具及其用途</a>
+        </li>
+        <li>
+          <a href="part0049.html#1ENBI0-561c0923cbd245afb0c664cff8295cdf">5.2 数据库设计工具</a>
+          <ul>
+            <li>
+              <a href="part0050.html#1FLS40-561c0923cbd245afb0c664cff8295cdf">5.2.1 下载与安装SQL Power Architect</a>
+            </li>
+            <li>
+              <a href="part0051.html#1GKCM0-561c0923cbd245afb0c664cff8295cdf">5.2.2 创建表</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0052.html#1HIT80-561c0923cbd245afb0c664cff8295cdf">5.3 生成SQL</a>
+          <ul>
+            <li>
+              <a href="part0053.html#1IHDQ0-561c0923cbd245afb0c664cff8295cdf">5.3.1 逆向工程及变更操作</a>
+            </li>
+            <li>
+              <a href="part0054.html#1JFUC0-561c0923cbd245afb0c664cff8295cdf">5.3.2 导出数据模型</a>
+            </li>
+            <li>
+              <a href="part0055.html#1KEEU0-561c0923cbd245afb0c664cff8295cdf">5.3.3 分析</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0056.html#1LCVG0-561c0923cbd245afb0c664cff8295cdf">5.4 小结</a>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0057.html#1MBG20-561c0923cbd245afb0c664cff8295cdf">第6章 客户端工具</a>
+      <ul>
+        <li>
+          <a href="part0058.html#1NA0K0-561c0923cbd245afb0c664cff8295cdf">6.1 GUI工具与命令行工具</a>
+        </li>
+        <li>
+          <a href="part0059.html#1O8H60-561c0923cbd245afb0c664cff8295cdf">6.2 下载与安装pgAdmin</a>
+          <ul>
+            <li>
+              <a href="part0060.html#1P71O0-561c0923cbd245afb0c664cff8295cdf">6.2.1 添加一台服务器</a>
+            </li>
+            <li>
+              <a href="part0061.html#1Q5IA0-561c0923cbd245afb0c664cff8295cdf">6.2.2 pgAdmin主窗口</a>
+            </li>
+            <li>
+              <a href="part0062.html#1R42S0-561c0923cbd245afb0c664cff8295cdf">6.2.3 查询工具</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0063.html#1S2JE0-561c0923cbd245afb0c664cff8295cdf">6.3 psql——在命令行模式下工作</a>
+          <ul>
+            <li>
+              <a href="part0064.html#1T1400-561c0923cbd245afb0c664cff8295cdf">6.3.1 psql——连接选项</a>
+            </li>
+            <li>
+              <a href="part0065.html#1TVKI0-561c0923cbd245afb0c664cff8295cdf">6.3.2 \d的功能</a>
+            </li>
+            <li>
+              <a href="part0066.html#1UU540-561c0923cbd245afb0c664cff8295cdf">6.3.3 更多元命令</a>
+            </li>
+            <li>
+              <a href="part0067.html#1VSLM0-561c0923cbd245afb0c664cff8295cdf">6.3.4 设置环境</a>
+            </li>
+            <li>
+              <a href="part0068.html#20R680-561c0923cbd245afb0c664cff8295cdf">6.3.5 命令的历史记录</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0069.html#21PMQ0-561c0923cbd245afb0c664cff8295cdf">6.4 小结</a>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0070.html#22O7C0-561c0923cbd245afb0c664cff8295cdf">第7章 SQL调优</a>
+      <ul>
+        <li>
+          <a href="part0071.html#23MNU0-561c0923cbd245afb0c664cff8295cdf">7.1 了解数据库的基本事实</a>
+          <ul>
+            <li>
+              <a href="part0072.html#24L8G0-561c0923cbd245afb0c664cff8295cdf">7.1.1 事实1，数据库中读比写更频繁</a>
+            </li>
+            <li>
+              <a href="part0073.html#25JP20-561c0923cbd245afb0c664cff8295cdf">7.1.2 事实2，数据始终在块或页面中读取，而不是作为单独的记录或列</a>
+            </li>
+            <li>
+              <a href="part0074.html#26I9K0-561c0923cbd245afb0c664cff8295cdf">7.1.3 减少读/写块的数量的方法</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0075.html#27GQ60-561c0923cbd245afb0c664cff8295cdf">7.2 查询执行组件</a>
+          <ul>
+            <li>
+              <a href="part0076.html#28FAO0-561c0923cbd245afb0c664cff8295cdf">7.2.1 计划器</a>
+            </li>
+            <li>
+              <a href="part0077.html#29DRA0-561c0923cbd245afb0c664cff8295cdf">7.2.2 访问方法</a>
+            </li>
+            <li>
+              <a href="part0078.html#2ACBS0-561c0923cbd245afb0c664cff8295cdf">7.2.3 连接策略</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0079.html#2BASE0-561c0923cbd245afb0c664cff8295cdf">7.3 发现执行计划</a>
+        </li>
+        <li>
+          <a href="part0080.html#2C9D00-561c0923cbd245afb0c664cff8295cdf">7.4 优化指南和捕捉</a>
+          <ul>
+            <li>
+              <a href="part0081.html#2D7TI0-561c0923cbd245afb0c664cff8295cdf">7.4.1 外键索引</a>
+            </li>
+            <li>
+              <a href="part0082.html#2E6E40-561c0923cbd245afb0c664cff8295cdf">7.4.2 使用SELECT*</a>
+            </li>
+            <li>
+              <a href="part0083.html#2F4UM0-561c0923cbd245afb0c664cff8295cdf">7.4.3 使用ORDER BY</a>
+            </li>
+            <li>
+              <a href="part0084.html#2G3F80-561c0923cbd245afb0c664cff8295cdf">7.4.4 使用DISTINCT</a>
+            </li>
+            <li>
+              <a href="part0085.html#2H1VQ0-561c0923cbd245afb0c664cff8295cdf">7.4.5 使用UNION ALL代替UNION</a>
+            </li>
+            <li>
+              <a href="part0086.html#2I0GC0-561c0923cbd245afb0c664cff8295cdf">7.4.6 在FILTER子句中使用函数</a>
+            </li>
+            <li>
+              <a href="part0087.html#2IV0U0-561c0923cbd245afb0c664cff8295cdf">7.4.7 减少SQL语句数量</a>
+            </li>
+            <li>
+              <a href="part0088.html#2JTHG0-561c0923cbd245afb0c664cff8295cdf">7.4.8 减少函数执行</a>
+            </li>
+            <li>
+              <a href="part0089.html#2KS220-561c0923cbd245afb0c664cff8295cdf">7.4.9 不使用索引的情况</a>
+            </li>
+            <li>
+              <a href="part0090.html#2LQIK0-561c0923cbd245afb0c664cff8295cdf">7.4.10 部分索引</a>
+            </li>
+            <li>
+              <a href="part0091.html#2MP360-561c0923cbd245afb0c664cff8295cdf">7.4.11 优化函数</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0092.html#2NNJO0-561c0923cbd245afb0c664cff8295cdf">7.5 小结</a>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0093.html#2OM4A0-561c0923cbd245afb0c664cff8295cdf">第8章 服务器调优</a>
+      <ul>
+        <li>
+          <a href="part0094.html#2PKKS0-561c0923cbd245afb0c664cff8295cdf">8.1 服务器端内存设置</a>
+          <ul>
+            <li>
+              <a href="part0095.html#2QJ5E0-561c0923cbd245afb0c664cff8295cdf">8.1.1 shared_buffers</a>
+            </li>
+            <li>
+              <a href="part0096.html#2RHM00-561c0923cbd245afb0c664cff8295cdf">8.1.2 effective_cache_size</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0097.html#2SG6I0-561c0923cbd245afb0c664cff8295cdf">8.2 管理写入、连接和维护操作</a>
+        </li>
+        <li>
+          <a href="part0098.html#2TEN40-561c0923cbd245afb0c664cff8295cdf">8.3 查找/扫描开销及统计参数</a>
+        </li>
+        <li>
+          <a href="part0099.html#2UD7M0-561c0923cbd245afb0c664cff8295cdf">8.4 物化视图</a>
+        </li>
+        <li>
+          <a href="part0100.html#2VBO80-561c0923cbd245afb0c664cff8295cdf">8.5 分区表</a>
+        </li>
+        <li>
+          <a href="part0101.html#30A8Q0-561c0923cbd245afb0c664cff8295cdf">8.6 小结</a>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0102.html#318PC0-561c0923cbd245afb0c664cff8295cdf">第9章 PostgreSQL写入与读取数据工具</a>
+      <ul>
+        <li>
+          <a href="part0103.html#3279U0-561c0923cbd245afb0c664cff8295cdf">9.1 考虑建立生产数据库</a>
+        </li>
+        <li>
+          <a href="part0104.html#335QG0-561c0923cbd245afb0c664cff8295cdf">9.2 COPY命令</a>
+        </li>
+        <li>
+          <a href="part0105.html#344B20-561c0923cbd245afb0c664cff8295cdf">9.3 使用pg_bulkload快速加载</a>
+        </li>
+        <li>
+          <a href="part0106.html#352RK0-561c0923cbd245afb0c664cff8295cdf">9.4 pg_dump命令</a>
+        </li>
+        <li>
+          <a href="part0107.html#361C60-561c0923cbd245afb0c664cff8295cdf">9.5 过滤选项</a>
+          <ul>
+            <li>
+              <a href="part0108.html#36VSO0-561c0923cbd245afb0c664cff8295cdf">9.5.1 pg_dumpall工具</a>
+            </li>
+            <li>
+              <a href="part0109.html#37UDA0-561c0923cbd245afb0c664cff8295cdf">9.5.2 pg_restore工具</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0110.html#38STS0-561c0923cbd245afb0c664cff8295cdf">9.6 小结</a>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0111.html#39REE0-561c0923cbd245afb0c664cff8295cdf">第10章 扩展、复制、备份和恢复</a>
+      <ul>
+        <li>
+          <a href="part0112.html#3APV00-561c0923cbd245afb0c664cff8295cdf">10.1 可扩展性</a>
+          <ul>
+            <li>
+              <a href="part0113.html#3BOFI0-561c0923cbd245afb0c664cff8295cdf">10.1.1 垂直扩展</a>
+            </li>
+            <li>
+              <a href="part0114.html#3CN040-561c0923cbd245afb0c664cff8295cdf">10.1.2 水平扩展</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0115.html#3DLGM0-561c0923cbd245afb0c664cff8295cdf">10.2 基于时间点的恢复</a>
+        </li>
+        <li>
+          <a href="part0116.html#3EK180-561c0923cbd245afb0c664cff8295cdf">10.3 小结</a>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0117.html#3FIHQ0-561c0923cbd245afb0c664cff8295cdf">第11章 PostgreSQL故障排除</a>
+      <ul>
+        <li>
+          <a href="part0118.html#3GH2C0-561c0923cbd245afb0c664cff8295cdf">11.1 连接问题</a>
+        </li>
+        <li>
+          <a href="part0119.html#3HFIU0-561c0923cbd245afb0c664cff8295cdf">11.2 验证和权限问题</a>
+        </li>
+        <li>
+          <a href="part0120.html#3IE3G0-561c0923cbd245afb0c664cff8295cdf">11.3 参数更改无效</a>
+        </li>
+        <li>
+          <a href="part0121.html#3JCK20-561c0923cbd245afb0c664cff8295cdf">11.4 查询无响应</a>
+        </li>
+        <li>
+          <a href="part0122.html#3KB4K0-561c0923cbd245afb0c664cff8295cdf">11.5 小结</a>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0123.html#3L9L60-561c0923cbd245afb0c664cff8295cdf">第12章 PostgreSQL额外功能</a>
+      <ul>
+        <li>
+          <a href="part0124.html#3M85O0-561c0923cbd245afb0c664cff8295cdf">12.1 有趣的数据类型</a>
+          <ul>
+            <li>
+              <a href="part0125.html#3N6MA0-561c0923cbd245afb0c664cff8295cdf">12.1.1 range</a>
+            </li>
+            <li>
+              <a href="part0126.html#3O56S0-561c0923cbd245afb0c664cff8295cdf">12.1.2 XML</a>
+            </li>
+            <li>
+              <a href="part0127.html#3P3NE0-561c0923cbd245afb0c664cff8295cdf">12.1.3 几何与地理数据</a>
+            </li>
+            <li>
+              <a href="part0128.html#3Q2800-561c0923cbd245afb0c664cff8295cdf">12.1.4 外部数据封装器</a>
+            </li>
+            <li>
+              <a href="part0129.html#3R0OI0-561c0923cbd245afb0c664cff8295cdf">12.1.5 pgbadger</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0130.html#3RV940-561c0923cbd245afb0c664cff8295cdf">12.2 变化中的产品特性</a>
+        </li>
+        <li>
+          <a href="part0131.html#3STPM0-561c0923cbd245afb0c664cff8295cdf">12.3 小结</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+
+
+  </div>
+  
+
+  <div class="calibreEbNav">
+    
+      <a href="part0097.html" class="calibreAPrev">previous page</a>
+    
+
+    <a href="../../F4JglD.html" class="calibreAHome"> start</a>
+
+    
+      <a href="part0099.html" class="calibreANext"> next page</a>
+    
+  </div>
+
+</div>
+
+</body>
+</html>
