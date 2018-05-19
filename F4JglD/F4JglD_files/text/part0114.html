@@ -1,0 +1,733 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+    <title>Unknown</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <link href="../stylesheet.css" rel="stylesheet" type="text/css"/>
+<link href="../page_styles.css" rel="stylesheet" type="text/css"/>
+
+  
+
+
+<link href="../calibreHtmlOutBasicCss.css" type="text/css" rel="stylesheet" />
+
+</head>
+<body>
+
+<div class="calibreMeta">
+  <div class="calibreMetaTitle">
+  
+  
+    
+    <h1>
+      <a href="../../F4JglD.html">数据架构师的PostgreSQL修炼
+</a>
+    </h1>
+    
+    
+  
+  </div>
+  <div class="calibreMetaAuthor">
+    Maymala
+
+  </div>
+</div>
+
+<div class="calibreMain">
+
+  <div class="calibreEbookContent">
+    
+      <div class="calibreEbNavTop">
+        
+          <a href="part0113.html" class="calibreAPrev">previous page</a>
+        
+
+        
+          <a href="part0115.html" class="calibreANext"> next page</a>
+        
+      </div>
+    
+
+    
+  <h3 class="p1">10.1.2　水平扩展</h3>
+  <p class="ziti3">当进行水平扩展时，我们并不会添加更多的内核或内存到一台机器上。我们为当前环境增加更多的机器，来将负载分摊到更多的机器上。这意味着存在更多的PostgreSQL集群。这种方法存在许多变种，稍后会对此进行介绍。这种方法的明显优势是可扩展的规模远远超过垂直扩展方法。现在，我们不再局限于32个（或64个）内核。另一个优势是，可以随着需求逐步增加服务器。我们可以增加一个节点，看能否承受当前负载。如果不能，我们再增加一个节点。如果添加一个节点能够处理负载，而且还能把响应时间降到可接受的水平，这种做法就是值得推荐的。当注意到现有的节点已被充分利用且响应时间开始变得迟缓时，我们可以添加更多的节点。</p>
+  <p class="ziti3">水平扩展的几个缺点，列举如下：</p>
+    <p class="ziti3">·需要监控更多的集群</p>
+    <p class="ziti3">·必须确保为这些集群所做的备份和恢复机制已安排到位</p>
+    <p class="ziti3">·会出现更多的失败点</p>
+    <p class="ziti3">·需要更改应用程序的设置和配置</p>
+  <p class="ziti3">接下来看一看水平扩展的可能变种。我们将从最简单的一个变种开始：读/写分离的主从复制。</p>
+  <p class="p1">10.1.2.1　读/写分离的主从复制</p>
+  <p class="ziti3">最简单的扩展方式是使用一台服务器（主）接受所有写入而一个或多个服务器（从）对大多数的读取做出响应。这是水平扩展方法的低级方法。这并不需要太多的代码更改。就读取而言，这种方法提供了大量节点的扩展能力。</p>
+  <p class="ziti3">而就写入而言，扩展能力仅限于一个节点。这是此方法的一个缺点。如果应用程序有一个高写读比，这种方法对基础设施会造成较大压力，因为这些写入内容必须被复制到所有的从服务器上去。</p>
+  <p class="ziti3">首先，我们阐述执行该方法的相关概念。在这种方法中，可以使用PostgreSQL内置的复制能力或使用中间件解决方案（pgpool-II），将数据从主服务器复制到从服务器上。我们将使用PostgreSQL的内置方法，并涉及PostgreSQL所提供的不同的复制方案。</p>
+  <p class="ziti3">PostgreSQL所提供的所有复制都涉及了Write Ahead Logs（WAL）的使用。我们之前所提及的这些日志记录了对数据所做的所有的更改。一旦一个文件被填满，服务器便会移动并开始写入到下一个文件。一旦已经发生的变化被记录到相应的数据文件中，WAL文件中的数据便不再有用，且可以被覆盖。在重写发生之前，我们可以使用postgresql.conf下的archive_command参数，对日志进行归档。</p>
+  <p class="ziti3">在PostgreSQL中，我们有：</p>
+    <p class="ziti3">·正在写入的WAL文件</p>
+    <p class="ziti3">·已被填满并正在等待存档的WAL文件</p>
+    <p class="ziti3">·已归档的WAL文件</p>
+  <p class="ziti3">所谓日志传递，即把WAL文件（已被填满的）移动到另一个服务器或者在同一个服务器上的另一个集群中使用WAL文件。日志传送是异步的，其中在主服务器上所提交的数据出现在从服务器之前，可以有一个延迟。从服务器最终会与主服务器保持一致，而不是时刻与主服务器保持一致。这也意味着有可能会出现数据丢失的问题，特别当主服务器发生崩溃时，事务可能未得到及时传递。如果我们保持一个低的archive_timeout值，文件之间的切换会较为频繁地发生，而二级服务器上的滞后将会下降。然而，这样会增加通过网络传输的数据量。</p>
+  <p class="ziti3">对于PostgreSQL（8.*）这些早期版本，归档WAL日志是用来为集群故障转移准备的。该集群将在恢复模式下运行，在恢复完成之前（即主服务器故障转移完成前）都不可能连接到服务器上。</p>
+  <p class="ziti3">PostgreSQL 9.0版本增加了热备。这是一个重大的功能变化，因为现在可以连接到备用服务器执行查询。因此，读取的可扩展性是可能的。但由于WAL日志不得不被传递，所以相较主服务器，备用服务器可能仍有滞后。这个滞后可以通过增加流复制来减少。</p>
+  <p class="p1">10.1.2.2　流复制</p>
+  <p class="ziti3">WAL记录产生后，无需等日志文件被填充，我们就可能得到这些记录。这样可以减少滞后。在流复制中，从服务器/备用服务器连接到主服务器，并获得WAL记录。recovery.conf文件下的primary_conninfo条目，负责将日志传送副本切换到流复制。以下展示了日志传送与流复制的不同点：</p>
+  <p class="ziti3">接下来，将介绍如何设置流复制，因为这种方法可以让我们进行读写分离的水平扩展，且是最低延迟的。而且，在失败的情况下，它会让备用服务器升级为主服务器。在此之后，将介绍基于时间点的恢复（PITR）。</p>
+  <div class="pic"><img alt="" src="../images/00341.jpeg" class="calibre2"/></div>
+  <p class="p1">配置主服务器</p>
+  <p class="ziti3">在开始流式处理日志之前，我们必须对主服务器做一些变更。这包括对postgresql.conf与pg_hba.conf文件中的配置的更改以及建立归档。要做到这一点，应遵循以下步骤：</p>
+  <p class="ziti3">1.首先对postgresql.conf做一些更改：</p>
+  <div class="pic"><img alt="" src="../images/00342.jpeg" class="calibre2"/></div>
+  <p class="ziti3">当我们把wal_level从最小归档切换到hot_standby时，记录在WAL文件上的信息量便会上升：</p>
+  <div class="pic"><img alt="" src="../images/00343.jpeg" class="calibre2"/></div>
+  <p class="ziti3">前面的参数决定了归档的WAL文件要做的内容：</p>
+  <div class="pic"><img alt="" src="../images/00344.jpeg" class="calibre2"/></div>
+  <p class="ziti3">在上次切换发生时刻算起的这么多秒后，一个WAL切换将被启动，并且这里已经有一些数据库活动，包括单一的检查点。在流复制内，WAL记录一边生成一边进行流处理，并用于与备用服务器保持同步。我们不是依赖存档的文件来保持备用服务器的同步：</p>
+  <div class="pic"><img alt="" src="../images/00345.jpeg" class="calibre2"/></div>
+  <p class="ziti3">这是可以从备用服务器连接到主服务的最大并发连接数，这些连接用于流处理：</p>
+  <div class="pic"><img alt="" src="../images/00346.jpeg" class="calibre2"/></div>
+  <p class="ziti3">这是pg_xlog中保持的历史日志文件数。由于每个段是16MB（默认），使用此设置将有大约160MB的文件。如果空间不是问题，这个数字可以增加，以确保在主服务器WAL文件归档之前，备份服务器会更新这些改变。事实上，将这个数字增加到10以上是不错的主意。</p>
+  <p class="ziti3">2.下一步是pg_hba.conf中的条目：</p>
+  <div class="pic"><img alt="" src="../images/00347.jpeg" class="calibre2"/></div>
+  <p class="ziti3"><img alt="" class="formula-1-5em" src="../images/00002.jpeg"/>当前我们是在同一台机器上设置主备服务器。在生产环境中，这些必须在不同的机器上完成。如果有非默认表空间，并尝试在同一个服务器上建立主服务器和备用服务器，想想会发生什么。使主备服务器安装在不同的服务器上意味上面这些步骤需要做一些变化，例如启用服务器之间的无密码ssh/scp等。</p>
+  <p class="ziti3">3.使用以下命令创建归档目录：</p>
+  <div class="pic"><img alt="" src="../images/00348.jpeg" class="calibre2"/></div>
+  <p class="ziti3">4.重启服务器，如下：</p>
+  <div class="pic"><img alt="" src="../images/00349.jpeg" class="calibre2"/></div>
+  <p class="ziti3">现在，主服务器启动了，并且在所有必要的配置下运行：</p>
+  <p class="ziti3"><img alt="" class="formula-1-5em" src="../images/00009.jpeg"/>在从服务器也进行这些设置是个不错的主意。当故障转移发生时，我们可以配置一个新的从服务器，并连接到新的主服务器。</p>
+  <p class="p1">配置从服务器</p>
+  <p class="ziti3">这包括初始化集群并更改配置项。要做到这一点，应遵循以下步骤：</p>
+  <p class="ziti3">1.在/pgdata/standby目录初始化集群：</p>
+  <div class="pic"><img alt="" src="../images/00350.jpeg" class="calibre2"/></div>
+  <p class="ziti3">2.转到/pgdata/standby，编辑postgresql.conf并设置：</p>
+  <div class="pic"><img alt="" src="../images/00351.jpeg" class="calibre2"/></div>
+  <p class="ziti3">只有服务器在存档恢复或待机模式下，hot_standby参数才生效。当设置此值时，可以在恢复过程中执行查询。</p>
+  <p class="ziti3">3.在相同的目录中，创建一个名为recovery.conf的文件，并配置下列项目：</p>
+  <div class="pic"><img alt="" src="../images/00352.jpeg" class="calibre2"/></div>
+  <p class="ziti3"><img alt="" class="formula-1-5em" src="../images/00002.jpeg"/>主服务器运行在端口（2345）。如果还不是2345端口，在postgresql.conf文件中改变主服务器端口项并重启主服务器。如果主服务器用的是默认端口（5432），这个应该用于primary_conninfo，并且第二服务器应该在不同的端口运行。</p>
+  <p class="ziti3">我们将使用postgres用户连接到主服务器，并使用信任认证。这时候最好创建一个用户，使该用户带有REPLICATION和LOGIN权限，并设置密码和MD5认证模式。如果我们创建一个用来进行复制的用户称为myreplicationuser，主节点pg_hba.conf文件中的条目，可以使用下面的命令完成：</p>
+  <div class="pic"><img alt="" src="../images/00353.jpeg" class="calibre2"/></div>
+  <p class="ziti3">从服务器recovery.conf文件中的条目为：</p>
+  <div class="pic"><img alt="" src="../images/00354.jpeg" class="calibre2"/></div>
+  <p class="ziti3">集群启动时recovery.conf文件被读入。通常情况下，PostgreSQL将扫描文件，完成恢复，并重命名文件为recovery.done。由于我们已经启用了standby_mode，它将继续在待机模式下运行，连接在primary_conninfo中提到的服务器，并保持XLOG记录的流处理。</p>
+  <p class="p1">使备用服务器和主服务器同步</p>
+  <p class="ziti3">现在，我们将确保数据库文件夹的同步化。请注意，我们刚刚初始化了从服务器集群，而不是启动服务器。最好丢弃任何用于测试目的的大表/数据库，从而减少同步时间。确保丢弃非默认表空间，因为将在同一服务器上创建从服务器。如果不丢弃非默认的表空间，主服务器和从服务器最终将指向同一个目录并导致问题。</p>
+  <p class="ziti3">在生产环境的设置过程中，从服务器集群必须在不同的机器上。在这个过程中，当集群在不同的机器上时，配置文件和脚本的一些变化将是必要的（例如，故障转移的脚本）。</p>
+  <p class="ziti3">1.在主节点的psql会话中，执行以下命令：</p>
+  <div class="pic"><img alt="" src="../images/00355.jpeg" class="calibre2"/></div>
+  <p class="ziti3">pg_start_backup命令在集群强制产生一个检查点，并将和活动有关的信息写入文件中。一旦函数被执行，我们可以在数据目录中看到一个名为backup_label的文件。它有关于开始WAL的位置、检查点位置、时间和一些其他信息。我们可以使用more命令检查该文件的内容：</p>
+  <div class="pic"><img alt="" src="../images/00356.jpeg" class="calibre2"/></div>
+  <p class="ziti3">2.使用Postgres打开一个SSH会话，转到/pgdata/9.3目录，这样进行rsync：</p>
+  <div class="pic"><img alt="" src="../images/00357.jpeg" class="calibre2"/></div>
+  <p class="ziti3">注意，我们已经排除了一些文件并远程同步其他的所有项目。排除的文件是带有进程ID的postmaster.pid文件、postmaster选项文件（它告诉我们在启动服务器时使用的选项），以及两个配置文件。还排除了WAL目录。</p>
+  <p class="ziti3">3.在psql会话中，执行以下命令：</p>
+  <div class="pic"><img alt="" src="../images/00358.jpeg" class="calibre2"/></div>
+  <p class="ziti3">此函数会产生一个WAL段开关。WAL段是归档的。在归档目录中，我们可以看到一个backup扩展名的文件：</p>
+  <div class="pic"><img alt="" src="../images/00359.jpeg" class="calibre2"/></div>
+  <p class="ziti3">这里有backup_label中的所有信息，加上其他两条信息：进程停止时间的信息和WAL停止的位置：</p>
+  <div class="pic"><img alt="" src="../images/00360.jpeg" class="calibre2"/></div>
+  <p class="ziti3">4.确保PGDATA目录设置到从服务器的目录并启动集群：</p>
+  <div class="pic"><img alt="" src="../images/00361.jpeg" class="calibre2"/></div>
+  <p class="ziti3">我们可以看到关键词streaming和read only。如果你没有更改端口为2345，你会得到一个错误。</p>
+  <p class="ziti3">有多种方法以确保备用服务器处于只读模式。在备用服务器，使用psql，尝试执行SQL语句：</p>
+  <div class="pic"><img alt="" src="../images/00362.jpeg" class="calibre2"/></div>
+  <p class="ziti3">同样，也可以执行下面的SQL语句：</p>
+  <div class="pic"><img alt="" src="../images/00363.jpeg" class="calibre2"/></div>
+  <p class="ziti3">这是测试一个节点是否使用只读模式的正确的方式。在主节点上，可以尝试相同的方法：</p>
+  <div class="pic"><img alt="" src="../images/00364.jpeg" class="calibre2"/></div>
+  <p class="ziti3">到目前为止，我们已经建立了流复制。当在主服务器做出任何数据或数据结构的改变时，它将体现在从服务器集群。</p>
+  <p class="ziti3"><img alt="" class="formula-1-5em" src="../images/00002.jpeg"/>比较不错的实现可用性和可扩展性的各种复制选项可以在<a href="http://www.postgresql.org/docs/current/static/different-replication-solutions.html" class="calibre1 pcalibre">http://www.postgresql.org/docs/current/static/different-replication-solutions.html</a>获得。</p>
+  <p class="p1">10.1.2.3　使用pgpool-II进程连接池、负载均衡和故障转移</p>
+  <p class="ziti3">这里有几种解决方案可供复制、连接池、负载平衡和故障转移。我们建议使用pgpool-II，原因如下：</p>
+    <p class="ziti3">·它提供负载均衡。pgpool-II中间件可以将SELECT查询分配到多个服务器上，这个配置在pgpool.conf文件中，取决于分配给服务器的权重。当使用下面章节中描述的方式时，它并不发送相同的查询到多个服务器。我们必须小心地使用改变数据和执行SELECT的函数。我们可以查看pgpool-II的black_function_list特征来处理这个问题。</p>
+    <p class="ziti3">·它提供连接池。获取连接总有一个小的开销。重用连接是性能的关键。pgpool-II的中间件提供带参数的连接池，从而确定池的数目以及池中的连接数的数目。当新的连接进来，并与已有连接具有相同的属性（用户、数据库和协议）时，便可重用已有连接。</p>
+    <p class="ziti3">·为集群提供故障转移功能。这个功能需要我们编写一个脚本来达成。在pgpool-II检测到主节点发生故障时，它可执行脚本。脚本可以触发备用节点的升级。</p>
+    <p class="ziti3">·为pgpool-II提供HA：这样做的目的是，不会使pgpool-II成为一个单点故障。</p>
+  <p class="ziti3">在pgpool-II中使用PostgreSQL流能力的一个缺点是，需要复制集群中所有的数据库和表。选择性的复制特定的数据库或表是不可能的。如果我们想从主节点复制变化的部分可以使用其他复制解决方案，如Slony（<a href="http://slony.info/" class="calibre1 pcalibre">http://slony.info/</a>）。如果我们寻找一个仅提供连接池而没有其他功能的解决方案，则需要看看pgbouncer。</p>
+  <p class="ziti3">现在，让我们讨论pgpool-II，看看它提供的一些有用的功能：</p>
+  <p class="p1">配置pgpool-II</p>
+  <p class="ziti3">我们将使用pgpool-II（3.3.3版）。下载源码，并解压它：</p>
+  <div class="pic"><img alt="" src="../images/00365.jpeg" class="calibre2"/></div>
+  <p class="ziti3">接下来，使用cd进入文件夹，配置并安装：</p>
+  <div class="pic"><img alt="" src="../images/00366.jpeg" class="calibre2"/></div>
+  <p class="ziti3">接下来，用cd进入sql/pgpool-recovery目录，执行编译并安装。这些步骤将在/usr/local/pgsql/share/extension/下面创建一个扩展（一个sql文件）。然后，我们需要连接到主节点上的模板数据库（psql）并执行以下命令：</p>
+  <div class="pic"><img alt="" src="../images/00367.jpeg" class="calibre2"/></div>
+  <p class="ziti3">现在，我们将建立配置。我们可以在/usr/local/etc找到一些示例配置文件：</p>
+  <div class="pic"><img alt="" src="../images/00368.jpeg" class="calibre2"/></div>
+  <p class="ziti3">由于已经建立流复制，我们将使用pgpool.conf.sample-stream。还将创建一个可用于健康和流复制检查的用户。在主节点的psql会话中，创建以下的用户，该用户将被用于在线恢复：</p>
+  <div class="pic"><img alt="" src="../images/00369.jpeg" class="calibre2"/></div>
+  <p class="ziti3">编辑pgpool配置文件并使用root用户启动pgpool。现在，让我们看看要对pgpool.conf做的更改：</p>
+  <div class="pic"><img alt="" src="../images/00370.jpeg" class="calibre2"/></div>
+  <p class="ziti3">对pgpool.conf做的更改及相关描述如下：</p>
+  <div class="pic"><img alt="" src="../images/00371.jpeg" class="calibre2"/></div>
+  <p class="ziti3">这个类似postgresql.conf的配置。告诉pgpool-II，让它监听哪个端口：</p>
+  <div class="pic"><img alt="" src="../images/00372.jpeg" class="calibre2"/></div>
+  <p class="ziti3">配置0号的后端被当作主服务器。由于使用流复制，这没有关系。我们只能有一个主服务器。接下来在日志文件中看到的节点数据将定义为这个数字：</p>
+  <div class="pic"><img alt="" src="../images/00373.jpeg" class="calibre2"/></div>
+  <p class="ziti3">可以通过设置该值来决定负载均衡的比例。这里的值设置为0，从服务器的值设置为1，以确保SELECT查询总是分配到备用服务器。考虑节点数、写/读比例和相似因子，然后再调整权重。如果有3个节点，我们分别为节点0、节点1和节点2设置的权重为0、1和2，0个SELECT语句将前往节点0，约1/3的选择语句将前往节点1，2/3的语句将前往节点2：</p>
+  <div class="pic"><img alt="" src="../images/00374.jpeg" class="calibre2"/></div>
+  <p class="ziti3">如果备份失败，我们不想尝试将故障转移到另一个节点：</p>
+  <div class="pic"><img alt="" src="../images/00375.jpeg" class="calibre2"/></div>
+  <p class="ziti3">这是连接池的数量。如果所有的连接都分配到一个PostgreSQL节点，这个值乘以max_pool（每池的连接数）应小于PostgreSQL节点中设置的最大连接数减掉superuser_reserved_connections：</p>
+  <div class="pic"><img alt="" src="../images/00376.jpeg" class="calibre2"/></div>
+  <p class="ziti3">这些应该在生产环境中关闭。我们设置这些为on，来观察负载平衡和读/写分离：</p>
+  <div class="pic"><img alt="" src="../images/00377.jpeg" class="calibre2"/></div>
+  <p class="ziti3">每10秒检查一次：</p>
+  <div class="pic"><img alt="" src="../images/00378.jpeg" class="calibre2"/></div>
+  <p class="ziti3">故障转移命令可以是任何脚本。我们的脚本只是几行。在/usr/local/pgsql目录创建一个名为failover.sh的脚本：</p>
+  <div class="pic"><img alt="" src="../images/00379.jpeg" class="calibre2"/></div>
+  <p class="ziti3">在文件chmod+x/usr/local/pgsql/failover.sh上提供执行权限。</p>
+  <p class="ziti3">脚本检查失败的是不是第二节点？如果是这样，什么都不做。如果不是，使用touch命令创建触发器文件。当触发器文件被第二节点发现，它会结束流复制并且备用机将打开读/写模式。注意/pgdata/standby/down.trg是我们在recovery.conf中设定的第二节点的trigger_file值：</p>
+  <div class="pic"><img alt="" src="../images/00380.jpeg" class="calibre2"/></div>
+  <p class="ziti3">现在启动pgpool：</p>
+  <div class="pic"><img alt="" src="../images/00381.jpeg" class="calibre2"/></div>
+  <p class="ziti3">创建一个数据库来测试pgpool。在主节点，连接到psql。确保通过pgpool连接，并指定正确的端口（9999）：</p>
+  <div class="pic"><img alt="" src="../images/00382.jpeg" class="calibre2"/></div>
+  <p class="p1">测试读写分离</p>
+  <p class="ziti3">我们将打开一个psql会话，插入一条记录，删除一条记录，执行一些SELECT语句，看看pgpool-II如何处理这一切：</p>
+  <div class="pic"><img alt="" src="../images/00383.jpeg" class="calibre2"/></div>
+  <p class="ziti3">在ssh会话中，打开日志文件：</p>
+  <div class="pic"><img alt="" src="../images/00384.jpeg" class="calibre2"/></div>
+  <p class="ziti3">日志文件开始于以下几行：</p>
+  <div class="pic"><img alt="" src="../images/00385.jpeg" class="calibre2"/></div>
+  <p class="ziti3">我们看到INSERT/DELETE语句都分配到了节点0，SELECT语句都分配到了节点1。</p>
+  <p class="p1">测试故障转移</p>
+  <p class="ziti3">现在，我们测试故障转移，停止主服务器：</p>
+  <div class="pic"><img alt="" src="../images/00386.jpeg" class="calibre2"/></div>
+  <p class="ziti3">从端口值看，很显然我们连接到第二服务器。现在是在读/写模式。我们可以在第二节点的数据目录看到一个recovery.done文件：</p>
+  <div class="pic"><img alt="" src="../images/00387.jpeg" class="calibre2"/></div>
+  <div class="pic"><img alt="" src="../images/00388.jpeg" class="calibre2"/></div>
+  <p class="ziti3">在/tmp下的pgpool.log中，可以看到如下条目：</p>
+  <div class="pic"><img alt="" src="../images/00389.jpeg" class="calibre2"/></div>
+  <p class="ziti3">事件的顺序如下：</p>
+  <p class="ziti3">1.pgpool-II的中间件发现主节点已经停止。</p>
+  <p class="ziti3">2.它执行故障转移脚本。</p>
+  <p class="ziti3">3.故障转移脚本在从节点数据目录创建触发器文件。</p>
+  <p class="ziti3">4.轮询触发器文件的从节点发现了它。</p>
+  <p class="ziti3">5.从节点以读/写模式重启（早些时候在只读模式）并完成恢复。</p>
+  <p class="ziti3">6.从节点将recovery.conf重命名为recovery.done。</p>
+  <p class="ziti3">在大多数故障转移的情况下，有一个是亟待解决的问题。假定一个主服务器（节点0）由于网络问题不可用，我们使用从服务器（节点1）进行故障转移。经过一段时间后，网络问题得到解决，节点0再次可用。现在，应用程序不能启动到节点0的连接。它已经错过了所有在此期间进入到次节点的写入，所以不会是最新的。节点1现在是读/写模式，将无法接受来自主节点的事务。</p>
+  <p class="ziti3"><img alt="" class="formula-1-5em" src="../images/00002.jpeg"/>恢复操作到原始服务器的过程称为故障恢复。</p>
+  <p class="ziti3">pgpool-II的中间件也可以处理这种情况。对于pgpool-II，节点1现在是主节点。一旦我们恢复节点0（或如果它是自动的），我们必须使用-D选项重新启动pgpool-II（D即为丢弃），再将节点0设置为主节点。如果我们重新启动，而无-D选项，它将继续以1节点作为主节点。实际上，pgpool-II确保主节点（被标记为down）在没有人注意到它的情况下不会被写入。它通过/tmp目录下的pgpool_status文件记录这个状态。为了确保这种方法效果好，我们必须确保经过pgpool-II的所有PostgreSQL连接如此。</p>
+  <p class="ziti3"><img alt="" class="formula-1-5em" src="../images/00002.jpeg"/>使用pg_terminate_backend()停止PostgreSQL进程会触发一个pgpool-II的故障转移。如果你使用的是pgpool-II，不要使用pg_terminate_backend()来终止后端。</p>
+  <p class="ziti3">前面的部分中还有相当多的东西被遗漏了。例如，我们使用了TRUST验证，不建议在生产系统中使用它。通常情况下，我们会使用MD5。在postgresql.conf中使用MD5也需要针对pgpool-II在HBA配置文件中应用MD5。如果我们用MD5进行流复制，就需要为pgpool-II创建一个密码文件。详情参阅<a href="http://www.pgpool.net/docs/latest/pgpool-en.html#md5" class="calibre1 pcalibre">http://www.pgpool.net/docs/latest/pgpool-en.html#md5</a>。</p>
+  <p class="ziti3">我们可以配置另一个pgpool-II实例并设置一个看门狗程序，这样pgpool-II本身并不是一个单点故障。详情可参见<a href="http://www.pgpool.net/pgpool-web/contrib_docs/watchdog_master_slave/en.html" class="calibre1 pcalibre">http://www.pgpool.net/pgpool-web/contrib_docs/watchdog_master_slave/en.html</a>。</p>
+  <p class="ziti3">pgpool-II中间件有一个管理界面（pgpooladmin），这里提供了良好的用户界面来监视和控制pgpool-II。在线恢复（恢复失败的节点而不必停止pgpool-II和PostgreSQL）可以使用pgpool-II。如果我们需要使用这个，只需要设置如backend_data_directory这样的参数。它也可以列出白名单/黑名单函数，这样pgpool-II可以知道哪些函数写入数据库，哪些不写入。pgpool-II中间件也可以缓存结果集，从而进一步减少响应时间。</p>
+  <p class="ziti3"><img alt="" class="formula-1-5em" src="../images/00002.jpeg"/>pgpool的缓存机制可以缓存SELECT语句和查询结果。结果可以从缓存中返回（如果相同的选择语句被执行，并且表中的数据没有改变）。如果表中的数据发生变化，所有与表相关的缓存都需要删除。如果经常发生这样的情况，相比于缓存不启用的环境，可能会有性能下降。是否启用缓存应充分考虑表更新的频率。</p>
+  <p class="ziti3"><a href="http://www.pgpool.net/pgpool-web/contrib_docs/memqcache/en.html" class="calibre1 pcalibre">http://www.pgpool.net/pgpool-web/contrib_docs/memqcache/en.html</a>是关于如何设置的快速教程。</p>
+  <p class="ziti3">总之，pgpool-II是一个伟大的工具（带有一系列的设置），我们可以调整这些设置来实现很多功能。</p>
+  <p class="ziti3">现在，我们将继续对水平扩展的一些理论和概念进行研究。</p>
+  <p class="ziti3">我们决定继续探讨横向扩展的一个原因是，如果我们正阻塞在读操作上，我们可以随时添加节点。回忆下前面的章节中我们讨论的SQL优化，大多数应用程序都有一个高的读写比。如果能够在必要时通过增加更多的节点来扩展读取，那是相当有用的。应该如何增加更多的节点呢？有几个选择。下面的关系图显示了示例的配置：</p>
+  <p class="ziti3">在第一个方案中，三个备用服务器从一个主服务器获取数据。主服务器通常会有相当多的负载，因为所有的写都经过它。因此，不建议通过过多的辅助服务器而造成开销的增加。在主服务器出现故障时，哪个从服务器应该接管是另一个需要提出来的问题。除了这个问题之外，一旦主服务器宕机，其他次要服务器将停止获得更新。</p>
+  <div class="pic"><img alt="" src="../images/00390.jpeg" class="calibre2"/></div>
+  <p class="ziti3">在第二个方案中，在大多数的二级服务器上，负载会差不多平均地分配到每一个服务器上。然而，这种方法有个问题是链中的最后一个服务器会有明显的延迟。第三个方案中，一个二级服务器供给一个以上的服务器，避免了这个问题。在第二个和第三个方案中，可以清晰地看到在主节点故障的情况下，从服务器会接管过来。在这种情况下，从主节点获取数据的二级服务器如果故障了，这个系统中写入仍然在工作，读取也是没问题的。但是读取获取不到当前数据（因为从主节点的复制已经不再工作）。</p>
+  <p class="ziti3">最好不要进行来自从服务器的自动故障转移。如果主节点和从节点（现在作为主节点）服务器发生连续的故障，手动干预和根本原因分析一定是必要的。</p>
+  <p class="ziti3">来自从服务器的调度备份可以在备份过程中避免主服务器上的负载峰值。</p>
+  <p class="ziti3">当使用从节点来供给另一个节点时，它被称为级联复制。当使用级联复制时，主节点和最远端的次节点之间的明显滞后的概率很高。因此，写操作可以进入主服务器；发起事务的用户得到一个成功提交的消息。当用户试图检索数据时，它可能会转到尚未接收更改的节点上。避免这个的一种方法是使用同步复制。使用同步复制，在更改提交前主节点从备用机等待确认信息。配置方面，两个变化是必要的：</p>
+  <p class="ziti3">首先，在recovery.conf中的primary_conninfo指定一个应用程序名称。</p>
+  <p class="ziti3">这样，primary_conninfo='host=127.0.0.1 port=2345 user=postgres'变为primary_conninfo='host=127.0.0.1 port=2345 user=postgres application_name=myapp'。</p>
+  <p class="ziti3">而且，我们必须在主节点的postgreql.conf中增加这项：</p>
+  <div class="pic"><img alt="" src="../images/00391.jpeg" class="calibre2"/></div>
+  <p class="ziti3">现在，我们可以用以下命令来检查主节点的状态：</p>
+  <div class="pic"><img alt="" src="../images/00392.jpeg" class="calibre2"/></div>
+  <p class="ziti3">请注意，同步复制必然对主服务器上写事务的响应时间产生影响。</p>
+  <p class="p1">10.1.2.4　分片</p>
+  <p class="ziti3">分片通常意味着水平的分隔数据；假设我们有1000条记录。可以将它们分成10个100条记录的片，并在10个不同的服务器托管这些分片。当规范化处理一些表时，数据被垂直分隔。在分片中，数据被分成水平的块。这听起来像是分区，但在这里分区/分片是在不同的服务器上。虽然我们说了1000条记录，通常情况下的数字会远远超过1000条（可能是数百万）。在分片中，所有的数据库服务器都在读写模式中。这里会有一些逻辑用来处理每个记录，计算出分片应该传送到哪里，并发送过去。对于读操作，也有类似的逻辑起作用。一个很好的例子是带有CREATE TABLE语法的Postgres-XC，它可以使用DISTRIBUTE BY HASH选项，具体参考<a href="http://postgres-xc.sourceforge.net/docs/1_0/ddl-basics.html" class="calibre1 pcalibre">http://postgres-xc.sourceforge.net/docs/1_0/ddl-basics.html</a>。</p>
+  <p class="ziti3"><img alt="" class="formula-1-5em" src="../images/00009.jpeg"/>Postgres-XC是写扩展的PostgreSQL解决方案。这个不同于PostgreSQL项目。它有几个组件需要处理（全局事务管理器、协调器和数据节点）。除非写操作扩展确实是一个大的问题，否则我们建议使用vanilla PostgreSQL。</p>
+  <p class="ziti3">一个处理百万级用户的系统，可以按照用户在服务器间分隔。名字以A-C开头的用户托管在一台服务器，名字以D-G开头的托管在另一台，以此类推。研究数据并搞清楚每一个名字开头字母的用户数量，然后再决定如何分配，是很重要的。如果我们不这样做，一些服务器可能会最终承载许多用户，而其他服务器可能承载非常少的用户。确保基于用户名的数据均匀分布并不是一件容易的事，因此不建议按照名字分片。分隔可以根据用户的位置，或年龄或任何其他适当的参数。</p>
+  <p class="ziti3">需要经常被各个服务器访问的一组主数据（国家、货币），可以复制到所有的服务器。这样的数据应该要求最小更新。这时候应该使用分片，这样做的目的是很少或不需要从多个服务器获取数据。数据库服务器间的通信也应保持在最低限度。Instagram的案例研究，关于他们如何使用PostgreSQL分片是值得一读的（<a href="http://instagram-engineering.tumblr.com/post/10853187575/sharding-ids-at-instagram" class="calibre1 pcalibre">http://instagram-engineering.tumblr.com/post/10853187575/sharding-ids-at-instagram</a>）。</p>
+  <p class="ziti3">数据应如何分片取决于应用及我们所要解决的问题。</p>
+  <p class="ziti3">分隔应用模块（应用分片）并将它们托管在不同的机器，有时也被称为分片。让我们来看一个解决方案，需要处理所有航空公司的预订和旅游相关的事务。这很容易被拆分成以下模块：</p>
+    <p class="ziti3">·可得性和预订</p>
+    <p class="ziti3">·检查</p>
+    <p class="ziti3">·飞行常客和忠诚奖励</p>
+    <p class="ziti3">·乘务员管理</p>
+    <p class="ziti3">·货物管理</p>
+    <p class="ziti3">·飞机移动跟踪</p>
+  <p class="ziti3">可得性模块是否需要迅速扩展，要根据航空公司的航班需求。如同我们之前讨论过的，在促销期间，预测最大数量的并发点击是很棘手的事情。这个模块的可用性如何？如果可得性模块宕机了半小时左右，它将对收入产生影响。</p>
+  <p class="ziti3">然而，这些都没法和签入模块宕机相比较。如果该模块宕机，柜台会排起长队，可能造成飞行安排终止和骚动。总之，这种情况将远比可得性模块没有响应更严重。签到模块的可扩展性要求是什么？假设柜台数目是一个已知的因素，我们可以更准确地预测签入模块每秒需要处理的事务数的最大值（tps）。总之，同一个应用程序中的不同的模块可以有不同的可扩展性和可用性要求。基于可扩展性和可用性要求，将应用分片或分隔到模块是有意义的。</p>
+  <p class="ziti3">采用分片，我们需要确保投入足够的精力来关注如何对应用程序分片，或在设计和编码阶段关注表中的数据在服务器之间是如何分布的。在稍后阶段改变架构会相当困难。由于数据分布的逻辑发生了变化，我们可能无法将数据从一个服务器移动到另一个；这时候要改变配置，使转发到这个服务器（数据已经搬迁）上的查询重新定位。总之，需要付出很多努力来改变切分策略。这是这些方法的主要缺点。</p>
+  <p class="p1">10.1.2.5　多主全复制</p>
+  <p class="ziti3">在这种方法中，所有的数据将被复制到所有的数据库集群中。如果我们有一个使用四个PostgreSQL集群的架构，每个写事务将被写入四次。我们假设这些服务器是同步的，读取可以转到任何一个服务器。写入可以针对任何一个服务器，它需要从应用程序/网络层/数据库复制工具中复制到其他数据库服务器。PostgreSQL的内置复制不能用这种方法，因为只有一台服务器（主节点）可以使用写模式启动。其他集群（从节点）将使用只读模式。</p>
+  <p class="ziti3">针对整个数据集的多主全复制经常不被推荐，这里有许多原因。相同的数据点可能会在同一时间在两个不同的服务器上被修改。然后，我们需要辨识哪些是必须被所有的服务器接受的更改。</p>
+  <p class="ziti3">事务必须在所有的服务器上执行成功，然后用户被通知写入成功。这会导致显著的性能压力。如果不确定事务是否在所有服务器上成功执行，这可以导致不可预测的结果。假设一个用户填写了一个表单，然后点击提交。它已成功地在四个服务器中的三个上得到执行。如果用户的下一次读取转到了数据没有成功提交的那个服务器上，用户最终将不知道他提交的表单发生了什么。他可能会尝试再次提交表单。这个问题可以由粘性的连接（来自客户端的请求总是连接到同一个节点上）来缓解。另一个解决方案是确保特定的数据集的写入总是转到特定的节点上。</p>
+  <p class="ziti3">迄今为止所讨论的方法并不是唯一可用的，但是是最常用的方法。</p>
+  <p class="ziti3">在继续讨论之前，让我们看一下已介绍过的方法，如下图所示：</p>
+  <div class="pic"><img alt="" src="../images/00393.jpeg" class="calibre2"/></div>
+
+
+  </div>
+
+  
+  <div class="calibreToc">
+    <h2><a href="../../F4JglD.html"> Table of contents</a></h2>
+     <div>
+  <ul>
+    <li>
+      <a href="part0002.html#1T140-561c0923cbd245afb0c664cff8295cdf">作者简介</a>
+    </li>
+    <li>
+      <a href="part0003.html#2RHM0-561c0923cbd245afb0c664cff8295cdf">审校者简介</a>
+    </li>
+    <li>
+      <a href="part0004.html#3Q280-561c0923cbd245afb0c664cff8295cdf">前言</a>
+    </li>
+    <li>
+      <a href="part0005.html#4OIQ0-561c0923cbd245afb0c664cff8295cdf">第1章 安装PostgreSQL</a>
+      <ul>
+        <li>
+          <a href="part0006.html#5N3C0-561c0923cbd245afb0c664cff8295cdf">1.1 安装选项</a>
+          <ul>
+            <li>
+              <a href="part0007.html#6LJU0-561c0923cbd245afb0c664cff8295cdf">1.1.1 下载并提取源码</a>
+            </li>
+            <li>
+              <a href="part0008.html#7K4G0-561c0923cbd245afb0c664cff8295cdf">1.1.2 检查源码内容</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0009.html#8IL20-561c0923cbd245afb0c664cff8295cdf">1.2 编译源码的各种依赖</a>
+        </li>
+        <li>
+          <a href="part0010.html#9H5K0-561c0923cbd245afb0c664cff8295cdf">1.3 配置和创建makefile</a>
+        </li>
+        <li>
+          <a href="part0011.html#AFM60-561c0923cbd245afb0c664cff8295cdf">1.4 建立和创建可执行文件</a>
+        </li>
+        <li>
+          <a href="part0012.html#BE6O0-561c0923cbd245afb0c664cff8295cdf">1.5 安装和移动文件到指定的位置</a>
+        </li>
+        <li>
+          <a href="part0013.html#CCNA0-561c0923cbd245afb0c664cff8295cdf">1.6 初始化集群</a>
+          <ul>
+            <li>
+              <a href="part0014.html#DB7S0-561c0923cbd245afb0c664cff8295cdf">1.6.1 快速了解各个目录</a>
+            </li>
+            <li>
+              <a href="part0015.html#E9OE0-561c0923cbd245afb0c664cff8295cdf">1.6.2 已创建的进程</a>
+            </li>
+            <li>
+              <a href="part0016.html#F8900-561c0923cbd245afb0c664cff8295cdf">1.6.3 创建的重要文件</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0017.html#G6PI0-561c0923cbd245afb0c664cff8295cdf">1.7 与扩展程序相互协作</a>
+        </li>
+        <li>
+          <a href="part0018.html#H5A40-561c0923cbd245afb0c664cff8295cdf">1.8 小结</a>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0019.html#I3QM0-561c0923cbd245afb0c664cff8295cdf">第2章 服务器架构</a>
+      <ul>
+        <li>
+          <a href="part0020.html#J2B80-561c0923cbd245afb0c664cff8295cdf">2.1 从守护进程开始</a>
+        </li>
+        <li>
+          <a href="part0021.html#K0RQ0-561c0923cbd245afb0c664cff8295cdf">2.2 理解共享缓冲区</a>
+        </li>
+        <li>
+          <a href="part0022.html#KVCC0-561c0923cbd245afb0c664cff8295cdf">2.3 检查点</a>
+        </li>
+        <li>
+          <a href="part0023.html#LTSU0-561c0923cbd245afb0c664cff8295cdf">2.4 WAL与WAL写进程</a>
+          <ul>
+            <li>
+              <a href="part0024.html#MSDG0-561c0923cbd245afb0c664cff8295cdf">2.4.1 恢复</a>
+            </li>
+            <li>
+              <a href="part0025.html#NQU20-561c0923cbd245afb0c664cff8295cdf">2.4.2 增量备份和基于时间点的恢复</a>
+            </li>
+            <li>
+              <a href="part0026.html#OPEK0-561c0923cbd245afb0c664cff8295cdf">2.4.3 复制</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0027.html#PNV60-561c0923cbd245afb0c664cff8295cdf">2.5 后台写入器</a>
+        </li>
+        <li>
+          <a href="part0028.html#QMFO0-561c0923cbd245afb0c664cff8295cdf">2.6 自动清空加载器进程</a>
+        </li>
+        <li>
+          <a href="part0029.html#RL0A0-561c0923cbd245afb0c664cff8295cdf">2.7 日志进程</a>
+        </li>
+        <li>
+          <a href="part0030.html#SJGS0-561c0923cbd245afb0c664cff8295cdf">2.8 统计信息收集器进程</a>
+        </li>
+        <li>
+          <a href="part0031.html#TI1E0-561c0923cbd245afb0c664cff8295cdf">2.9 WAL发送器和WAL接收器</a>
+        </li>
+        <li>
+          <a href="part0032.html#UGI00-561c0923cbd245afb0c664cff8295cdf">2.10 使用work_mem在内存中进行排序</a>
+        </li>
+        <li>
+          <a href="part0033.html#VF2I0-561c0923cbd245afb0c664cff8295cdf">2.11 使用maintenance_work_mem进行维护</a>
+        </li>
+        <li>
+          <a href="part0034.html#10DJ40-561c0923cbd245afb0c664cff8295cdf">2.12 小结</a>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0035.html#11C3M0-561c0923cbd245afb0c664cff8295cdf">第3章 PostgreSQL——对象层次和角色</a>
+      <ul>
+        <li>
+          <a href="part0036.html#12AK80-561c0923cbd245afb0c664cff8295cdf">3.1 PostgreSQL集群</a>
+        </li>
+        <li>
+          <a href="part0037.html#1394Q0-561c0923cbd245afb0c664cff8295cdf">3.2 了解表空间</a>
+          <ul>
+            <li>
+              <a href="part0038.html#147LC0-561c0923cbd245afb0c664cff8295cdf">3.2.1 使用临时表空间管理临时对象</a>
+            </li>
+            <li>
+              <a href="part0039.html#1565U0-561c0923cbd245afb0c664cff8295cdf">3.2.2 视图</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0040.html#164MG0-561c0923cbd245afb0c664cff8295cdf">3.3 数据库、模式与search_path</a>
+        </li>
+        <li>
+          <a href="part0041.html#173720-561c0923cbd245afb0c664cff8295cdf">3.4 角色和权限</a>
+        </li>
+        <li>
+          <a href="part0042.html#181NK0-561c0923cbd245afb0c664cff8295cdf">3.5 小结</a>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0043.html#190860-561c0923cbd245afb0c664cff8295cdf">第4章 使用事务进行工作</a>
+      <ul>
+        <li>
+          <a href="part0044.html#19UOO0-561c0923cbd245afb0c664cff8295cdf">4.1 了解事务</a>
+        </li>
+        <li>
+          <a href="part0045.html#1AT9A0-561c0923cbd245afb0c664cff8295cdf">4.2 PostgreSQL和MVCC</a>
+        </li>
+        <li>
+          <a href="part0046.html#1BRPS0-561c0923cbd245afb0c664cff8295cdf">4.3 小结</a>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0047.html#1CQAE0-561c0923cbd245afb0c664cff8295cdf">第5章 使用SQL Power Architect进行数据建模</a>
+      <ul>
+        <li>
+          <a href="part0048.html#1DOR00-561c0923cbd245afb0c664cff8295cdf">5.1 数据库工具及其用途</a>
+        </li>
+        <li>
+          <a href="part0049.html#1ENBI0-561c0923cbd245afb0c664cff8295cdf">5.2 数据库设计工具</a>
+          <ul>
+            <li>
+              <a href="part0050.html#1FLS40-561c0923cbd245afb0c664cff8295cdf">5.2.1 下载与安装SQL Power Architect</a>
+            </li>
+            <li>
+              <a href="part0051.html#1GKCM0-561c0923cbd245afb0c664cff8295cdf">5.2.2 创建表</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0052.html#1HIT80-561c0923cbd245afb0c664cff8295cdf">5.3 生成SQL</a>
+          <ul>
+            <li>
+              <a href="part0053.html#1IHDQ0-561c0923cbd245afb0c664cff8295cdf">5.3.1 逆向工程及变更操作</a>
+            </li>
+            <li>
+              <a href="part0054.html#1JFUC0-561c0923cbd245afb0c664cff8295cdf">5.3.2 导出数据模型</a>
+            </li>
+            <li>
+              <a href="part0055.html#1KEEU0-561c0923cbd245afb0c664cff8295cdf">5.3.3 分析</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0056.html#1LCVG0-561c0923cbd245afb0c664cff8295cdf">5.4 小结</a>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0057.html#1MBG20-561c0923cbd245afb0c664cff8295cdf">第6章 客户端工具</a>
+      <ul>
+        <li>
+          <a href="part0058.html#1NA0K0-561c0923cbd245afb0c664cff8295cdf">6.1 GUI工具与命令行工具</a>
+        </li>
+        <li>
+          <a href="part0059.html#1O8H60-561c0923cbd245afb0c664cff8295cdf">6.2 下载与安装pgAdmin</a>
+          <ul>
+            <li>
+              <a href="part0060.html#1P71O0-561c0923cbd245afb0c664cff8295cdf">6.2.1 添加一台服务器</a>
+            </li>
+            <li>
+              <a href="part0061.html#1Q5IA0-561c0923cbd245afb0c664cff8295cdf">6.2.2 pgAdmin主窗口</a>
+            </li>
+            <li>
+              <a href="part0062.html#1R42S0-561c0923cbd245afb0c664cff8295cdf">6.2.3 查询工具</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0063.html#1S2JE0-561c0923cbd245afb0c664cff8295cdf">6.3 psql——在命令行模式下工作</a>
+          <ul>
+            <li>
+              <a href="part0064.html#1T1400-561c0923cbd245afb0c664cff8295cdf">6.3.1 psql——连接选项</a>
+            </li>
+            <li>
+              <a href="part0065.html#1TVKI0-561c0923cbd245afb0c664cff8295cdf">6.3.2 \d的功能</a>
+            </li>
+            <li>
+              <a href="part0066.html#1UU540-561c0923cbd245afb0c664cff8295cdf">6.3.3 更多元命令</a>
+            </li>
+            <li>
+              <a href="part0067.html#1VSLM0-561c0923cbd245afb0c664cff8295cdf">6.3.4 设置环境</a>
+            </li>
+            <li>
+              <a href="part0068.html#20R680-561c0923cbd245afb0c664cff8295cdf">6.3.5 命令的历史记录</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0069.html#21PMQ0-561c0923cbd245afb0c664cff8295cdf">6.4 小结</a>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0070.html#22O7C0-561c0923cbd245afb0c664cff8295cdf">第7章 SQL调优</a>
+      <ul>
+        <li>
+          <a href="part0071.html#23MNU0-561c0923cbd245afb0c664cff8295cdf">7.1 了解数据库的基本事实</a>
+          <ul>
+            <li>
+              <a href="part0072.html#24L8G0-561c0923cbd245afb0c664cff8295cdf">7.1.1 事实1，数据库中读比写更频繁</a>
+            </li>
+            <li>
+              <a href="part0073.html#25JP20-561c0923cbd245afb0c664cff8295cdf">7.1.2 事实2，数据始终在块或页面中读取，而不是作为单独的记录或列</a>
+            </li>
+            <li>
+              <a href="part0074.html#26I9K0-561c0923cbd245afb0c664cff8295cdf">7.1.3 减少读/写块的数量的方法</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0075.html#27GQ60-561c0923cbd245afb0c664cff8295cdf">7.2 查询执行组件</a>
+          <ul>
+            <li>
+              <a href="part0076.html#28FAO0-561c0923cbd245afb0c664cff8295cdf">7.2.1 计划器</a>
+            </li>
+            <li>
+              <a href="part0077.html#29DRA0-561c0923cbd245afb0c664cff8295cdf">7.2.2 访问方法</a>
+            </li>
+            <li>
+              <a href="part0078.html#2ACBS0-561c0923cbd245afb0c664cff8295cdf">7.2.3 连接策略</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0079.html#2BASE0-561c0923cbd245afb0c664cff8295cdf">7.3 发现执行计划</a>
+        </li>
+        <li>
+          <a href="part0080.html#2C9D00-561c0923cbd245afb0c664cff8295cdf">7.4 优化指南和捕捉</a>
+          <ul>
+            <li>
+              <a href="part0081.html#2D7TI0-561c0923cbd245afb0c664cff8295cdf">7.4.1 外键索引</a>
+            </li>
+            <li>
+              <a href="part0082.html#2E6E40-561c0923cbd245afb0c664cff8295cdf">7.4.2 使用SELECT*</a>
+            </li>
+            <li>
+              <a href="part0083.html#2F4UM0-561c0923cbd245afb0c664cff8295cdf">7.4.3 使用ORDER BY</a>
+            </li>
+            <li>
+              <a href="part0084.html#2G3F80-561c0923cbd245afb0c664cff8295cdf">7.4.4 使用DISTINCT</a>
+            </li>
+            <li>
+              <a href="part0085.html#2H1VQ0-561c0923cbd245afb0c664cff8295cdf">7.4.5 使用UNION ALL代替UNION</a>
+            </li>
+            <li>
+              <a href="part0086.html#2I0GC0-561c0923cbd245afb0c664cff8295cdf">7.4.6 在FILTER子句中使用函数</a>
+            </li>
+            <li>
+              <a href="part0087.html#2IV0U0-561c0923cbd245afb0c664cff8295cdf">7.4.7 减少SQL语句数量</a>
+            </li>
+            <li>
+              <a href="part0088.html#2JTHG0-561c0923cbd245afb0c664cff8295cdf">7.4.8 减少函数执行</a>
+            </li>
+            <li>
+              <a href="part0089.html#2KS220-561c0923cbd245afb0c664cff8295cdf">7.4.9 不使用索引的情况</a>
+            </li>
+            <li>
+              <a href="part0090.html#2LQIK0-561c0923cbd245afb0c664cff8295cdf">7.4.10 部分索引</a>
+            </li>
+            <li>
+              <a href="part0091.html#2MP360-561c0923cbd245afb0c664cff8295cdf">7.4.11 优化函数</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0092.html#2NNJO0-561c0923cbd245afb0c664cff8295cdf">7.5 小结</a>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0093.html#2OM4A0-561c0923cbd245afb0c664cff8295cdf">第8章 服务器调优</a>
+      <ul>
+        <li>
+          <a href="part0094.html#2PKKS0-561c0923cbd245afb0c664cff8295cdf">8.1 服务器端内存设置</a>
+          <ul>
+            <li>
+              <a href="part0095.html#2QJ5E0-561c0923cbd245afb0c664cff8295cdf">8.1.1 shared_buffers</a>
+            </li>
+            <li>
+              <a href="part0096.html#2RHM00-561c0923cbd245afb0c664cff8295cdf">8.1.2 effective_cache_size</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0097.html#2SG6I0-561c0923cbd245afb0c664cff8295cdf">8.2 管理写入、连接和维护操作</a>
+        </li>
+        <li>
+          <a href="part0098.html#2TEN40-561c0923cbd245afb0c664cff8295cdf">8.3 查找/扫描开销及统计参数</a>
+        </li>
+        <li>
+          <a href="part0099.html#2UD7M0-561c0923cbd245afb0c664cff8295cdf">8.4 物化视图</a>
+        </li>
+        <li>
+          <a href="part0100.html#2VBO80-561c0923cbd245afb0c664cff8295cdf">8.5 分区表</a>
+        </li>
+        <li>
+          <a href="part0101.html#30A8Q0-561c0923cbd245afb0c664cff8295cdf">8.6 小结</a>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0102.html#318PC0-561c0923cbd245afb0c664cff8295cdf">第9章 PostgreSQL写入与读取数据工具</a>
+      <ul>
+        <li>
+          <a href="part0103.html#3279U0-561c0923cbd245afb0c664cff8295cdf">9.1 考虑建立生产数据库</a>
+        </li>
+        <li>
+          <a href="part0104.html#335QG0-561c0923cbd245afb0c664cff8295cdf">9.2 COPY命令</a>
+        </li>
+        <li>
+          <a href="part0105.html#344B20-561c0923cbd245afb0c664cff8295cdf">9.3 使用pg_bulkload快速加载</a>
+        </li>
+        <li>
+          <a href="part0106.html#352RK0-561c0923cbd245afb0c664cff8295cdf">9.4 pg_dump命令</a>
+        </li>
+        <li>
+          <a href="part0107.html#361C60-561c0923cbd245afb0c664cff8295cdf">9.5 过滤选项</a>
+          <ul>
+            <li>
+              <a href="part0108.html#36VSO0-561c0923cbd245afb0c664cff8295cdf">9.5.1 pg_dumpall工具</a>
+            </li>
+            <li>
+              <a href="part0109.html#37UDA0-561c0923cbd245afb0c664cff8295cdf">9.5.2 pg_restore工具</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0110.html#38STS0-561c0923cbd245afb0c664cff8295cdf">9.6 小结</a>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0111.html#39REE0-561c0923cbd245afb0c664cff8295cdf">第10章 扩展、复制、备份和恢复</a>
+      <ul>
+        <li>
+          <a href="part0112.html#3APV00-561c0923cbd245afb0c664cff8295cdf">10.1 可扩展性</a>
+          <ul>
+            <li>
+              <a href="part0113.html#3BOFI0-561c0923cbd245afb0c664cff8295cdf">10.1.1 垂直扩展</a>
+            </li>
+            <li>
+              <a href="part0114.html#3CN040-561c0923cbd245afb0c664cff8295cdf">10.1.2 水平扩展</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0115.html#3DLGM0-561c0923cbd245afb0c664cff8295cdf">10.2 基于时间点的恢复</a>
+        </li>
+        <li>
+          <a href="part0116.html#3EK180-561c0923cbd245afb0c664cff8295cdf">10.3 小结</a>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0117.html#3FIHQ0-561c0923cbd245afb0c664cff8295cdf">第11章 PostgreSQL故障排除</a>
+      <ul>
+        <li>
+          <a href="part0118.html#3GH2C0-561c0923cbd245afb0c664cff8295cdf">11.1 连接问题</a>
+        </li>
+        <li>
+          <a href="part0119.html#3HFIU0-561c0923cbd245afb0c664cff8295cdf">11.2 验证和权限问题</a>
+        </li>
+        <li>
+          <a href="part0120.html#3IE3G0-561c0923cbd245afb0c664cff8295cdf">11.3 参数更改无效</a>
+        </li>
+        <li>
+          <a href="part0121.html#3JCK20-561c0923cbd245afb0c664cff8295cdf">11.4 查询无响应</a>
+        </li>
+        <li>
+          <a href="part0122.html#3KB4K0-561c0923cbd245afb0c664cff8295cdf">11.5 小结</a>
+        </li>
+      </ul>
+    </li>
+    <li>
+      <a href="part0123.html#3L9L60-561c0923cbd245afb0c664cff8295cdf">第12章 PostgreSQL额外功能</a>
+      <ul>
+        <li>
+          <a href="part0124.html#3M85O0-561c0923cbd245afb0c664cff8295cdf">12.1 有趣的数据类型</a>
+          <ul>
+            <li>
+              <a href="part0125.html#3N6MA0-561c0923cbd245afb0c664cff8295cdf">12.1.1 range</a>
+            </li>
+            <li>
+              <a href="part0126.html#3O56S0-561c0923cbd245afb0c664cff8295cdf">12.1.2 XML</a>
+            </li>
+            <li>
+              <a href="part0127.html#3P3NE0-561c0923cbd245afb0c664cff8295cdf">12.1.3 几何与地理数据</a>
+            </li>
+            <li>
+              <a href="part0128.html#3Q2800-561c0923cbd245afb0c664cff8295cdf">12.1.4 外部数据封装器</a>
+            </li>
+            <li>
+              <a href="part0129.html#3R0OI0-561c0923cbd245afb0c664cff8295cdf">12.1.5 pgbadger</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <a href="part0130.html#3RV940-561c0923cbd245afb0c664cff8295cdf">12.2 变化中的产品特性</a>
+        </li>
+        <li>
+          <a href="part0131.html#3STPM0-561c0923cbd245afb0c664cff8295cdf">12.3 小结</a>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+
+
+  </div>
+  
+
+  <div class="calibreEbNav">
+    
+      <a href="part0113.html" class="calibreAPrev">previous page</a>
+    
+
+    <a href="../../F4JglD.html" class="calibreAHome"> start</a>
+
+    
+      <a href="part0115.html" class="calibreANext"> next page</a>
+    
+  </div>
+
+</div>
+
+</body>
+</html>
